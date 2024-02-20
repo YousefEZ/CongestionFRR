@@ -133,16 +133,16 @@ void PacketsInDroptail (uint32_t oldValue, uint32_t newValue){
 
 void ExaminePacket(Ptr< const Packet > packet){
     // Extract TCP Header from the packet
-    TcpHeader * tcpHeader = (TcpHeader *) packet->extractTcpHeader();
-    uint32_t payloadSize = packet->GetPayloadSize();
+    TcpHeader tcpHeader;
+    packet->PeekHeader(tcpHeader);
+    uint32_t payloadSize = packet->GetSize();
 
     // Extract the SEQ and ACK numbers
-    uint32_t seq = tcpHeader->GetSequenceNumber().GetValue();
-    uint32_t ack = tcpHeader->GetAckNumber().GetValue();
+    uint32_t seq = tcpHeader.GetSequenceNumber().GetValue();
+    uint32_t ack = tcpHeader.GetAckNumber().GetValue();
 
     std::cout << "[TCP PACKET] [SEQ: " << seq << "] [ACK: " << ack << "] [Payload Length: " << payloadSize << "] PacketUid: " << packet->GetUid()  << std::endl;
 }
-
 
 int main (int argc, char *argv[]){
     // Command line arguments
@@ -288,3 +288,4 @@ int main (int argc, char *argv[]){
     Simulator::Destroy();
     return 0;
 }
+
