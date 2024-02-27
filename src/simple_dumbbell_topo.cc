@@ -13,7 +13,7 @@
 #include "ns3/applications-module.h"
 #include "ns3/traffic-control-module.h"
 
-#include "../libs/random/random.h"
+#include "../libs/random/random.hpp"
 
 using namespace ns3;
 using Random = effolkronium::random_static;
