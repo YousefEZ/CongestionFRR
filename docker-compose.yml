@@ -1,0 +1,8 @@
+version: '3.8'
+services:
+  ns3:
+    build: .
+    volumes:
+      - ./src:/usr/workspace/ns-allinone-3.41/ns-3.41/user_src
+      - ./libs:/usr/workspace/ns-allinone-3.41/ns-3.41/libs
+      - ./traces:/usr/workspace/ns-allinone-3.41/ns-3.41/traces
