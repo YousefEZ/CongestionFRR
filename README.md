@@ -9,7 +9,7 @@ place simulations to run in the src/ folder
 - [docker-compose](https://docs.docker.com/compose/install/)
 
 
-## 🔨 to build the docker container 
+## 🔨 to run the simulator on a file
 
 ```bash
 docker compose run ns3 <FILE_NAME>
