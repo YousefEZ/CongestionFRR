@@ -22,11 +22,10 @@ RUN apt install -y python3-dev pkg-config python3-setuptools
 RUN python3 -m pip install cppyy==2.4.2
 
 # Download the tar file
-RUN wget https://www.nsnam.org/release/ns-allinone-3.41.tar.bz2
+ADD https://www.nsnam.org/release/ns-allinone-3.41.tar.bz2 /usr/workspace
 
 # Unpack the tar file
-ADD ns-allinone-3.41.tar.bz2 /usr/workspace
-#ADD /usr/workspace/ns-allinone-3.41.tar.bz2 /usr/workspace/ns3
+RUN tar xfj /usr/workspace/ns-allinone-3.41.tar.bz2
 
 # Building the application
 WORKDIR /usr/workspace/ns-allinone-3.41
