@@ -1,18 +1,39 @@
 // Filename: alternate-routing-example.cc
+#include <iostream>
+#include <cstdlib>
+#include <cxxabi.h>
+
 #include "ns3/core-module.h"
 #include "ns3/network-module.h"
 #include "ns3/internet-module.h"
 #include "ns3/point-to-point-module.h"
 #include "ns3/applications-module.h"
+#include "ns3/log.h"
+
+
 #include "../libs/frr_queue.h"
+#include "../libs/dummy_congestion_policy.h"
+#include "../libs/lfa_policy.h"
 
 using namespace ns3;
+
+NS_LOG_COMPONENT_DEFINE("CongestionFastReRoute");
+
+
+// place the policies for FRR here
+using CongestionPolicy = DummyCongestionPolicy;
+using LFAPolicy = LFAPolicy;
+
+
+using SimulationQueue = FRRQueue<CongestionPolicy, LFAPolicy>;
+
+NS_OBJECT_ENSURE_REGISTERED(SimulationQueue);
 
 
 int main(int argc, char *argv[])
 {
-    LogComponentEnable("AlternateRoutingExample", LOG_LEVEL_INFO);
-
+    LogComponentEnable("CongestionFastReRoute", LOG_LEVEL_INFO);
+    std::cout << SimulationQueue::getQueueString() << std::endl;
     NodeContainer nodes;
     nodes.Create(3); 
 
@@ -25,7 +46,7 @@ int main(int argc, char *argv[])
     p2p.SetChannelAttribute("Delay", StringValue("1ms"));
     
     // Set the custom queue for the device
-    p2p.SetQueue("ns3::FRRQueue<CongestionPolicy>");
+    p2p.SetQueue(SimulationQueue::getQueueString());
 
     NetDeviceContainer devices01 = p2p.Install(nodes.Get(0), nodes.Get(1));
     NetDeviceContainer devices12 = p2p.Install(nodes.Get(1), nodes.Get(2));
@@ -52,7 +73,8 @@ int main(int argc, char *argv[])
     app.Stop(Seconds(10.0));
 
     // Set up an alternate forwarding target, assuming you have an alternate path configured
-    Ptr<FRRQueue<CongestionPolicy>> customQueue = DynamicCast<FRRQueue<CongestionPolicy>>(devices01.Get(0)->GetObject<PointToPointNetDevice>()->GetQueue());
+    Ptr<SimulationQueue> customQueue = DynamicCast<SimulationQueue>(
+		    devices01.Get(0)->GetObject<PointToPointNetDevice>()->GetQueue());
     // customQueue->SetAlternateTarget(...); 
 
     Simulator::Run();

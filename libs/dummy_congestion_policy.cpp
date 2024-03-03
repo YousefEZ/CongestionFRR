@@ -1,9 +1,8 @@
-#include "frr_queue.h"
+#include "dummy_congestion_policy.h"
+
 
 namespace ns3
 {
 
 
-
 } // namespace ns3
-
