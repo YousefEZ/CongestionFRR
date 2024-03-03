@@ -17,7 +17,7 @@ class LFAPolicy
     std::list<ns3::Ptr<ns3::PointToPointNetDevice>> m_alternateTargets;
 
   public:
-    LFAPolicy();
+    LFAPolicy() = default;
  
     template <typename... DEVICES>
     void addAlternateTargets(DEVICES&&... devices);
