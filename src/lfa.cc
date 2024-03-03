@@ -1,7 +1,4 @@
-// Filename: alternate-routing-example.cc
 #include <iostream>
-#include <cstdlib>
-#include <cxxabi.h>
 
 #include "ns3/core-module.h"
 #include "ns3/network-module.h"
