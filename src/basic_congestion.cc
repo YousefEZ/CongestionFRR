@@ -79,7 +79,7 @@ Ptr<PacketSink> sinker;
 
 int packetsDroppedInQueue = 0;
 int64_t lastTotalRx = 0;
-uint32_t bytes_to_send = 1000;
+uint32_t bytes_to_send = 10000;
 
 uint32_t cnt_packets = 0;
 
@@ -162,6 +162,51 @@ void ExaminePacket(Ptr<const Packet> packet) {
             << "] PacketUid: " << packet->GetUid() << std::endl;
 }
 
+// void SimulateCongestion(Ptr<Node> congestionNode, Time startDelay,
+//                         Time duration, unsigned int numPackets,
+//                         unsigned int packetSize, Time interval,
+//                         Ipv4Address receiverAddress, uint16_t port) {
+//   BulkSendHelper source("ns3::UdpSocketFactory",
+//                         InetSocketAddress(receiverAddress, port));
+//
+//   // Set bulk sender attributes
+//   source.SetAttribute("MaxBytes", UintegerValue(numPackets * packetSize));
+//   source.SetAttribute("SendSize", UintegerValue(packetSize));
+//   // source.SetAttribute("interval", TimeValue(interval));
+//
+//   // Install application on congestionNode
+//   ApplicationContainer apps = source.Install(congestionNode);
+//   // And start it after specified delay
+//   apps.Start(startDelay);
+//   apps.Stop(startDelay + duration);
+// }
+
+void SimulateCongestion(Ptr<Node> congestionNode, Time startDelay,
+                        Time duration, unsigned int numPackets,
+                        unsigned int packetSize, Time interval,
+                        Ipv4Address receiverAddress, uint16_t port) {
+  // Create a UDP socket
+  Ptr<Socket> socket =
+      Socket::CreateSocket(congestionNode, UdpSocketFactory::GetTypeId());
+  InetSocketAddress receiverSocketAddress(receiverAddress, port);
+
+  // Schedule sending packets using the UDP socket
+  Simulator::Schedule(startDelay, [socket, receiverSocketAddress, numPackets,
+                                   packetSize, interval]() {
+    for (unsigned int i = 0; i < numPackets; ++i) {
+      // std::cout << "sending packet " << i << std::endl;
+      Ptr<Packet> packet = Create<Packet>(packetSize);
+      int err = socket->SendTo(packet, packetSize, receiverSocketAddress);
+      if (err == -1) {
+        std::cout << "error sending packet " << i << std::endl;
+      }
+    }
+  });
+
+  // Stop sending packets after the specified duration
+  Simulator::Schedule(startDelay + duration, &Socket::Close, socket);
+}
+
 int main(int argc, char *argv[]) {
   // Command line arguments
   CommandLine cmd;
@@ -214,6 +259,11 @@ int main(int argc, char *argv[]) {
   Names::Add("Sender", leftNodes.Get(0));
   Names::Add("Receiver", rightNodes.Get(0));
 
+  // Congestion node setup
+  NodeContainer congestionNode;
+  congestionNode.Create(1);
+  Names::Add("CongestionSender", congestionNode.Get(0));
+
   DataRate b_access(bandwidth_access);
   DataRate b_bottleneck(bandwidth_bottleneck);
   Time d_access(delay_access);
@@ -250,10 +300,15 @@ int main(int argc, char *argv[]) {
   NetDeviceContainer routerToRight =
       pointToPointLeaf.Install(routers.Get(1), rightNodes.Get(0));
 
+  // Link CongestioNSender to Router1
+  NetDeviceContainer congestionSenderToRouter =
+      pointToPointLeaf.Install(congestionNode.Get(0), routers.Get(0));
+
   InternetStackHelper internetStack;
   internetStack.Install(leftNodes);
   internetStack.Install(rightNodes);
   internetStack.Install(routers);
+  internetStack.Install(congestionNode);
 
   Ipv4AddressHelper ipAddresses("10.0.0.0", "255.255.255.0");
   Ipv4InterfaceContainer r1r2IPAddress = ipAddresses.Assign(r1r2ND);
@@ -321,6 +376,29 @@ int main(int argc, char *argv[]) {
   InstallBulkSend(leftNodes.Get(0), routerToRightIPAddress.GetAddress(1),
                   server_port, socketFactory, 2, 0, MakeCallback(&CwndChange),
                   bytes_to_send, Seconds(0.2));
+
+  // Congestion PARAMETERS
+  uint16_t serverPort = 50000;
+  Time startDelay = Seconds(1.0);
+  Time duration = Seconds(5.0);
+  uint32_t numPackets = 512;
+  uint32_t packetSize = 1024;
+  Time interval = MilliSeconds(10);
+  Ipv4Address receiverAddress = routerToRightIPAddress.GetAddress(1);
+
+  // Schedule the congestion
+  //   Simulator::Schedule(startDelay, [congestionNode, startDelay, duration,
+  //                                    numPackets, packetSize, interval,
+  //                                    receiverAddress, serverPort]() {
+  //     Ptr<Node> node = congestionNode.Get(0);
+  //     // double startDelaySeconds = startDelay.GetSeconds();
+  //     // double duration
+  //     SimulateCongestion(node, startDelay, duration, numPackets, packetSize,
+  //                        interval, receiverAddress, serverPort);
+  //   });
+
+  SimulateCongestion(congestionNode.Get(0), startDelay, duration, numPackets,
+                     packetSize, interval, receiverAddress, serverPort);
 
   if (storeTraces) {
     pointToPointLeaf.EnablePcapAll(tracesPath);
