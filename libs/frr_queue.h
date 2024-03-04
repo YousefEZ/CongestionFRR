@@ -93,9 +93,12 @@ bool FRRQueue<CONGESTION_POLICY, FRR_POLICY>::Enqueue(Ptr<Packet> packet)
     NS_LOG_FUNCTION(this << packet);
     if (m_congestionPolicy.isCongested(GetContainer()))
     {
+        NS_LOG_LOGIC("Congested Route, Rerouting packet: " << packet);
         ForwardToAlternateTarget(packet);
+        NS_LOG_LOGIC("Rerouting complete");
         return false; 
     }
+    NS_LOG_LOGIC("Enqueued " << packet << " to " << GetContainer().size() << " packets in queue.");
     DoEnqueue(GetContainer().end(), packet);
     return true;
 }
