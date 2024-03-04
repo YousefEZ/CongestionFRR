@@ -31,8 +31,6 @@ class FRRQueue : public Queue<Packet>
     
     NS_LOG_TEMPLATE_DECLARE;
     
-    FRR_POLICY m_frrPolicy;
-    CONGESTION_POLICY m_congestionPolicy;
 
     void ForwardToAlternateTarget(Ptr<Packet> packet);
     static std::string makeQueueString();
@@ -42,6 +40,10 @@ class FRRQueue : public Queue<Packet>
     virtual Ptr<Packet> Remove(void) override;
     virtual Ptr<const Packet> Peek() const override;
   public:
+    
+    FRR_POLICY m_frrPolicy;
+    CONGESTION_POLICY m_congestionPolicy;
+    
     static TypeId GetTypeId();
     FRRQueue();
     ~FRRQueue();
@@ -89,12 +91,13 @@ template <typename CONGESTION_POLICY, typename FRR_POLICY>
 bool FRRQueue<CONGESTION_POLICY, FRR_POLICY>::Enqueue(Ptr<Packet> packet)
 {
     NS_LOG_FUNCTION(this << packet);
-    if (m_congestionPolicy.isCongested(this))
+    if (m_congestionPolicy.isCongested(GetContainer()))
     {
         ForwardToAlternateTarget(packet);
-        return true; 
+        return false; 
     }
-    return DoEnqueue(GetContainer().end(), packet);
+    DoEnqueue(GetContainer().end(), packet);
+    return true;
 }
  
 template <typename CONGESTION_POLICY, typename FRR_POLICY>

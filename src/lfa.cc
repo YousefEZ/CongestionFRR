@@ -10,7 +10,9 @@
 
 #include "../libs/frr_queue.h"
 #include "../libs/dummy_congestion_policy.h"
+#include "../libs/modulo_congestion_policy.h"
 #include "../libs/lfa_policy.h"
+
 
 using namespace ns3;
 
@@ -18,28 +20,36 @@ NS_LOG_COMPONENT_DEFINE("CongestionFastReRoute");
 
 
 // place the policies for FRR here
-using CongestionPolicy = DummyCongestionPolicy;
+using CongestionPolicy = ModuloCongestionPolicy<2>;
+
+
 using FRRPolicy = LFAPolicy;
 
 
 using SimulationQueue = FRRQueue<CongestionPolicy, FRRPolicy>;
 
 
+
 NS_OBJECT_ENSURE_REGISTERED(SimulationQueue);
 
 template <int INDEX>
-Ptr<PointToPointNetDevice> getDevice(NetDeviceContainer devices) 
+Ptr<PointToPointNetDevice> getDevice(const NetDeviceContainer& devices) 
 {
     return devices.Get(INDEX)->GetObject<PointToPointNetDevice>();
 }
 
+template <int INDEX>
+Ptr<SimulationQueue> getQueue(const NetDeviceContainer& devices) 
+{
+    return DynamicCast<SimulationQueue>(getDevice<INDEX>(devices)->GetQueue());
+}
 
 template <int INDEX>
-void setAlternateTarget(NetDeviceContainer devices, Ptr<PointToPointNetDevice> target) 
+void setAlternateTarget(const NetDeviceContainer& devices, Ptr<PointToPointNetDevice> target) 
 {
-    Ptr<SimulationQueue> queue = DynamicCast<SimulationQueue>(getDevice<INDEX>(devices)->GetQueue());
-    queue->addAlternateTargets(target);
+    getQueue<INDEX>(devices)->addAlternateTargets(target);
 }
+
 
 
 int main(int argc, char *argv[])
@@ -77,6 +87,14 @@ int main(int argc, char *argv[])
     Ipv4GlobalRoutingHelper::PopulateRoutingTables();
 
     // Configure the application to generate traffic
+    // we have node 0 sending traffic to node 2
+    //
+    //     1
+    //    / \
+    //   /   \
+    //  /     \
+    // 0 -----> 2
+    //
     uint16_t port = 9;
     OnOffHelper onoff("ns3::UdpSocketFactory", InetSocketAddress(interfaces12.GetAddress(1), port));
     onoff.SetAttribute("OnTime", StringValue("ns3::ConstantRandomVariable[Constant=1]"));
