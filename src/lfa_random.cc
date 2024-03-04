@@ -16,7 +16,6 @@
 
 using namespace ns3;
 
-NS_LOG_COMPONENT_DEFINE("CongestionFastReRoute");
 
 
 
@@ -52,10 +51,12 @@ void setAlternateTarget(const NetDeviceContainer& devices, Ptr<PointToPointNetDe
 }
 
 
+//NS_LOG_COMPONENT_DEFINE("CongestionFastReRoute");
 
 int main(int argc, char *argv[])
 {
-    LogComponentEnable("CongestionFastReRoute", LOG_LEVEL_INFO);
+    LogComponentEnable("FRRQueue", LOG_LEVEL_LOGIC);
+    NS_LOG_INFO("Creating Topology");
     NodeContainer nodes;
     nodes.Create(3); 
 
@@ -87,15 +88,15 @@ int main(int argc, char *argv[])
 
     Ipv4GlobalRoutingHelper::PopulateRoutingTables();
 
-    // Configure the application to generate traffic
-    // we have node 0 sending traffic to node 2
-    //
-    //     1
-    //    / \
-    //   /   \
-    //  /     \
-    // 0 -----> 2
-    //
+    /* Configure the application to generate traffic
+    * we have node 0 sending traffic to node 2
+    *
+    *     1
+    *    / \
+    *   /   \
+    *  /     \
+    * 0 -----> 2
+    */
     uint16_t port = 9;
     OnOffHelper onoff("ns3::UdpSocketFactory", InetSocketAddress(interfaces12.GetAddress(1), port));
     onoff.SetAttribute("OnTime", StringValue("ns3::ConstantRandomVariable[Constant=1]"));
@@ -128,7 +129,6 @@ int main(int argc, char *argv[])
 
     Simulator::Run();
     Simulator::Destroy();
-
     return 0;
 }
 
