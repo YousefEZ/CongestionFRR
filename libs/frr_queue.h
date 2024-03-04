@@ -32,6 +32,8 @@ class FRRQueue : public Queue<Packet>
     NS_LOG_TEMPLATE_DECLARE;
     
     FRR_POLICY m_frrPolicy;
+    CONGESTION_POLICY m_congestionPolicy;
+
     void ForwardToAlternateTarget(Ptr<Packet> packet);
     static std::string makeQueueString();
   protected:
@@ -87,7 +89,7 @@ template <typename CONGESTION_POLICY, typename FRR_POLICY>
 bool FRRQueue<CONGESTION_POLICY, FRR_POLICY>::Enqueue(Ptr<Packet> packet)
 {
     NS_LOG_FUNCTION(this << packet);
-    if (CONGESTION_POLICY::isCongested(this))
+    if (m_congestionPolicy.isCongested(this))
     {
         ForwardToAlternateTarget(packet);
         return true; 

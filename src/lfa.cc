@@ -19,19 +19,32 @@ NS_LOG_COMPONENT_DEFINE("CongestionFastReRoute");
 
 // place the policies for FRR here
 using CongestionPolicy = DummyCongestionPolicy;
-using LFAPolicy = LFAPolicy;
+using FRRPolicy = LFAPolicy;
 
 
-using SimulationQueue = FRRQueue<CongestionPolicy, LFAPolicy>;
+using SimulationQueue = FRRQueue<CongestionPolicy, FRRPolicy>;
 
 
 NS_OBJECT_ENSURE_REGISTERED(SimulationQueue);
+
+template <int INDEX>
+Ptr<PointToPointNetDevice> getDevice(NetDeviceContainer devices) 
+{
+    return devices.Get(INDEX)->GetObject<PointToPointNetDevice>();
+}
+
+
+template <int INDEX>
+void setAlternateTarget(NetDeviceContainer devices, Ptr<PointToPointNetDevice> target) 
+{
+    Ptr<SimulationQueue> queue = DynamicCast<SimulationQueue>(getDevice<INDEX>(devices)->GetQueue());
+    queue->addAlternateTargets(target);
+}
 
 
 int main(int argc, char *argv[])
 {
     LogComponentEnable("CongestionFastReRoute", LOG_LEVEL_INFO);
-    std::cout << SimulationQueue::getQueueString() << std::endl;
     NodeContainer nodes;
     nodes.Create(3); 
 
@@ -46,8 +59,11 @@ int main(int argc, char *argv[])
     // Set the custom queue for the device
     p2p.SetQueue(SimulationQueue::getQueueString());
 
+    // Install devices and channels between nodes
     NetDeviceContainer devices01 = p2p.Install(nodes.Get(0), nodes.Get(1));
     NetDeviceContainer devices12 = p2p.Install(nodes.Get(1), nodes.Get(2));
+    // Add the missing link between Node 0 and Node 2 to fully connect the network
+    NetDeviceContainer devices02 = p2p.Install(nodes.Get(0), nodes.Get(2));
 
     // Assign IP addresses
     Ipv4AddressHelper address;
@@ -55,12 +71,14 @@ int main(int argc, char *argv[])
     Ipv4InterfaceContainer interfaces01 = address.Assign(devices01);
     address.SetBase("10.1.2.0", "255.255.255.0");
     Ipv4InterfaceContainer interfaces12 = address.Assign(devices12);
+    address.SetBase("10.1.3.0", "255.255.255.0");
+    Ipv4InterfaceContainer interfaces02 = address.Assign(devices02);
 
     Ipv4GlobalRoutingHelper::PopulateRoutingTables();
 
     // Configure the application to generate traffic
     uint16_t port = 9;
-    OnOffHelper onoff("ns3::UdpSocketFactory", Address(InetSocketAddress(interfaces12.GetAddress(1), port)));
+    OnOffHelper onoff("ns3::UdpSocketFactory", InetSocketAddress(interfaces12.GetAddress(1), port));
     onoff.SetAttribute("OnTime", StringValue("ns3::ConstantRandomVariable[Constant=1]"));
     onoff.SetAttribute("OffTime", StringValue("ns3::ConstantRandomVariable[Constant=0]"));
     onoff.SetAttribute("DataRate", DataRateValue(DataRate("1Mbps")));
@@ -69,11 +87,17 @@ int main(int argc, char *argv[])
     ApplicationContainer app = onoff.Install(nodes.Get(0));
     app.Start(Seconds(1.0));
     app.Stop(Seconds(10.0));
-
     // Set up an alternate forwarding target, assuming you have an alternate path configured
-    Ptr<SimulationQueue> customQueue = DynamicCast<SimulationQueue>(
-		    devices01.Get(0)->GetObject<PointToPointNetDevice>()->GetQueue());
-    // customQueue->SetAlternateTarget(...); 
+    
+    setAlternateTarget<0>(devices01, getDevice<0>(devices02));	
+    setAlternateTarget<0>(devices02, getDevice<0>(devices01));	
+
+    setAlternateTarget<0>(devices12, getDevice<1>(devices01));
+    setAlternateTarget<1>(devices01, getDevice<0>(devices12));
+    
+    setAlternateTarget<1>(devices02, getDevice<1>(devices12));
+    setAlternateTarget<1>(devices12, getDevice<1>(devices02));
+    
 
     Simulator::Run();
     Simulator::Destroy();
