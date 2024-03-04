@@ -16,7 +16,7 @@ class ModuloCongestionPolicy
     bool isCongested(const CONTAINER& container)
     {
       increment();
-      return !!counter; 
+      return counter; 
     }
 
 
