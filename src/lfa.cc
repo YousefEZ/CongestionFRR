@@ -58,22 +58,6 @@ std::string tcpVariantId = "ns3::TcpLinuxReno";
 bool enableSack = false;
 double minRTO = 1.0;
 
-void TraceCwnd(uint32_t node, uint32_t cwndWindow,
-               Callback<void, uint32_t, uint32_t> CwndTrace) {
-  Config::ConnectWithoutContext(
-      "/NodeList/" + std::to_string(node) + "/$ns3::TcpL4Protocol/SocketList/" +
-          std::to_string(cwndWindow) + "/CongestionWindow",
-      CwndTrace);
-}
-
-static void CwndChange(uint32_t oldCwnd, uint32_t newCwnd) {
-  std::ofstream fPlotQueue(tracesPath + "cwnd.txt",
-                           std::ios::out | std::ios::app);
-  fPlotQueue << Simulator::Now().GetSeconds() << " " << newCwnd / segmentSize
-             << " " << newCwnd << std::endl;
-  fPlotQueue.close();
-}
-
 void InstallBulkSend(Ptr<Node> node, Ipv4Address address, uint16_t port,
                      std::string socketFactory, uint32_t nodeId,
                      uint32_t cwndWindow,
