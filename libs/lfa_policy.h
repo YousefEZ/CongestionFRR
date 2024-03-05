@@ -13,35 +13,32 @@ namespace ns3
 
 class LFAPolicy
 {
-  private:  
+  private:
     std::list<ns3::Ptr<ns3::PointToPointNetDevice>> m_alternateTargets;
 
   public:
     LFAPolicy() = default;
- 
+
     template <typename... DEVICES>
-    void addAlternateTargets(DEVICES&&... devices);
+    void addAlternateTargets(DEVICES&&...devices);
 
     ns3::Ptr<ns3::PointToPointNetDevice> selectAlternativeTarget();
 };
 
-
 template <typename... DEVICES>
-void LFAPolicy::addAlternateTargets(DEVICES&&... devices)
+void LFAPolicy::addAlternateTargets(DEVICES&&...devices)
 {
-  (m_alternateTargets.push_back(std::forward<DEVICES>(devices)), ...); 
+    (m_alternateTargets.push_back(std::forward<DEVICES>(devices)), ...);
 }
 
 ns3::Ptr<ns3::PointToPointNetDevice> LFAPolicy::selectAlternativeTarget()
 {
-  if (m_alternateTargets.empty())
-  {
-    return nullptr;
-  }
-  return m_alternateTargets.front();
+    if (m_alternateTargets.empty()) {
+        return nullptr;
+    }
+    return m_alternateTargets.front();
 }
 
-
 } // namespace ns3
-  
+
 #endif
