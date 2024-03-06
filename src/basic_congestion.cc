@@ -319,6 +319,9 @@ int main(int argc, char *argv[]) {
   Ipv4InterfaceContainer routerToRightIPAddress =
       ipAddresses.Assign(routerToRight);
   ipAddresses.NewNetwork();
+  Ipv4InterfaceContainer congestionToRouter0IPAddress =
+      ipAddresses.Assign(congestionSenderToRouter);
+  ipAddresses.NewNetwork();
 
   Ipv4GlobalRoutingHelper::PopulateRoutingTables();
 
@@ -371,11 +374,13 @@ int main(int argc, char *argv[]) {
   /* Install packet sink at receiver side */
   InstallPacketSink(rightNodes.Get(0), server_port, socketFactory,
                     Seconds(0.01), stopTimeSimulation);
+  // InstallPacketSink(rightNodes.Get(0), server_port, "ns3::UdpSocketFactory",
+  //                   Seconds(0.01), stopTimeSimulation);
 
   /* Install BulkSend application */
-  InstallBulkSend(leftNodes.Get(0), routerToRightIPAddress.GetAddress(1),
-                  server_port, socketFactory, 2, 0, MakeCallback(&CwndChange),
-                  bytes_to_send, Seconds(0.2));
+  // InstallBulkSend(leftNodes.Get(0), routerToRightIPAddress.GetAddress(1),
+  //                 server_port, socketFactory, 2, 0,
+  //                 MakeCallback(&CwndChange), bytes_to_send, Seconds(0.2));
 
   // Congestion PARAMETERS
   uint16_t serverPort = 50000;
@@ -397,14 +402,24 @@ int main(int argc, char *argv[]) {
   //                        interval, receiverAddress, serverPort);
   //   });
 
-  SimulateCongestion(congestionNode.Get(0), startDelay, duration, numPackets,
-                     packetSize, interval, receiverAddress, serverPort);
+  // SimulateCongestion(congestionNode.Get(0), startDelay, duration, numPackets,
+  //                 packetSize, interval, receiverAddress, serverPort);
+
+  OnOffHelper onoff(
+      "ns3::UdpSocketFactory",
+      InetSocketAddress(routerToRightIPAddress.GetAddress(1), 50000));
+  onoff.SetAttribute("PacketSize", UintegerValue(8));
+  onoff.SetAttribute("DataRate", DataRateValue(DataRate("1kbps")));
+
+  ApplicationContainer app = onoff.Install(congestionNode.Get(0));
+  app.Start(Seconds(1.0));
+  app.Stop(Seconds(3.0));
 
   if (storeTraces) {
     pointToPointLeaf.EnablePcapAll(tracesPath);
   }
 
-  Simulator::Stop(stopTimeSimulation);
+  // Simulator::Stop(stopTimeSimulation);
   Simulator::Run();
   Simulator::Destroy();
   return 0;
