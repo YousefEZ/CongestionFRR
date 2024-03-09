@@ -1,0 +1,12 @@
+name: Create and Execute Bash Script
+
+on: [push]
+
+jobs:
+  create-and-execute-script:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Run Docker Compose
+      run: docker-compose run ns3
