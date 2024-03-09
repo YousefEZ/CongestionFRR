@@ -1,6 +1,10 @@
 #!/bin/bash
 
+rm -rf traces/
+mkdir traces
+
 cp user_src/* scratch/
+export NS_LOG=FRRQueue=level_all
 
 ./ns3 build
 
