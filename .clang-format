@@ -1,0 +1,11 @@
+BasedOnStyle: llvm
+IndentWidth: 4
+UseTab: Never
+BreakBeforeBraces: Linux
+SortIncludes: false
+IndentCaseLabels: false
+AlwaysBreakTemplateDeclarations: true
+AllowShortFunctionsOnASingleLine: false
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortIfStatementsOnASingleLine: true
+PointerAlignment: Left
