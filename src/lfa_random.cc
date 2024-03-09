@@ -22,7 +22,7 @@ using SimulationQueue = FRRQueue<CongestionPolicy, FRRPolicy>;
 
 void toggleCongestion(Ptr<SimulationQueue> queue)
 {
-    queue->m_congestionPolicy.turnOff();
+    queue->m_congestionPolicy.turnOff(;
 }
 
 NS_OBJECT_ENSURE_REGISTERED(SimulationQueue);
