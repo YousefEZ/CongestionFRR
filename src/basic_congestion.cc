@@ -20,7 +20,6 @@
 #include "../libs/lfa_policy.h"
 
 
-
 using namespace ns3;
 using Random = effolkronium::random_static;
 
@@ -81,7 +80,8 @@ std::string delay_bottleneck = "20ms";
 std::string delay_serialization = "1.9ms";
 
 // ---[POINTER TO THE DEVICE THAT WILL IMPLEMENT PACKET DROPING]
-NetDeviceContainer *netDeviceToDropPacket = NULL;
+NetDeviceContainer* netDeviceToDropPacket = NULL;
+
 
 // -------------------------------------------------- //
 // --- END OF SIMULATION CONFIGURATION PARAMETERS --- //
@@ -97,82 +97,91 @@ uint32_t bytes_to_send = 10000;
 uint32_t cnt_packets = 0;
 
 void TraceCwnd(uint32_t node, uint32_t cwndWindow,
-               Callback<void, uint32_t, uint32_t> CwndTrace) {
-  Config::ConnectWithoutContext(
-      "/NodeList/" + std::to_string(node) + "/$ns3::TcpL4Protocol/SocketList/" +
-          std::to_string(cwndWindow) + "/CongestionWindow",
-      CwndTrace);
+               Callback<void, uint32_t, uint32_t> CwndTrace)
+{
+    Config::ConnectWithoutContext("/NodeList/" + std::to_string(node) +
+                                      "/$ns3::TcpL4Protocol/SocketList/" +
+                                      std::to_string(cwndWindow) +
+                                      "/CongestionWindow",
+                                  CwndTrace);
 }
 
-static void CwndChange(uint32_t oldCwnd, uint32_t newCwnd) {
-  std::ofstream fPlotQueue(tracesPath + "cwnd.txt",
-                           std::ios::out | std::ios::app);
-  fPlotQueue << Simulator::Now().GetSeconds() << " " << newCwnd / segmentSize
-             << " " << newCwnd << std::endl;
-  fPlotQueue.close();
+static void CwndChange(uint32_t oldCwnd, uint32_t newCwnd)
+{
+    std::ofstream fPlotQueue(tracesPath + "cwnd.txt",
+                             std::ios::out | std::ios::app);
+    fPlotQueue << Simulator::Now().GetSeconds() << " " << newCwnd / segmentSize
+               << " " << newCwnd << std::endl;
+    fPlotQueue.close();
 }
 
 void InstallBulkSend(Ptr<Node> node, Ipv4Address address, uint16_t port,
                      std::string socketFactory, uint32_t nodeId,
                      uint32_t cwndWindow,
                      Callback<void, uint32_t, uint32_t> CwndTrace,
-                     uint32_t maxBytesToSend, Time startTime) {
-  BulkSendHelper source(socketFactory, InetSocketAddress(address, port));
-  source.SetAttribute("MaxBytes", UintegerValue(maxBytesToSend));
-  ApplicationContainer sourceApps = source.Install(node);
-  sourceApps.Start(startTime);
-  sourceApps.Stop(stopTimeTCP);
-  if (storeTraces == false) {
-    Simulator::Schedule(startTime + Seconds(0.001), &TraceCwnd, nodeId,
-                        cwndWindow, CwndTrace);
-  }
+                     uint32_t maxBytesToSend, Time startTime)
+{
+    BulkSendHelper source(socketFactory, InetSocketAddress(address, port));
+    source.SetAttribute("MaxBytes", UintegerValue(maxBytesToSend));
+    ApplicationContainer sourceApps = source.Install(node);
+    sourceApps.Start(startTime);
+    sourceApps.Stop(stopTimeTCP);
+    if (storeTraces == false) {
+        Simulator::Schedule(startTime + Seconds(0.001), &TraceCwnd, nodeId,
+                            cwndWindow, CwndTrace);
+    }
 }
 
 void InstallPacketSink(Ptr<Node> node, uint16_t port, std::string socketFactory,
-                       Time startTime, Time stopTime) {
-  PacketSinkHelper sink(socketFactory,
-                        InetSocketAddress(Ipv4Address::GetAny(), port));
-  ApplicationContainer sinkApps = sink.Install(node);
-  sinker = StaticCast<PacketSink>(sinkApps.Get(0));
-  sinkApps.Start(startTime);
-  sinkApps.Stop(stopTime);
+                       Time startTime, Time stopTime)
+{
+    PacketSinkHelper sink(socketFactory,
+                          InetSocketAddress(Ipv4Address::GetAny(), port));
+    ApplicationContainer sinkApps = sink.Install(node);
+    sinker = StaticCast<PacketSink>(sinkApps.Get(0));
+    sinkApps.Start(startTime);
+    sinkApps.Stop(stopTime);
 }
 
 static void DropAtQueue(Ptr<OutputStreamWrapper> stream,
-                        Ptr<const QueueDiscItem> item) {
-  *stream->GetStream() << Simulator::Now().GetSeconds() << " 1" << std::endl;
-  packetsDroppedInQueue++;
+                        Ptr<const QueueDiscItem> item)
+{
+    *stream->GetStream() << Simulator::Now().GetSeconds() << " 1" << std::endl;
+    packetsDroppedInQueue++;
 }
 
-void PacketsInQueueDisc(uint32_t oldValue, uint32_t newValue) {
-  std::ofstream fPlotQueue(
-      std::stringstream(tracesPath + "pktsQueueDisc.txt").str().c_str(),
-      std::ios::out | std::ios::app);
-  fPlotQueue << Simulator::Now().GetSeconds() << " " << newValue << std::endl;
-  fPlotQueue.close();
+void PacketsInQueueDisc(uint32_t oldValue, uint32_t newValue)
+{
+    std::ofstream fPlotQueue(
+        std::stringstream(tracesPath + "pktsQueueDisc.txt").str().c_str(),
+        std::ios::out | std::ios::app);
+    fPlotQueue << Simulator::Now().GetSeconds() << " " << newValue << std::endl;
+    fPlotQueue.close();
 }
 
-void PacketsInDroptail(uint32_t oldValue, uint32_t newValue) {
-  std::ofstream fPlotQueue(
-      std::stringstream(tracesPath + "pktsDropTail.txt").str().c_str(),
-      std::ios::out | std::ios::app);
-  fPlotQueue << Simulator::Now().GetSeconds() << " " << newValue << std::endl;
-  fPlotQueue.close();
+void PacketsInDroptail(uint32_t oldValue, uint32_t newValue)
+{
+    std::ofstream fPlotQueue(
+        std::stringstream(tracesPath + "pktsDropTail.txt").str().c_str(),
+        std::ios::out | std::ios::app);
+    fPlotQueue << Simulator::Now().GetSeconds() << " " << newValue << std::endl;
+    fPlotQueue.close();
 }
 
-void ExaminePacket(Ptr<const Packet> packet) {
-  // Extract TCP Header from the packet
-  TcpHeader tcpHeader;
-  packet->PeekHeader(tcpHeader);
-  uint32_t payloadSize = packet->GetSize();
+void ExaminePacket(Ptr<const Packet> packet)
+{
+    // Extract TCP Header from the packet
+    TcpHeader tcpHeader;
+    packet->PeekHeader(tcpHeader);
+    uint32_t payloadSize = packet->GetSize();
 
-  // Extract the SEQ and ACK numbers
-  uint32_t seq = tcpHeader.GetSequenceNumber().GetValue();
-  uint32_t ack = tcpHeader.GetAckNumber().GetValue();
+    // Extract the SEQ and ACK numbers
+    uint32_t seq = tcpHeader.GetSequenceNumber().GetValue();
+    uint32_t ack = tcpHeader.GetAckNumber().GetValue();
 
-  std::cout << "[TCP PACKET] [SEQ: " << seq << "] [ACK: " << ack
-            << "] [Payload Length: " << payloadSize
-            << "] PacketUid: " << packet->GetUid() << std::endl;
+    std::cout << "[TCP PACKET] [SEQ: " << seq << "] [ACK: " << ack
+              << "] [Payload Length: " << payloadSize
+              << "] PacketUid: " << packet->GetUid() << std::endl;
 }
 
 // void SimulateCongestion(Ptr<Node> congestionNode, Time startDelay,
