@@ -13,13 +13,11 @@ class DummyCongestionPolicy
     static bool isCongested(ns3::Queue<ns3::Packet>* queue);
 };
 
-
 bool DummyCongestionPolicy::isCongested(ns3::Queue<ns3::Packet>* queue)
 {
     // Placeholder for congestion detection
     return false;
 }
-
 
 } // namespace ns3
 
