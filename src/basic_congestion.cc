@@ -19,7 +19,6 @@
 #include "../libs/frr_queue.h"
 #include "../libs/lfa_policy.h"
 
-
 using namespace ns3;
 using Random = effolkronium::random_static;
 
@@ -35,23 +34,23 @@ NS_OBJECT_ENSURE_REGISTERED(SimulationQueue);
 // ---------------------------------------------------- //
 
 template <int INDEX>
-Ptr<PointToPointNetDevice> getDevice(const NetDeviceContainer& devices) 
+Ptr<PointToPointNetDevice> getDevice(const NetDeviceContainer& devices)
 {
     return devices.Get(INDEX)->GetObject<PointToPointNetDevice>();
 }
 
 template <int INDEX>
-Ptr<SimulationQueue> getQueue(const NetDeviceContainer& devices) 
+Ptr<SimulationQueue> getQueue(const NetDeviceContainer& devices)
 {
     return DynamicCast<SimulationQueue>(getDevice<INDEX>(devices)->GetQueue());
 }
 
 template <int INDEX>
-void setAlternateTarget(const NetDeviceContainer& devices, Ptr<PointToPointNetDevice> target) 
+void setAlternateTarget(const NetDeviceContainer& devices,
+                        Ptr<PointToPointNetDevice> target)
 {
     getQueue<INDEX>(devices)->addAlternateTargets(target);
 }
-
 
 // Random Seed
 uint32_t seed = 1;
@@ -77,8 +76,8 @@ Time stopTimeSimulation = Seconds(5000);
 Time intervalTCP = Seconds(1);
 
 // ---[TCP PARAMETERS] ---
-uint32_t segmentSize = 32; //1024;
-uint32_t MTU_bytes = 38;// segmentSize + 54;
+uint32_t segmentSize = 32; // 1024;
+uint32_t MTU_bytes = 38;   // segmentSize + 54;
 uint8_t delAckCount = 1;
 uint8_t initialCwnd = 1;
 // std::string delAckTimeout = "200ms";
@@ -100,7 +99,6 @@ std::string delay_serialization = "1.9ms";
 
 // ---[POINTER TO THE DEVICE THAT WILL IMPLEMENT PACKET DROPING]
 NetDeviceContainer* netDeviceToDropPacket = NULL;
-
 
 // -------------------------------------------------- //
 // --- END OF SIMULATION CONFIGURATION PARAMETERS --- //
@@ -225,271 +223,280 @@ void ExaminePacket(Ptr<const Packet> packet)
 void SimulateCongestion(Ptr<Node> congestionNode, Time startDelay,
                         Time duration, unsigned int numPackets,
                         unsigned int packetSize, Time interval,
-                        Ipv4Address receiverAddress, uint16_t port) {
-  // Create a UDP socket
-  Ptr<Socket> socket =
-      Socket::CreateSocket(congestionNode, UdpSocketFactory::GetTypeId());
-  InetSocketAddress receiverSocketAddress(receiverAddress, port);
+                        Ipv4Address receiverAddress, uint16_t port)
+{
+    // Create a UDP socket
+    Ptr<Socket> socket =
+        Socket::CreateSocket(congestionNode, UdpSocketFactory::GetTypeId());
+    InetSocketAddress receiverSocketAddress(receiverAddress, port);
 
-  // Schedule sending packets using the UDP socket
-  Simulator::Schedule(startDelay, [socket, receiverSocketAddress, numPackets,
-                                   packetSize, interval]() {
-    for (unsigned int i = 0; i < numPackets; ++i) {
-      // std::cout << "sending packet " << i << std::endl;
-      Ptr<Packet> packet = Create<Packet>(packetSize);
-      int err = socket->SendTo(packet, packetSize, receiverSocketAddress);
-      if (err == -1) {
-        std::cout << "error sending packet " << i << std::endl;
-      }
-    }
-  });
+    // Schedule sending packets using the UDP socket
+    Simulator::Schedule(startDelay, [socket, receiverSocketAddress, numPackets,
+                                     packetSize, interval]() {
+        for (unsigned int i = 0; i < numPackets; ++i) {
+            // std::cout << "sending packet " << i << std::endl;
+            Ptr<Packet> packet = Create<Packet>(packetSize);
+            int err = socket->SendTo(packet, packetSize, receiverSocketAddress);
+            if (err == -1) {
+                std::cout << "error sending packet " << i << std::endl;
+            }
+        }
+    });
 
-  // Stop sending packets after the specified duration
-  Simulator::Schedule(startDelay + duration, &Socket::Close, socket);
+    // Stop sending packets after the specified duration
+    Simulator::Schedule(startDelay + duration, &Socket::Close, socket);
 }
 
-int main(int argc, char *argv[]) {
-  LogComponentEnable("FRRQueue", LOG_LEVEL_LOGIC);
-  NS_LOG_INFO("Creating Topology");
-  // Command line arguments
-  CommandLine cmd;
-  cmd.AddValue("tcpVariantId", "TCP variant", tcpVariantId);
-  cmd.AddValue("enableSack", "Enable/disable sack in TCP", enableSack);
-  cmd.AddValue("seed", "The random seed", seed);
-  cmd.AddValue("simStopTime", "The simulation stop time", stopTimeSimulation);
-  cmd.AddValue("intervalTCP", "The TCP interval", intervalTCP);
-  cmd.AddValue("initialCwnd", "Initial CWND window", initialCwnd);
-  cmd.AddValue("bytesToSend", "Number of bytes to send", bytes_to_send);
-  cmd.Parse(argc, argv);
+int main(int argc, char* argv[])
+{
+    LogComponentEnable("FRRQueue", LOG_LEVEL_LOGIC);
+    NS_LOG_INFO("Creating Topology");
+    // Command line arguments
+    CommandLine cmd;
+    cmd.AddValue("tcpVariantId", "TCP variant", tcpVariantId);
+    cmd.AddValue("enableSack", "Enable/disable sack in TCP", enableSack);
+    cmd.AddValue("seed", "The random seed", seed);
+    cmd.AddValue("simStopTime", "The simulation stop time", stopTimeSimulation);
+    cmd.AddValue("intervalTCP", "The TCP interval", intervalTCP);
+    cmd.AddValue("initialCwnd", "Initial CWND window", initialCwnd);
+    cmd.AddValue("bytesToSend", "Number of bytes to send", bytes_to_send);
+    cmd.Parse(argc, argv);
 
-  // Set Random Seed
-  Random::seed(seed);
+    // Set Random Seed
+    Random::seed(seed);
 
-  // TCP Recovery Algorithm
-  Config::SetDefault("ns3::TcpL4Protocol::RecoveryType",
-                     TypeIdValue(TypeId::LookupByName(tcpRecovery)));
+    // TCP Recovery Algorithm
+    Config::SetDefault("ns3::TcpL4Protocol::RecoveryType",
+                       TypeIdValue(TypeId::LookupByName(tcpRecovery)));
 
-  // Set Congestion Control Algorithm
-  Config::SetDefault("ns3::TcpL4Protocol::SocketType",
-                     StringValue(tcpVariantId));
-  Config::SetDefault("ns3::TcpSocket::SndBufSize", UintegerValue(1073741824));
-  Config::SetDefault("ns3::TcpSocket::RcvBufSize", UintegerValue(1073741824));
+    // Set Congestion Control Algorithm
+    Config::SetDefault("ns3::TcpL4Protocol::SocketType",
+                       StringValue(tcpVariantId));
+    Config::SetDefault("ns3::TcpSocket::SndBufSize", UintegerValue(1073741824));
+    Config::SetDefault("ns3::TcpSocket::RcvBufSize", UintegerValue(1073741824));
 
-  // Set default initial congestion window
-  Config::SetDefault("ns3::TcpSocket::InitialCwnd", UintegerValue(initialCwnd));
+    // Set default initial congestion window
+    Config::SetDefault("ns3::TcpSocket::InitialCwnd",
+                       UintegerValue(initialCwnd));
 
-  // Set default delayed ack count to a specified value
-  Config::SetDefault("ns3::TcpSocket::DelAckTimeout",
-                     TimeValue(Time(delAckTimeout)));
-  Config::SetDefault("ns3::TcpSocket::DelAckCount", UintegerValue(delAckCount));
-  // Config::SetDefault("ns3::TcpSocket::SetTcpNoDelay", BooleanValue(true));
+    // Set default delayed ack count to a specified value
+    Config::SetDefault("ns3::TcpSocket::DelAckTimeout",
+                       TimeValue(Time(delAckTimeout)));
+    Config::SetDefault("ns3::TcpSocket::DelAckCount",
+                       UintegerValue(delAckCount));
+    // Config::SetDefault("ns3::TcpSocket::SetTcpNoDelay", BooleanValue(true));
 
-  // Set default segment size of TCP packet to a specified value
-  Config::SetDefault("ns3::TcpSocket::SegmentSize", UintegerValue(segmentSize));
+    // Set default segment size of TCP packet to a specified value
+    Config::SetDefault("ns3::TcpSocket::SegmentSize",
+                       UintegerValue(segmentSize));
 
-  // Enable/Disable SACK in TCP
-  Config::SetDefault("ns3::TcpSocketBase::Sack", BooleanValue(enableSack));
+    // Enable/Disable SACK in TCP
+    Config::SetDefault("ns3::TcpSocketBase::Sack", BooleanValue(enableSack));
 
-  Config::SetDefault("ns3::TcpSocketBase::MinRto", TimeValue(Seconds(minRTO)));
+    Config::SetDefault("ns3::TcpSocketBase::MinRto",
+                       TimeValue(Seconds(minRTO)));
 
-  NodeContainer leftNodes, rightNodes, routers;
-  routers.Create(3);
-  leftNodes.Create(1);
-  rightNodes.Create(1);
+    NodeContainer leftNodes, rightNodes, routers;
+    routers.Create(3);
+    leftNodes.Create(1);
+    rightNodes.Create(1);
 
-  Names::Add("Router1", routers.Get(0));
-  Names::Add("Router2", routers.Get(1));
-  Names::Add("Router3", routers.Get(2));
-  Names::Add("Sender", leftNodes.Get(0));
-  Names::Add("Receiver", rightNodes.Get(0));
+    Names::Add("Router1", routers.Get(0));
+    Names::Add("Router2", routers.Get(1));
+    Names::Add("Router3", routers.Get(2));
+    Names::Add("Sender", leftNodes.Get(0));
+    Names::Add("Receiver", rightNodes.Get(0));
 
-  // Congestion node setup
-  NodeContainer congestionNode;
-  congestionNode.Create(1);
-  Names::Add("CongestionSender", congestionNode.Get(0));
+    // Congestion node setup
+    NodeContainer congestionNode;
+    congestionNode.Create(1);
+    Names::Add("CongestionSender", congestionNode.Get(0));
 
-  DataRate b_access(bandwidth_access);
-  DataRate b_bottleneck(bandwidth_bottleneck);
-  Time d_access(delay_access);
-  Time d_bottleneck(delay_bottleneck);
-  Time d_serialization(delay_serialization);
+    DataRate b_access(bandwidth_access);
+    DataRate b_bottleneck(bandwidth_bottleneck);
+    Time d_access(delay_access);
+    Time d_bottleneck(delay_bottleneck);
+    Time d_serialization(delay_serialization);
 
-  uint32_t max_bottleneck_bytes = static_cast<uint32_t>(
-      ((std::min(b_access, b_bottleneck).GetBitRate() / 8) *
-       (((d_access * 2) + d_bottleneck) * 2 + d_serialization).GetSeconds()));
-  uint32_t projected_queue_max_packets =
-      std::ceil(max_bottleneck_bytes / MTU_bytes);
+    uint32_t max_bottleneck_bytes = static_cast<uint32_t>(
+        ((std::min(b_access, b_bottleneck).GetBitRate() / 8) *
+         (((d_access * 2) + d_bottleneck) * 2 + d_serialization).GetSeconds()));
+    uint32_t projected_queue_max_packets =
+        std::ceil(max_bottleneck_bytes / MTU_bytes);
 
-  // Set Droptail queue size to 1 packet
-  Config::SetDefault(SimulationQueue::getQueueString() + "::MaxSize", StringValue("100p"));
+    // Set Droptail queue size to 1 packet
+    Config::SetDefault(SimulationQueue::getQueueString() + "::MaxSize",
+                       StringValue("100p"));
 
-  // Create the point-to-point link helpers and connect two router nodes
-  PointToPointHelper pointToPointRouter;
-  pointToPointRouter.SetQueue(SimulationQueue::getQueueString());
-  pointToPointRouter.SetDeviceAttribute("DataRate",
-                                        StringValue(bandwidth_bottleneck));
-  pointToPointRouter.SetChannelAttribute("Delay",
-                                         StringValue(delay_bottleneck));
+    // Create the point-to-point link helpers and connect two router nodes
+    PointToPointHelper pointToPointRouter;
+    pointToPointRouter.SetQueue(SimulationQueue::getQueueString());
+    pointToPointRouter.SetDeviceAttribute("DataRate",
+                                          StringValue(bandwidth_bottleneck));
+    pointToPointRouter.SetChannelAttribute("Delay",
+                                           StringValue(delay_bottleneck));
 
+    // Draw a ring topology between R1 -> R2 -> R3
+    /*
+     *               R3
+     *              /  \
+     *             /    \
+     *     CS --- R1----R2 --- R
+     */
+    NetDeviceContainer r1r2ND =
+        pointToPointRouter.Install(routers.Get(0), routers.Get(1));
 
+    NetDeviceContainer r1r3ND =
+        pointToPointRouter.Install(routers.Get(0), routers.Get(2));
+    NetDeviceContainer r3r2ND =
+        pointToPointRouter.Install(routers.Get(2), routers.Get(1));
 
-  // Draw a ring topology between R1 -> R2 -> R3
-  /* 
-   *               R3
-   *              /  \
-   *             /    \
-   *     CS --- R1----R2 --- R
-   */
-  NetDeviceContainer r1r2ND =
-      pointToPointRouter.Install(routers.Get(0), routers.Get(1));
-  
-  NetDeviceContainer r1r3ND =
-      pointToPointRouter.Install(routers.Get(0), routers.Get(2));
-  NetDeviceContainer r3r2ND =
-      pointToPointRouter.Install(routers.Get(2), routers.Get(1));
+    setAlternateTarget<0>(r1r2ND, getDevice<0>(r1r3ND));
+    // setAlternateTarget<0>(r1r2ND, getDevice<0>(devices02));
 
-  setAlternateTarget<0>(r1r2ND, getDevice<0>(r1r3ND));	
-  //setAlternateTarget<0>(r1r2ND, getDevice<0>(devices02));	
-  
-  // Create the point-to-point link helpers and connect leaf nodes to router
-  PointToPointHelper pointToPointLeaf;
-  //pointToPointLeaf.SetQueue(SimulationQueue::getQueueString());
-  pointToPointLeaf.SetDeviceAttribute("DataRate",
-                                      StringValue(bandwidth_access));
-  pointToPointLeaf.SetChannelAttribute("Delay", StringValue(delay_access));
+    // Create the point-to-point link helpers and connect leaf nodes to router
+    PointToPointHelper pointToPointLeaf;
+    // pointToPointLeaf.SetQueue(SimulationQueue::getQueueString());
+    pointToPointLeaf.SetDeviceAttribute("DataRate",
+                                        StringValue(bandwidth_access));
+    pointToPointLeaf.SetChannelAttribute("Delay", StringValue(delay_access));
 
-  NetDeviceContainer leftToRouter =
-      pointToPointLeaf.Install(leftNodes.Get(0), routers.Get(0));
-  NetDeviceContainer routerToRight =
-      pointToPointLeaf.Install(routers.Get(1), rightNodes.Get(0));
+    NetDeviceContainer leftToRouter =
+        pointToPointLeaf.Install(leftNodes.Get(0), routers.Get(0));
+    NetDeviceContainer routerToRight =
+        pointToPointLeaf.Install(routers.Get(1), rightNodes.Get(0));
 
-  // Link CongestioNSender to Router1
-  NetDeviceContainer congestionSenderToRouter =
-      pointToPointLeaf.Install(congestionNode.Get(0), routers.Get(0));
+    // Link CongestioNSender to Router1
+    NetDeviceContainer congestionSenderToRouter =
+        pointToPointLeaf.Install(congestionNode.Get(0), routers.Get(0));
 
-  InternetStackHelper internetStack;
-  internetStack.Install(leftNodes);
-  internetStack.Install(rightNodes);
-  internetStack.Install(routers);
-  internetStack.Install(congestionNode);
+    InternetStackHelper internetStack;
+    internetStack.Install(leftNodes);
+    internetStack.Install(rightNodes);
+    internetStack.Install(routers);
+    internetStack.Install(congestionNode);
 
-  Ipv4AddressHelper ipAddresses("10.0.0.0", "255.255.255.0");
-  Ipv4InterfaceContainer r1r2IPAddress = ipAddresses.Assign(r1r2ND);
-  ipAddresses.NewNetwork();
-  Ipv4InterfaceContainer leftToRouterIPAddress =
-      ipAddresses.Assign(leftToRouter);
-  ipAddresses.NewNetwork();
-  Ipv4InterfaceContainer routerToRightIPAddress =
-      ipAddresses.Assign(routerToRight);
-  ipAddresses.NewNetwork();
-  Ipv4InterfaceContainer congestionToRouter0IPAddress =
-      ipAddresses.Assign(congestionSenderToRouter);
-  ipAddresses.NewNetwork();
+    Ipv4AddressHelper ipAddresses("10.0.0.0", "255.255.255.0");
+    Ipv4InterfaceContainer r1r2IPAddress = ipAddresses.Assign(r1r2ND);
+    ipAddresses.NewNetwork();
+    Ipv4InterfaceContainer leftToRouterIPAddress =
+        ipAddresses.Assign(leftToRouter);
+    ipAddresses.NewNetwork();
+    Ipv4InterfaceContainer routerToRightIPAddress =
+        ipAddresses.Assign(routerToRight);
+    ipAddresses.NewNetwork();
+    Ipv4InterfaceContainer congestionToRouter0IPAddress =
+        ipAddresses.Assign(congestionSenderToRouter);
+    ipAddresses.NewNetwork();
 
+    Ipv4InterfaceContainer r1r3IPAddress = ipAddresses.Assign(r1r3ND);
+    ipAddresses.NewNetwork();
+    Ipv4InterfaceContainer r3r2IPAddress = ipAddresses.Assign(r3r2ND);
+    ipAddresses.NewNetwork();
 
-  Ipv4InterfaceContainer r1r3IPAddress = ipAddresses.Assign(r1r3ND);
-  ipAddresses.NewNetwork();
-  Ipv4InterfaceContainer r3r2IPAddress = ipAddresses.Assign(r3r2ND);
-  ipAddresses.NewNetwork();
+    Ipv4GlobalRoutingHelper::PopulateRoutingTables();
 
-  Ipv4GlobalRoutingHelper::PopulateRoutingTables();
+    // Config::SetDefault("ns3::PfifoFastQueueDisc::MaxSize",
+    // QueueSizeValue(QueueSize(QueueSizeUnit::PACKETS,
+    // projected_queue_max_packets)));
+    Config::SetDefault("ns3::PfifoFastQueueDisc::MaxSize",
+                       QueueSizeValue(QueueSize(QueueSizeUnit::PACKETS, 100)));
 
-  // Config::SetDefault("ns3::PfifoFastQueueDisc::MaxSize",
-  // QueueSizeValue(QueueSize(QueueSizeUnit::PACKETS,
-  // projected_queue_max_packets)));
-  Config::SetDefault("ns3::PfifoFastQueueDisc::MaxSize",
-                     QueueSizeValue(QueueSize(QueueSizeUnit::PACKETS, 100)));
+    TrafficControlHelper tch;
+    tch.SetRootQueueDisc("ns3::PfifoFastQueueDisc");
+    QueueDiscContainer qd;
+    tch.Uninstall(routers.Get(0)->GetDevice(0));
+    qd.Add(tch.Install(routers.Get(0)->GetDevice(0)).Get(0));
 
-  TrafficControlHelper tch;
-  tch.SetRootQueueDisc("ns3::PfifoFastQueueDisc");
-  QueueDiscContainer qd;
-  tch.Uninstall(routers.Get(0)->GetDevice(0));
-  qd.Add(tch.Install(routers.Get(0)->GetDevice(0)).Get(0));
+    /* Trace the QueueDisc Queue size */
+    if (storeTraces == false) {
+        Ptr<QueueDisc> q = qd.Get(0);
+        q->TraceConnectWithoutContext("PacketsInQueue",
+                                      MakeCallback(&PacketsInQueueDisc));
+    }
 
-  /* Trace the QueueDisc Queue size */
-  if (storeTraces == false) {
-    Ptr<QueueDisc> q = qd.Get(0);
-    q->TraceConnectWithoutContext("PacketsInQueue",
-                                  MakeCallback(&PacketsInQueueDisc));
-  }
+    /* Trace the DropTail Queue size */
+    if (storeTraces) {
+        Ptr<NetDevice> nd = routers.Get(0)->GetDevice(0);
+        Ptr<PointToPointNetDevice> ptpnd =
+            DynamicCast<PointToPointNetDevice>(nd);
+        Ptr<Queue<Packet>> queue = ptpnd->GetQueue();
+        queue->TraceConnectWithoutContext("PacketsInQueue",
+                                          MakeCallback(&PacketsInDroptail));
+    }
 
-  /* Trace the DropTail Queue size */
-  if (storeTraces) {
-    Ptr<NetDevice> nd = routers.Get(0)->GetDevice(0);
-    Ptr<PointToPointNetDevice> ptpnd = DynamicCast<PointToPointNetDevice>(nd);
-    Ptr<Queue<Packet>> queue = ptpnd->GetQueue();
-    queue->TraceConnectWithoutContext("PacketsInQueue",
-                                      MakeCallback(&PacketsInDroptail));
-  }
+    /* Trace packets dropped by the QueueDisc Queue */
+    if (storeTraces) {
+        AsciiTraceHelper ascii;
+        Ptr<OutputStreamWrapper> streamWrapper;
+        streamWrapper =
+            ascii.CreateFileStream(tracesPath + "droppedQueueDisc.txt");
+        qd.Get(0)->TraceConnectWithoutContext(
+            "Drop", MakeBoundCallback(&DropAtQueue, streamWrapper));
+    }
 
-  /* Trace packets dropped by the QueueDisc Queue */
-  if (storeTraces) {
-    AsciiTraceHelper ascii;
-    Ptr<OutputStreamWrapper> streamWrapper;
-    streamWrapper = ascii.CreateFileStream(tracesPath + "droppedQueueDisc.txt");
-    qd.Get(0)->TraceConnectWithoutContext(
-        "Drop", MakeBoundCallback(&DropAtQueue, streamWrapper));
-  }
+    netDeviceToDropPacket = &r1r2ND;
+    /* Callback to the ExaminePacket */
+    r1r2ND.Get(0)->TraceConnectWithoutContext("MacTx",
+                                              MakeCallback(&ExaminePacket));
 
-  netDeviceToDropPacket = &r1r2ND;
-  /* Callback to the ExaminePacket */
-  r1r2ND.Get(0)->TraceConnectWithoutContext("MacTx",
-                                            MakeCallback(&ExaminePacket));
+    /* Packet Printing is mandatory for the Packet Drop Test */
+    Packet::EnablePrinting();
 
-  /* Packet Printing is mandatory for the Packet Drop Test */
-  Packet::EnablePrinting();
+    uint16_t server_port = 50000;
+    /* Install packet sink at receiver side */
+    InstallPacketSink(rightNodes.Get(0), server_port, socketFactory,
+                      Seconds(0.01), stopTimeSimulation);
+    // InstallPacketSink(rightNodes.Get(0), server_port,
+    // "ns3::UdpSocketFactory",
+    //                   Seconds(0.01), stopTimeSimulation);
 
-  uint16_t server_port = 50000;
-  /* Install packet sink at receiver side */
-  InstallPacketSink(rightNodes.Get(0), server_port, socketFactory,
-                    Seconds(0.01), stopTimeSimulation);
-  // InstallPacketSink(rightNodes.Get(0), server_port, "ns3::UdpSocketFactory",
-  //                   Seconds(0.01), stopTimeSimulation);
+    /* Install BulkSend application */
+    // InstallBulkSend(leftNodes.Get(0), routerToRightIPAddress.GetAddress(1),
+    //                 server_port, socketFactory, 2, 0,
+    //                 MakeCallback(&CwndChange), bytes_to_send, Seconds(0.2));
 
-  /* Install BulkSend application */
-  // InstallBulkSend(leftNodes.Get(0), routerToRightIPAddress.GetAddress(1),
-  //                 server_port, socketFactory, 2, 0,
-  //                 MakeCallback(&CwndChange), bytes_to_send, Seconds(0.2));
+    // Congestion PARAMETERS
+    uint16_t serverPort = 50000;
+    Time startDelay = Seconds(1.0);
+    Time duration = Seconds(5.0);
+    uint32_t numPackets = 512;
+    uint32_t packetSize = 1024;
+    Time interval = MilliSeconds(10);
+    Ipv4Address receiverAddress = routerToRightIPAddress.GetAddress(1);
 
-  // Congestion PARAMETERS
-  uint16_t serverPort = 50000;
-  Time startDelay = Seconds(1.0);
-  Time duration = Seconds(5.0);
-  uint32_t numPackets = 512;
-  uint32_t packetSize = 1024;
-  Time interval = MilliSeconds(10);
-  Ipv4Address receiverAddress = routerToRightIPAddress.GetAddress(1);
+    // Schedule the congestion
+    //   Simulator::Schedule(startDelay, [congestionNode, startDelay, duration,
+    //                                    numPackets, packetSize, interval,
+    //                                    receiverAddress, serverPort]() {
+    //     Ptr<Node> node = congestionNode.Get(0);
+    //     // double startDelaySeconds = startDelay.GetSeconds();
+    //     // double duration
+    //     SimulateCongestion(node, startDelay, duration, numPackets,
+    //     packetSize,
+    //                        interval, receiverAddress, serverPort);
+    //   });
 
-  // Schedule the congestion
-  //   Simulator::Schedule(startDelay, [congestionNode, startDelay, duration,
-  //                                    numPackets, packetSize, interval,
-  //                                    receiverAddress, serverPort]() {
-  //     Ptr<Node> node = congestionNode.Get(0);
-  //     // double startDelaySeconds = startDelay.GetSeconds();
-  //     // double duration
-  //     SimulateCongestion(node, startDelay, duration, numPackets, packetSize,
-  //                        interval, receiverAddress, serverPort);
-  //   });
+    // SimulateCongestion(congestionNode.Get(0), startDelay, duration,
+    // numPackets,
+    //                 packetSize, interval, receiverAddress, serverPort);
 
-  // SimulateCongestion(congestionNode.Get(0), startDelay, duration, numPackets,
-  //                 packetSize, interval, receiverAddress, serverPort);
+    OnOffHelper onoff(
+        "ns3::UdpSocketFactory",
+        InetSocketAddress(routerToRightIPAddress.GetAddress(1), 50000));
+    onoff.SetAttribute("PacketSize", UintegerValue(8));
+    onoff.SetAttribute("DataRate", DataRateValue(DataRate("200kbps")));
 
-  OnOffHelper onoff(
-      "ns3::UdpSocketFactory",
-      InetSocketAddress(routerToRightIPAddress.GetAddress(1), 50000));
-  onoff.SetAttribute("PacketSize", UintegerValue(8));
-  onoff.SetAttribute("DataRate", DataRateValue(DataRate("200kbps")));
+    ApplicationContainer app = onoff.Install(congestionNode.Get(0));
+    app.Start(Seconds(1.0));
+    app.Stop(Seconds(3.0));
 
-  ApplicationContainer app = onoff.Install(congestionNode.Get(0));
-  app.Start(Seconds(1.0));
-  app.Stop(Seconds(3.0));
+    if (storeTraces) {
+        pointToPointRouter.EnablePcapAll(tracesPath);
+    }
 
-  if (storeTraces) {
-    pointToPointRouter.EnablePcapAll(tracesPath);
-  }
-
-  // Simulator::Stop(stopTimeSimulation);
-  Simulator::Run();
-  Simulator::Destroy();
-  return 0;
+    // Simulator::Stop(stopTimeSimulation);
+    Simulator::Run();
+    Simulator::Destroy();
+    return 0;
 }

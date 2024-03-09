@@ -9,7 +9,6 @@ class ModuloCongestionPolicy
     int counter;
 
   public:
-
     bool isCongested(ns3::Queue<ns3::Packet>* queue)
     {
         increment();
