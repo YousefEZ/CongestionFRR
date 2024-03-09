@@ -8,10 +8,13 @@
 #include "ns3/point-to-point-module.h"
 #include "ns3/traffic-control-module.h"
 
+
+#include "../libs/frr_queue.h"
 #include "../libs/dummy_congestion_policy.h"
 #include "../libs/frr_queue.h"
 #include "../libs/lfa_policy.h"
 #include "../libs/modulo_congestion_policy.h"
+
 
 using namespace ns3;
 
@@ -77,6 +80,7 @@ void InstallBulkSend(Ptr<Node> node, Ipv4Address address, uint16_t port,
     //                  nullptr);
 }
 
+
 int main(int argc, char* argv[])
 {
     // TCP Recovery Algorithm
@@ -114,6 +118,7 @@ int main(int argc, char* argv[])
     NodeContainer nodes;
     nodes.Create(3);
     Names::Add("Node0", nodes.Get(0));
+
 
     InternetStackHelper stack;
     stack.Install(nodes);
@@ -183,6 +188,7 @@ int main(int argc, char* argv[])
     // ApplicationContainer app = onoff.Install(nodes.Get(0));
     // app.Start(Seconds(1.0));
     // app.Stop(Seconds(10.0));
+
     // Set up an alternate forwarding target, assuming you have an alternate
     // path configured
 
@@ -195,11 +201,13 @@ int main(int argc, char* argv[])
     setAlternateTarget<1>(devices02, getDevice<1>(devices12));
     setAlternateTarget<1>(devices12, getDevice<1>(devices02));
 
+
     p2p.EnablePcapAll("traces/");
 
     /* Install BulkSend application */
     InstallBulkSend(nodes.Get(0), interfaces01.GetAddress(1), 5000,
                     "ns3::TcpSocketFactory", 2, 0, nullptr, 1000, Seconds(0.2));
+
 
     Simulator::Run();
     Simulator::Destroy();

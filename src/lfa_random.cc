@@ -7,6 +7,8 @@
 #include "ns3/network-module.h"
 #include "ns3/point-to-point-module.h"
 
+
+#include "../libs/frr_queue.h"
 #include "../libs/dummy_congestion_policy.h"
 #include "../libs/frr_queue.h"
 #include "../libs/lfa_policy.h"
