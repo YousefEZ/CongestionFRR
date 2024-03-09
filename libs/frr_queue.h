@@ -91,7 +91,7 @@ template <typename CONGESTION_POLICY, typename FRR_POLICY>
 bool FRRQueue<CONGESTION_POLICY, FRR_POLICY>::Enqueue(Ptr<Packet> packet)
 {
     NS_LOG_FUNCTION(this << packet);
-    if (m_congestionPolicy.isCongested(GetContainer()))
+    if (m_congestionPolicy.isCongested(this))
     {
         NS_LOG_LOGIC("Congested Route, Rerouting packet: " << packet);
         ForwardToAlternateTarget(packet);

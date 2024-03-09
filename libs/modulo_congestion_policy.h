@@ -12,8 +12,7 @@ class ModuloCongestionPolicy
 
   public:
 
-    template <typename CONTAINER>
-    bool isCongested(const CONTAINER& container)
+    bool isCongested(ns3::Queue<ns3::Packet>* queue)
     {
       increment();
       return counter; 
