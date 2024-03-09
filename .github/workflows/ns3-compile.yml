@@ -1,9 +1,9 @@
-name: Create and Execute Bash Script
+name: Check if Compiles
 
 on: [push]
 
 jobs:
-  create-and-execute-script:
+  check-if-compiles:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
