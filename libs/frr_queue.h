@@ -29,6 +29,7 @@ class FRRQueue : public Queue<Packet>
     using Queue<Packet>::DoRemove;
     using Queue<Packet>::DoPeek;
     
+    int m_uid;
     NS_LOG_TEMPLATE_DECLARE;
     
 
@@ -40,7 +41,7 @@ class FRRQueue : public Queue<Packet>
     virtual Ptr<Packet> Remove(void) override;
     virtual Ptr<const Packet> Peek() const override;
   public:
-    
+    static int s_uid; 
     FRR_POLICY m_frrPolicy;
     CONGESTION_POLICY m_congestionPolicy;
     
@@ -54,10 +55,14 @@ class FRRQueue : public Queue<Packet>
     static const std::string& getQueueString();
 };
 
+template <typename CONGESTION_POLICY, typename FRR_POLICY>
+int FRRQueue<CONGESTION_POLICY, FRR_POLICY>::s_uid = 0;
+
 
 template <typename CONGESTION_POLICY, typename FRR_POLICY>
 FRRQueue<CONGESTION_POLICY, FRR_POLICY>::FRRQueue()
     : Queue<Packet>(),
+      m_uid(s_uid++),
       NS_LOG_TEMPLATE_DEFINE("FRRQueue")
 {
     NS_LOG_FUNCTION(this);
@@ -67,7 +72,7 @@ FRRQueue<CONGESTION_POLICY, FRR_POLICY>::FRRQueue()
 template <typename CONGESTION_POLICY, typename FRR_POLICY>
 FRRQueue<CONGESTION_POLICY, FRR_POLICY>::~FRRQueue()
 {
-    NS_LOG_FUNCTION(this);
+    //NS_LOG_FUNCTION(this);
 }
 
 template <typename CONGESTION_POLICY, typename FRR_POLICY>
@@ -93,13 +98,14 @@ bool FRRQueue<CONGESTION_POLICY, FRR_POLICY>::Enqueue(Ptr<Packet> packet)
     NS_LOG_FUNCTION(this << packet);
     if (m_congestionPolicy.isCongested(this))
     {
-        NS_LOG_LOGIC("Congested Route, Rerouting packet: " << packet);
+        NS_LOG_LOGIC("(" << m_uid << ") Congested Route, Rerouting packet: " << packet);
         ForwardToAlternateTarget(packet);
-        NS_LOG_LOGIC("Rerouting complete");
+        NS_LOG_LOGIC("(" << m_uid << ") Rerouting complete");
         return false; 
     }
-    NS_LOG_LOGIC("Enqueued " << packet << " to " << GetContainer().size() << " packets in queue.");
+    NS_LOG_LOGIC("(" << m_uid << ") Enqueued " << packet << " to " << GetNPackets() << " packets in queue.");
     DoEnqueue(GetContainer().end(), packet);
+    NS_LOG_LOGIC("(" << m_uid << ") Enqueued " << packet << " to " << GetNPackets() << " packets in queue.");
     return true;
 }
  
@@ -138,8 +144,8 @@ Ptr<const Packet> FRRQueue<CONGESTION_POLICY, FRR_POLICY>::Peek() const
 template <typename CONGESTION_POLICY, typename FRR_POLICY>
 void FRRQueue<CONGESTION_POLICY, FRR_POLICY>::ForwardToAlternateTarget(Ptr<Packet> packet)
 {
-  auto alternativeTarget = m_frrPolicy.selectAlternativeTarget();
-  alternativeTarget->Send(packet, alternativeTarget->GetAddress(), 0x0800);
+  Ptr<NetDevice> alternativeTarget = m_frrPolicy.selectAlternativeTarget();
+  if (alternativeTarget) alternativeTarget->Send(packet, alternativeTarget->GetAddress(), 0x0800);
 }
 
 template <typename CONGESTION_POLICY, typename FRR_POLICY>

@@ -24,7 +24,7 @@
 using namespace ns3;
 using Random = effolkronium::random_static;
 
-using CongestionPolicy = BasicCongestionPolicy<100>;
+using CongestionPolicy = BasicCongestionPolicy<99>;
 using FRRPolicy = LFAPolicy;
 
 using SimulationQueue = FRRQueue<CongestionPolicy, FRRPolicy>;
@@ -34,6 +34,25 @@ NS_OBJECT_ENSURE_REGISTERED(SimulationQueue);
 // ---------------------------------------------------- //
 // --- BEGIN OF SIMULATION CONFIGURATION PARAMETERS --- //
 // ---------------------------------------------------- //
+
+template <int INDEX>
+Ptr<PointToPointNetDevice> getDevice(const NetDeviceContainer& devices) 
+{
+    return devices.Get(INDEX)->GetObject<PointToPointNetDevice>();
+}
+
+template <int INDEX>
+Ptr<SimulationQueue> getQueue(const NetDeviceContainer& devices) 
+{
+    return DynamicCast<SimulationQueue>(getDevice<INDEX>(devices)->GetQueue());
+}
+
+template <int INDEX>
+void setAlternateTarget(const NetDeviceContainer& devices, Ptr<PointToPointNetDevice> target) 
+{
+    getQueue<INDEX>(devices)->addAlternateTargets(target);
+}
+
 
 // Random Seed
 uint32_t seed = 1;
@@ -59,8 +78,8 @@ Time stopTimeSimulation = Seconds(5000);
 Time intervalTCP = Seconds(1);
 
 // ---[TCP PARAMETERS] ---
-uint32_t segmentSize = 1024;
-uint32_t MTU_bytes = segmentSize + 54;
+uint32_t segmentSize = 32; //1024;
+uint32_t MTU_bytes = 38;// segmentSize + 54;
 uint8_t delAckCount = 1;
 uint8_t initialCwnd = 1;
 // std::string delAckTimeout = "200ms";
@@ -221,6 +240,8 @@ void SimulateCongestion(Ptr<Node> congestionNode, Time startDelay,
 }
 
 int main(int argc, char *argv[]) {
+  LogComponentEnable("FRRQueue", LOG_LEVEL_LOGIC);
+  NS_LOG_INFO("Creating Topology");
   // Command line arguments
   CommandLine cmd;
   cmd.AddValue("tcpVariantId", "TCP variant", tcpVariantId);
@@ -263,12 +284,13 @@ int main(int argc, char *argv[]) {
   Config::SetDefault("ns3::TcpSocketBase::MinRto", TimeValue(Seconds(minRTO)));
 
   NodeContainer leftNodes, rightNodes, routers;
-  routers.Create(2);
+  routers.Create(3);
   leftNodes.Create(1);
   rightNodes.Create(1);
 
   Names::Add("Router1", routers.Get(0));
   Names::Add("Router2", routers.Get(1));
+  Names::Add("Router3", routers.Get(2));
   Names::Add("Sender", leftNodes.Get(0));
   Names::Add("Receiver", rightNodes.Get(0));
 
@@ -290,7 +312,7 @@ int main(int argc, char *argv[]) {
       std::ceil(max_bottleneck_bytes / MTU_bytes);
 
   // Set Droptail queue size to 1 packet
-  Config::SetDefault("ns3::DropTailQueue<Packet>::MaxSize", StringValue("1p"));
+  Config::SetDefault(SimulationQueue::getQueueString() + "::MaxSize", StringValue("100p"));
 
   // Create the point-to-point link helpers and connect two router nodes
   PointToPointHelper pointToPointRouter;
@@ -300,12 +322,29 @@ int main(int argc, char *argv[]) {
   pointToPointRouter.SetChannelAttribute("Delay",
                                          StringValue(delay_bottleneck));
 
+
+
+  // Draw a ring topology between R1 -> R2 -> R3
+  /* 
+   *               R3
+   *              /  \
+   *             /    \
+   *     CS --- R1----R2 --- R
+   */
   NetDeviceContainer r1r2ND =
       pointToPointRouter.Install(routers.Get(0), routers.Get(1));
+  
+  NetDeviceContainer r1r3ND =
+      pointToPointRouter.Install(routers.Get(0), routers.Get(2));
+  NetDeviceContainer r3r2ND =
+      pointToPointRouter.Install(routers.Get(2), routers.Get(1));
 
+  setAlternateTarget<0>(r1r2ND, getDevice<0>(r1r3ND));	
+  //setAlternateTarget<0>(r1r2ND, getDevice<0>(devices02));	
+  
   // Create the point-to-point link helpers and connect leaf nodes to router
   PointToPointHelper pointToPointLeaf;
-  pointToPointLeaf.SetQueue(SimulationQueue::getQueueString());
+  //pointToPointLeaf.SetQueue(SimulationQueue::getQueueString());
   pointToPointLeaf.SetDeviceAttribute("DataRate",
                                       StringValue(bandwidth_access));
   pointToPointLeaf.SetChannelAttribute("Delay", StringValue(delay_access));
@@ -338,13 +377,19 @@ int main(int argc, char *argv[]) {
       ipAddresses.Assign(congestionSenderToRouter);
   ipAddresses.NewNetwork();
 
+
+  Ipv4InterfaceContainer r1r3IPAddress = ipAddresses.Assign(r1r3ND);
+  ipAddresses.NewNetwork();
+  Ipv4InterfaceContainer r3r2IPAddress = ipAddresses.Assign(r3r2ND);
+  ipAddresses.NewNetwork();
+
   Ipv4GlobalRoutingHelper::PopulateRoutingTables();
 
   // Config::SetDefault("ns3::PfifoFastQueueDisc::MaxSize",
   // QueueSizeValue(QueueSize(QueueSizeUnit::PACKETS,
   // projected_queue_max_packets)));
   Config::SetDefault("ns3::PfifoFastQueueDisc::MaxSize",
-                     QueueSizeValue(QueueSize(QueueSizeUnit::PACKETS, 1)));
+                     QueueSizeValue(QueueSize(QueueSizeUnit::PACKETS, 100)));
 
   TrafficControlHelper tch;
   tch.SetRootQueueDisc("ns3::PfifoFastQueueDisc");
@@ -424,14 +469,14 @@ int main(int argc, char *argv[]) {
       "ns3::UdpSocketFactory",
       InetSocketAddress(routerToRightIPAddress.GetAddress(1), 50000));
   onoff.SetAttribute("PacketSize", UintegerValue(8));
-  onoff.SetAttribute("DataRate", DataRateValue(DataRate("1kbps")));
+  onoff.SetAttribute("DataRate", DataRateValue(DataRate("200kbps")));
 
   ApplicationContainer app = onoff.Install(congestionNode.Get(0));
   app.Start(Seconds(1.0));
   app.Stop(Seconds(3.0));
 
   if (storeTraces) {
-    pointToPointLeaf.EnablePcapAll(tracesPath);
+    pointToPointRouter.EnablePcapAll(tracesPath);
   }
 
   // Simulator::Stop(stopTimeSimulation);

@@ -18,13 +18,13 @@ class BasicCongestionPolicy
 template <>
 bool BasicCongestionPolicy<100>::isCongested(ns3::Queue<ns3::Packet>* queue)
 {
-  return queue->GetNPackets() > queue->GetMaxSize().GetValue();
+  return queue->GetNPackets() >= queue->GetMaxSize().GetValue();
 }
 
 template <int MAX_USAGE_PERCENTAGE>
 bool BasicCongestionPolicy<MAX_USAGE_PERCENTAGE>::isCongested(ns3::Queue<ns3::Packet>* queue)
 {
-  return queue->GetNPackets() * 100 > queue->GetMaxSize().GetValue() * MAX_USAGE_PERCENTAGE;
+  return queue->GetNPackets() * 100 >= queue->GetMaxSize().GetValue() * MAX_USAGE_PERCENTAGE;
 }
 
 
