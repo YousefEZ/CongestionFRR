@@ -71,12 +71,11 @@ std::string delay_serialization = "1.9ms";
 
 NetDeviceContainer* netDeviceToDropPacket = NULL;
 
-
 // -------------------------------------------------- //
 // --- END OF SIMULATION CONFIGURATION PARAMETERS --- //
 // -------------------------------------------------- //
 
-// Global Variables
+// Global Vars
 Ptr<PacketSink> sinker;
 
 int packetsDroppedInQueue = 0;
@@ -164,9 +163,9 @@ void ExaminePacket(Ptr<const Packet> packet)
     packet->PeekHeader(tcpHeader);
     uint32_t payloadSize = packet->GetSize();
 
-  // Extract the SEQ and ACK numbers
-  uint32_t seq = tcpHeader.GetSequenceNumber().GetValue();
-  uint32_t ack = tcpHeader.GetAckNumber().GetValue();
+    // Extract the SEQ and ACK numbers
+    uint32_t seq = tcpHeader.GetSequenceNumber().GetValue();
+    uint32_t ack = tcpHeader.GetAckNumber().GetValue();
     std::cout << "[TCP PACKET] [SEQ: " << seq << "] [ACK: " << ack
               << "] [Payload Length: " << payloadSize
               << "] PacketUid: " << packet->GetUid() << std::endl;
