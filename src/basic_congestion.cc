@@ -14,9 +14,22 @@
 #include "ns3/traffic-control-module.h"
 
 #include "../libs/random/random.hpp"
+#include "../libs/basic_congestion.h"
+
+#include "../libs/frr_queue.h"
+#include "../libs/lfa_policy.h"
+
+
 
 using namespace ns3;
 using Random = effolkronium::random_static;
+
+using CongestionPolicy = BasicCongestionPolicy<100>;
+using FRRPolicy = LFAPolicy;
+
+using SimulationQueue = FRRQueue<CongestionPolicy, FRRPolicy>;
+
+NS_OBJECT_ENSURE_REGISTERED(SimulationQueue);
 
 // ---------------------------------------------------- //
 // --- BEGIN OF SIMULATION CONFIGURATION PARAMETERS --- //
@@ -281,6 +294,7 @@ int main(int argc, char *argv[]) {
 
   // Create the point-to-point link helpers and connect two router nodes
   PointToPointHelper pointToPointRouter;
+  pointToPointRouter.SetQueue(SimulationQueue::getQueueString());
   pointToPointRouter.SetDeviceAttribute("DataRate",
                                         StringValue(bandwidth_bottleneck));
   pointToPointRouter.SetChannelAttribute("Delay",
@@ -291,6 +305,7 @@ int main(int argc, char *argv[]) {
 
   // Create the point-to-point link helpers and connect leaf nodes to router
   PointToPointHelper pointToPointLeaf;
+  pointToPointLeaf.SetQueue(SimulationQueue::getQueueString());
   pointToPointLeaf.SetDeviceAttribute("DataRate",
                                       StringValue(bandwidth_access));
   pointToPointLeaf.SetChannelAttribute("Delay", StringValue(delay_access));
