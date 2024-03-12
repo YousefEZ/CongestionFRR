@@ -152,6 +152,8 @@ void FRRQueue<CONGESTION_POLICY, FRR_POLICY>::ForwardToAlternateTarget(
         m_frrPolicy.selectAlternativeTarget();
     if (alternativeTarget) {
         NS_LOG_LOGIC("(" << m_uid << ") Forwarding packet to: " << sinkAddress);
+        PppHeader header;
+        packet->RemoveHeader(header, 2);
         bool rc = alternativeTarget->Send(packet, sinkAddress, 0x0800);
         NS_LOG_LOGIC("(" << m_uid << ") Forwarded packet with: " << rc);
     } else {
