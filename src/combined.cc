@@ -12,17 +12,18 @@
 #include "../libs/modulo_congestion_policy.h"
 #include "../libs/lfa_policy.h"
 #include "../libs/random_congestion_policy.h"
+#include "../libs/basic_congestion.h"
 
 using namespace ns3;
 
-using CongestionPolicy = RandomCongestionPolicy<50>;
+using CongestionPolicy = BasicCongestionPolicy<0>;
 using FRRPolicy = LFAPolicy;
 
 using SimulationQueue = FRRQueue<CongestionPolicy, FRRPolicy>;
 
 void enableRerouting(Ptr<SimulationQueue> queue)
 {
-    queue->m_congestionPolicy.enable();
+    //queue->m_congestionPolicy.enable();
 }
 
 NS_OBJECT_ENSURE_REGISTERED(SimulationQueue);
@@ -117,12 +118,19 @@ int main(int argc, char* argv[])
     p2p_traffic.SetDeviceAttribute("DataRate", StringValue("1Mbps"));
     p2p_traffic.SetChannelAttribute("Delay", StringValue("1ms"));
     // Set the custom queue for the device
-    p2p_traffic.SetQueue(SimulationQueue::getQueueString());
+    p2p_traffic.SetQueue("ns3::DropTailQueue<Packet>");
     // Install devices and channels between nodes
+
+    PointToPointHelper p2p_congested_link;
+    p2p_congested_link.SetDeviceAttribute("DataRate", StringValue("1Mbps"));
+    p2p_congested_link.SetChannelAttribute("Delay", StringValue("1ms"));
+
+    p2p_congested_link.SetQueue(SimulationQueue::getQueueString());
+    
     NetDeviceContainer devices_0_2 =
         p2p_traffic.Install(nodes.Get(0), nodes.Get(2));
     NetDeviceContainer devices_2_3 =
-        p2p_traffic.Install(nodes.Get(2), nodes.Get(3));
+        p2p_congested_link.Install(nodes.Get(2), nodes.Get(3));
     NetDeviceContainer devices_2_4 =
         p2p_traffic.Install(nodes.Get(2), nodes.Get(4));
     NetDeviceContainer devices_4_3 =
@@ -135,7 +143,7 @@ int main(int argc, char* argv[])
     p2p_congestion.SetDeviceAttribute("DataRate", StringValue("1Mbps"));
     p2p_congestion.SetChannelAttribute("Delay", StringValue("1ms"));
     // Set the custom queue for the device
-    p2p_congestion.SetQueue(SimulationQueue::getQueueString());
+    p2p_congestion.SetQueue("ns3::DropTailQueue<Packet>");
     // Install devices and channels between nodes
     NetDeviceContainer devices_1_2 =
         p2p_congestion.Install(nodes.Get(1), nodes.Get(2));
@@ -195,6 +203,7 @@ int main(int argc, char* argv[])
     tcp_app.Start(Seconds(0.0));
     tcp_app.Start(Seconds(10.0));
 
+    SimulationQueue::sinkAddress = Mac48Address::ConvertFrom(getDevice<1>(devices_3_5)->GetAddress());
     // NOTE: Is TrafficControlHelper needed here?
 
     // LFA Alternate Path setup
@@ -203,6 +212,7 @@ int main(int argc, char* argv[])
 
     // TODO: Need some help with setting alternate target
     setAlternateTarget<0>(devices_2_3, getDevice<0>(devices_2_4));
+    setAlternateTarget<1>(devices_2_3, getDevice<1>(devices_4_3));
     // setAlternateTarget<0>(devices01, getDevice<0>(devices02));
     // setAlternateTarget<0>(devices02, getDevice<0>(devices01));
 
@@ -212,7 +222,7 @@ int main(int argc, char* argv[])
     // setAlternateTarget<1>(devices02, getDevice<1>(devices12));
     // setAlternateTarget<1>(devices12, getDevice<1>(devices02));
 
-    enableRerouting(getQueue<0>(devices_2_3));
+    //enableRerouting(getQueue<0>(devices_2_3));
 
     p2p_traffic.EnablePcapAll("traces/");
     p2p_congestion.EnablePcapAll("traces/");
