@@ -65,7 +65,6 @@ int main(int argc, char* argv[])
     p2p.SetDeviceAttribute("DataRate", StringValue("5Mbps"));
     p2p.SetChannelAttribute("Delay", StringValue("1ms"));
 
-    p2p.EnablePcapAll("traces/");
     // Set the custom queue for the device
     p2p.SetQueue(SimulationQueue::getQueueString());
 
@@ -138,6 +137,7 @@ int main(int argc, char* argv[])
     toggleCongestion(getQueue<1>(devices12));
     toggleCongestion(getQueue<1>(devices02));
 
+    p2p.EnablePcapAll("traces/");
     Simulator::Run();
     Simulator::Destroy();
     return 0;
