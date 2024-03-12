@@ -1,11 +1,25 @@
 #!/bin/bash
-echo "Simulating ns3 on file: $1"
 
 rm -rf traces/
 mkdir traces
-cp user_src/* scratch/
 
+cp user_src/* scratch/
 export NS_LOG=FRRQueue=level_all
 
 ./ns3 build
-./ns3 run "scratch/$1" >traces/output.log 2>&1
+
+if [ $? -ne 0 ]; then
+  echo "ns3 build failed"
+  exit 1
+fi
+
+if [ -z "$1" ]; then
+  exit 0
+fi
+
+./ns3 run "scratch/$1"
+if [ $? -ne 0 ]; then
+  echo "./ns3 run for $name failed"
+  exit 1
+fi
+exit 0

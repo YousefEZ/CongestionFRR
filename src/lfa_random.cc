@@ -12,10 +12,12 @@
 #include "../libs/modulo_congestion_policy.h"
 #include "../libs/lfa_policy.h"
 #include "../libs/random_congestion_policy.h"
+#include "../libs/basic_congestion.h"
 
 using namespace ns3;
 
 using CongestionPolicy = RandomCongestionPolicy<50>;
+// using CongestionPolicy = BasicCongestionPolicy<50>;
 using FRRPolicy = LFAPolicy;
 
 using SimulationQueue = FRRQueue<CongestionPolicy, FRRPolicy>;
@@ -68,11 +70,19 @@ int main(int argc, char* argv[])
 
     // Install devices and channels between nodes
     NetDeviceContainer devices01 = p2p.Install(nodes.Get(0), nodes.Get(1));
+    std::cout << "0 -> 1: " << getQueue<0>(devices01)->m_uid << std::endl;
+    std::cout << "1 -> 0: " << getQueue<1>(devices01)->m_uid << std::endl;
     NetDeviceContainer devices12 = p2p.Install(nodes.Get(1), nodes.Get(2));
+    std::cout << "1 -> 2: " << getQueue<0>(devices12)->m_uid << std::endl;
+    std::cout << "2 -> 1: " << getQueue<1>(devices12)->m_uid << std::endl;
     // Add the missing link between Node 0 and Node 2 to fully connect the
     // network
     NetDeviceContainer devices02 = p2p.Install(nodes.Get(0), nodes.Get(2));
+    std::cout << "0 -> 2: " << getQueue<0>(devices02)->m_uid << std::endl;
+    std::cout << "2 -> 0: " << getQueue<1>(devices02)->m_uid << std::endl;
 
+    SimulationQueue::sinkAddress =
+        Mac48Address::ConvertFrom(getDevice<1>(devices12)->GetAddress());
     // Assign IP addresses
     Ipv4AddressHelper address;
     address.SetBase("10.1.1.0", "255.255.255.0");
@@ -83,7 +93,9 @@ int main(int argc, char* argv[])
     Ipv4InterfaceContainer interfaces02 = address.Assign(devices02);
 
     Ipv4GlobalRoutingHelper::PopulateRoutingTables();
-
+    Ptr<OutputStreamWrapper> routingStream =
+        Create<OutputStreamWrapper>(&std::cout);
+    Ipv4GlobalRoutingHelper::PrintRoutingTableAllAt(Seconds(1), routingStream);
     /* Configure the application to generate traffic
      * we have node 0 sending traffic to node 2
      *
@@ -100,7 +112,7 @@ int main(int argc, char* argv[])
                        StringValue("ns3::ConstantRandomVariable[Constant=1]"));
     onoff.SetAttribute("OffTime",
                        StringValue("ns3::ConstantRandomVariable[Constant=0]"));
-    onoff.SetAttribute("DataRate", DataRateValue(DataRate("1Mbps")));
+    onoff.SetAttribute("DataRate", DataRateValue(DataRate("100kbps")));
     onoff.SetAttribute("PacketSize", UintegerValue(1024));
 
     ApplicationContainer app = onoff.Install(nodes.Get(0));

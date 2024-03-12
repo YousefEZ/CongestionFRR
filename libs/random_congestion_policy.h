@@ -14,8 +14,7 @@ class RandomCongestionPolicy
   public:
     RandomCongestionPolicy() = default;
 
-    template <typename CONTAINER>
-    bool isCongested(const CONTAINER& container) const
+    bool isCongested(ns3::Queue<ns3::Packet>* queue) const
     {
         std::random_device rd;
         std::mt19937 gen(rd());

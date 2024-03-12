@@ -68,7 +68,6 @@ std::string delay_bottleneck = "20ms";
 std::string delay_serialization = "1.9ms";
 
 // ---[POINTER TO THE DEVICE THAT WILL IMPLEMENT PACKET DROPING]
-
 NetDeviceContainer* netDeviceToDropPacket = NULL;
 
 // -------------------------------------------------- //
