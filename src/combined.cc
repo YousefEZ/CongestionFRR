@@ -1,4 +1,3 @@
-#include <__errc>
 #include <iostream>
 
 #include "ns3/core-module.h"
@@ -162,7 +161,7 @@ int main(int argc, char* argv[])
     Ipv4GlobalRoutingHelper::PopulateRoutingTables();
 
     // Receiver address
-    Ipv4Addresss receiver_addr = interfaces_3_5.GetAddress(1);
+    Ipv4Address receiver_addr = interfaces_3_5.GetAddress(1);
 
     // UDP Congestion traffic setup
     uint16_t udp_port = 5001;
@@ -176,8 +175,8 @@ int main(int argc, char* argv[])
     udp_source.SetAttribute("PacketSize", UintegerValue(1024));
 
     ApplicationContainer udp_app = udp_source.Install(nodes.Get(0));
-    app.Start(Seconds(2.0));
-    app.Stop(Seconds(6.0));
+    udp_app.Start(Seconds(2.0));
+    udp_app.Stop(Seconds(6.0));
 
     // TCP Setup
     SetupTCPConfig();
@@ -191,7 +190,7 @@ int main(int argc, char* argv[])
 
     // Packet sink setup (Receiver node)
     PacketSinkHelper sink("ns3::TcpSocketFactory",
-                          InetSocketAddress(Ipv4Address::GetAny(), port));
+                          InetSocketAddress(Ipv4Address::GetAny(), tcp_port));
     ApplicationContainer sink_app = sink.Install(nodes.Get(5));
     tcp_app.Start(Seconds(0.0));
     tcp_app.Start(Seconds(10.0));
@@ -202,21 +201,15 @@ int main(int argc, char* argv[])
     // Set up an alternate forwarding target, assuming you have an alternate
     // path configured
 
-    setAlternateTarget<0>(devices01, getDevice<0>(devices02));
-    setAlternateTarget<0>(devices02, getDevice<0>(devices01));
+    // TODO: Need some help with setting alternate target
+    // setAlternateTarget<0>(devices01, getDevice<0>(devices02));
+    // setAlternateTarget<0>(devices02, getDevice<0>(devices01));
 
-    setAlternateTarget<0>(devices12, getDevice<1>(devices01));
-    setAlternateTarget<1>(devices01, getDevice<0>(devices12));
+    // setAlternateTarget<0>(devices12, getDevice<1>(devices01));
+    // setAlternateTarget<1>(devices01, getDevice<0>(devices12));
 
-    setAlternateTarget<1>(devices02, getDevice<1>(devices12));
-    setAlternateTarget<1>(devices12, getDevice<1>(devices02));
-
-    // toggle off random congestion for all queues except node 0 to node 2
-    toggleCongestion(getQueue<0>(devices01));
-    toggleCongestion(getQueue<1>(devices01));
-    toggleCongestion(getQueue<0>(devices12));
-    toggleCongestion(getQueue<1>(devices12));
-    toggleCongestion(getQueue<1>(devices02));
+    // setAlternateTarget<1>(devices02, getDevice<1>(devices12));
+    // setAlternateTarget<1>(devices12, getDevice<1>(devices02));
 
     Simulator::Run();
     Simulator::Destroy();
