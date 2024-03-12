@@ -20,9 +20,9 @@ using FRRPolicy = LFAPolicy;
 
 using SimulationQueue = FRRQueue<CongestionPolicy, FRRPolicy>;
 
-void toggleCongestion(Ptr<SimulationQueue> queue)
+void enableRerouting(Ptr<SimulationQueue> queue)
 {
-    queue->m_congestionPolicy.turnOff();
+    queue->m_congestionPolicy.enable();
 }
 
 NS_OBJECT_ENSURE_REGISTERED(SimulationQueue);
@@ -202,7 +202,7 @@ int main(int argc, char* argv[])
     // path configured
 
     // TODO: Need some help with setting alternate target
-    setAlternateTarget<0>(devices_0_2, getDevice<1>(devices_2_4));
+    setAlternateTarget<0>(devices_2_3, getDevice<0>(devices_2_4));
     // setAlternateTarget<0>(devices01, getDevice<0>(devices02));
     // setAlternateTarget<0>(devices02, getDevice<0>(devices01));
 
@@ -211,6 +211,8 @@ int main(int argc, char* argv[])
 
     // setAlternateTarget<1>(devices02, getDevice<1>(devices12));
     // setAlternateTarget<1>(devices12, getDevice<1>(devices02));
+
+    enableRerouting(getQueue<0>(devices_2_3));
 
     p2p_traffic.EnablePcapAll("traces/");
     p2p_congestion.EnablePcapAll("traces/");
