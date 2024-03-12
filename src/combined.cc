@@ -175,7 +175,7 @@ int main(int argc, char* argv[])
     udp_source.SetAttribute("PacketSize", UintegerValue(1024));
 
     ApplicationContainer udp_app = udp_source.Install(nodes.Get(0));
-    udp_app.Start(Seconds(2.0));
+    udp_app.Start(Seconds(3.0));
     udp_app.Stop(Seconds(6.0));
 
     // TCP Setup
@@ -183,7 +183,7 @@ int main(int argc, char* argv[])
     uint16_t tcp_port = 5002;
     BulkSendHelper tcp_source("ns3::TcpSocketFactory",
                               InetSocketAddress(receiver_addr, tcp_port));
-    tcp_source.SetAttribute("MaxBytes", UintegerValue(1000)); // Tweak this
+    tcp_source.SetAttribute("MaxBytes", UintegerValue(10000)); // Tweak this
     ApplicationContainer tcp_app = tcp_source.Install(nodes.Get(1));
     tcp_app.Start(Seconds(0.0));
     tcp_app.Stop(Seconds(10.0));
@@ -202,6 +202,7 @@ int main(int argc, char* argv[])
     // path configured
 
     // TODO: Need some help with setting alternate target
+    setAlternateTarget<0>(devices_0_2, getDevice<1>(devices_2_4));
     // setAlternateTarget<0>(devices01, getDevice<0>(devices02));
     // setAlternateTarget<0>(devices02, getDevice<0>(devices01));
 
@@ -210,6 +211,9 @@ int main(int argc, char* argv[])
 
     // setAlternateTarget<1>(devices02, getDevice<1>(devices12));
     // setAlternateTarget<1>(devices12, getDevice<1>(devices02));
+
+    p2p_traffic.EnablePcapAll("traces/");
+    p2p_congestion.EnablePcapAll("traces/");
 
     Simulator::Run();
     Simulator::Destroy();
