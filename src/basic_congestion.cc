@@ -22,7 +22,7 @@
 using namespace ns3;
 using Random = effolkronium::random_static;
 
-using CongestionPolicy = BasicCongestionPolicy<99>;
+using CongestionPolicy = BasicCongestionPolicy<50>;
 using FRRPolicy = LFAPolicy;
 
 using SimulationQueue = FRRQueue<CongestionPolicy, FRRPolicy>;
@@ -82,7 +82,7 @@ uint8_t delAckCount = 1;
 uint8_t initialCwnd = 1;
 // std::string delAckTimeout = "200ms";
 std::string delAckTimeout = "1ms";
-std::string socketFactory = "ns3::TcpSocketFactory";
+std::string socketFactory = "ns3::UdpSocketFactory";
 std::string qdiscTypeId = "ns3::PFifoFastQueueDisc";
 std::string tcpRecovery = "ns3::TcpClassicRecovery";
 // std::string tcpVariantId = "ns3::TcpCubic";
@@ -91,8 +91,8 @@ bool enableSack = false;
 double minRTO = 1.0;
 
 // ---[TOPOLOGY PARAMETERS]---
-std::string bandwidth_bottleneck = "1Mbps";
-std::string bandwidth_access = "20Mbps";
+std::string bandwidth_bottleneck = "5kbps";
+std::string bandwidth_access = "5Mbps";
 std::string delay_access = "15ms";
 std::string delay_bottleneck = "20ms";
 std::string delay_serialization = "1.9ms";
@@ -345,30 +345,50 @@ int main(int argc, char* argv[])
      */
     NetDeviceContainer r1r2ND =
         pointToPointRouter.Install(routers.Get(0), routers.Get(1));
+    std::cout << "0 -> 1: " << getQueue<0>(r1r2ND)->m_uid << std::endl;
+    std::cout << "1 -> 0: " << getQueue<1>(r1r2ND)->m_uid << std::endl;
 
     NetDeviceContainer r1r3ND =
         pointToPointRouter.Install(routers.Get(0), routers.Get(2));
-    NetDeviceContainer r3r2ND =
-        pointToPointRouter.Install(routers.Get(2), routers.Get(1));
+    std::cout << "0 -> 2: " << getQueue<0>(r1r3ND)->m_uid << std::endl;
+    std::cout << "2 -> 0: " << getQueue<1>(r1r3ND)->m_uid << std::endl;
 
+    PointToPointHelper pointToPointRerouter;
+    pointToPointRerouter.SetQueue(SimulationQueue::getQueueString());
+    pointToPointRerouter.SetDeviceAttribute("DataRate",
+                                          StringValue(bandwidth_access));
+    pointToPointRerouter.SetChannelAttribute("Delay",
+                                           StringValue(delay_access));
+
+    NetDeviceContainer r3r2ND =
+        pointToPointRerouter.Install(routers.Get(2), routers.Get(1));
+    std::cout << "2 -> 1: " << getQueue<0>(r3r2ND)->m_uid << std::endl;
+    std::cout << "1 -> 2: " << getQueue<1>(r3r2ND)->m_uid << std::endl;
+    
     setAlternateTarget<0>(r1r2ND, getDevice<0>(r1r3ND));
     // setAlternateTarget<0>(r1r2ND, getDevice<0>(devices02));
 
     // Create the point-to-point link helpers and connect leaf nodes to router
     PointToPointHelper pointToPointLeaf;
-    // pointToPointLeaf.SetQueue(SimulationQueue::getQueueString());
+    pointToPointLeaf.SetQueue(SimulationQueue::getQueueString());
     pointToPointLeaf.SetDeviceAttribute("DataRate",
                                         StringValue(bandwidth_access));
     pointToPointLeaf.SetChannelAttribute("Delay", StringValue(delay_access));
 
     NetDeviceContainer leftToRouter =
         pointToPointLeaf.Install(leftNodes.Get(0), routers.Get(0));
+    std::cout << "L -> 0: " << getQueue<0>(leftToRouter)->m_uid << std::endl;
+    std::cout << "0 -> L: " << getQueue<1>(leftToRouter)->m_uid << std::endl;
     NetDeviceContainer routerToRight =
         pointToPointLeaf.Install(routers.Get(1), rightNodes.Get(0));
+    std::cout << "1 -> R: " << getQueue<0>(routerToRight)->m_uid << std::endl;
+    std::cout << "R -> 1: " << getQueue<1>(routerToRight)->m_uid << std::endl;
 
     // Link CongestioNSender to Router1
     NetDeviceContainer congestionSenderToRouter =
         pointToPointLeaf.Install(congestionNode.Get(0), routers.Get(0));
+    std::cout << "C -> 0: " << getQueue<0>(congestionSenderToRouter)->m_uid << std::endl;
+    std::cout << "0 -> C: " << getQueue<1>(congestionSenderToRouter)->m_uid << std::endl;
 
     InternetStackHelper internetStack;
     internetStack.Install(leftNodes);
@@ -377,13 +397,13 @@ int main(int argc, char* argv[])
     internetStack.Install(congestionNode);
 
     Ipv4AddressHelper ipAddresses("10.0.0.0", "255.255.255.0");
+    Ipv4InterfaceContainer routerToRightIPAddress =
+        ipAddresses.Assign(routerToRight);
+    ipAddresses.NewNetwork();
     Ipv4InterfaceContainer r1r2IPAddress = ipAddresses.Assign(r1r2ND);
     ipAddresses.NewNetwork();
     Ipv4InterfaceContainer leftToRouterIPAddress =
         ipAddresses.Assign(leftToRouter);
-    ipAddresses.NewNetwork();
-    Ipv4InterfaceContainer routerToRightIPAddress =
-        ipAddresses.Assign(routerToRight);
     ipAddresses.NewNetwork();
     Ipv4InterfaceContainer congestionToRouter0IPAddress =
         ipAddresses.Assign(congestionSenderToRouter);
@@ -396,6 +416,7 @@ int main(int argc, char* argv[])
 
     Ipv4GlobalRoutingHelper::PopulateRoutingTables();
 
+    SimulationQueue::sinkAddress = Mac48Address::ConvertFrom(getDevice<1>(routerToRight)->GetAddress());
     // Config::SetDefault("ns3::PfifoFastQueueDisc::MaxSize",
     // QueueSizeValue(QueueSize(QueueSizeUnit::PACKETS,
     // projected_queue_max_packets)));
@@ -483,9 +504,9 @@ int main(int argc, char* argv[])
 
     OnOffHelper onoff(
         "ns3::UdpSocketFactory",
-        InetSocketAddress(routerToRightIPAddress.GetAddress(1), 50000));
+        InetSocketAddress(routerToRightIPAddress.GetAddress(1), serverPort));
     onoff.SetAttribute("PacketSize", UintegerValue(8));
-    onoff.SetAttribute("DataRate", DataRateValue(DataRate("200kbps")));
+    onoff.SetAttribute("DataRate", DataRateValue(DataRate("5kbps")));
 
     ApplicationContainer app = onoff.Install(congestionNode.Get(0));
     app.Start(Seconds(1.0));
