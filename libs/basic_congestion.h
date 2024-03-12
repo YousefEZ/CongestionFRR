@@ -7,12 +7,18 @@ namespace ns3
 template <int MAX_USAGE_PERCENTAGE>
 class BasicCongestionPolicy
 {
-    static_assert(MAX_USAGE_PERCENTAGE > 0 && MAX_USAGE_PERCENTAGE <= 100,
+    static_assert(MAX_USAGE_PERCENTAGE >= 0 && MAX_USAGE_PERCENTAGE <= 100,
                   "MAX_USAGE_PERCENTAGE must be between 1 and 100");
 
   public:
     static bool isCongested(ns3::Queue<ns3::Packet>* queue);
 };
+
+template <>
+bool BasicCongestionPolicy<0>::isCongested(ns3::Queue<ns3::Packet>* queue)
+{
+  return true;
+}
 
 template <>
 bool BasicCongestionPolicy<100>::isCongested(ns3::Queue<ns3::Packet>* queue)
