@@ -65,6 +65,7 @@ int main(int argc, char* argv[])
     p2p.SetDeviceAttribute("DataRate", StringValue("5Mbps"));
     p2p.SetChannelAttribute("Delay", StringValue("1ms"));
 
+    p2p.EnablePcapAll("traces/");
     // Set the custom queue for the device
     p2p.SetQueue(SimulationQueue::getQueueString());
 
