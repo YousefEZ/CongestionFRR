@@ -17,7 +17,7 @@
 using namespace ns3;
 
 using CongestionPolicy = RandomCongestionPolicy<50>;
-//using CongestionPolicy = BasicCongestionPolicy<50>;
+// using CongestionPolicy = BasicCongestionPolicy<50>;
 using FRRPolicy = LFAPolicy;
 
 using SimulationQueue = FRRQueue<CongestionPolicy, FRRPolicy>;
@@ -81,8 +81,8 @@ int main(int argc, char* argv[])
     std::cout << "0 -> 2: " << getQueue<0>(devices02)->m_uid << std::endl;
     std::cout << "2 -> 0: " << getQueue<1>(devices02)->m_uid << std::endl;
 
-
-    SimulationQueue::sinkAddress = Mac48Address::ConvertFrom(getDevice<1>(devices12)->GetAddress());
+    SimulationQueue::sinkAddress =
+        Mac48Address::ConvertFrom(getDevice<1>(devices12)->GetAddress());
     // Assign IP addresses
     Ipv4AddressHelper address;
     address.SetBase("10.1.1.0", "255.255.255.0");
@@ -93,7 +93,8 @@ int main(int argc, char* argv[])
     Ipv4InterfaceContainer interfaces02 = address.Assign(devices02);
 
     Ipv4GlobalRoutingHelper::PopulateRoutingTables();
-    Ptr<OutputStreamWrapper> routingStream = Create<OutputStreamWrapper>(&std::cout);
+    Ptr<OutputStreamWrapper> routingStream =
+        Create<OutputStreamWrapper>(&std::cout);
     Ipv4GlobalRoutingHelper::PrintRoutingTableAllAt(Seconds(1), routingStream);
     /* Configure the application to generate traffic
      * we have node 0 sending traffic to node 2

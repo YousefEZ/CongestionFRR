@@ -21,8 +21,9 @@ namespace ns3
 template <typename CONGESTION_POLICY, typename FRR_POLICY>
 class FRRQueue : public Queue<Packet>
 {
-  public:  
+  public:
     int m_uid;
+
   private:
     using Queue<Packet>::GetContainer;
     using Queue<Packet>::DoEnqueue;
@@ -95,7 +96,8 @@ TypeId FRRQueue<CONGESTION_POLICY, FRR_POLICY>::GetTypeId()
 template <typename CONGESTION_POLICY, typename FRR_POLICY>
 bool FRRQueue<CONGESTION_POLICY, FRR_POLICY>::Enqueue(Ptr<Packet> packet)
 {
-    NS_LOG_LOGIC("(" << m_uid << ") Checking Queue For " << packet << ", uuid:" << packet->GetUid());
+    NS_LOG_LOGIC("(" << m_uid << ") Checking Queue For " << packet
+                     << ", uuid:" << packet->GetUid());
     if (m_congestionPolicy.isCongested(this)) {
         NS_LOG_LOGIC("(" << m_uid
                          << ") Congested Route, Rerouting packet: " << packet);
@@ -103,8 +105,9 @@ bool FRRQueue<CONGESTION_POLICY, FRR_POLICY>::Enqueue(Ptr<Packet> packet)
         NS_LOG_LOGIC("(" << m_uid << ") Rerouting complete");
         return false;
     }
-    NS_LOG_LOGIC("(" << m_uid << ") Enqueue " << packet << ", uuid:" << packet->GetUid() << 
-                 " to curr: " << GetNPackets() << " packets in queue.");
+    NS_LOG_LOGIC("(" << m_uid << ") Enqueue " << packet
+                     << ", uuid:" << packet->GetUid()
+                     << " to curr: " << GetNPackets() << " packets in queue.");
     DoEnqueue(GetContainer().end(), packet);
     return true;
 }
@@ -112,7 +115,7 @@ bool FRRQueue<CONGESTION_POLICY, FRR_POLICY>::Enqueue(Ptr<Packet> packet)
 template <typename CONGESTION_POLICY, typename FRR_POLICY>
 Ptr<Packet> FRRQueue<CONGESTION_POLICY, FRR_POLICY>::Dequeue()
 {
-    //NS_LOG_FUNCTION(this);
+    // NS_LOG_FUNCTION(this);
 
     Ptr<Packet> packet = DoDequeue(GetContainer().begin());
     NS_LOG_LOGIC("(" << m_uid << ") Popped " << packet);
@@ -143,17 +146,17 @@ template <typename CONGESTION_POLICY, typename FRR_POLICY>
 void FRRQueue<CONGESTION_POLICY, FRR_POLICY>::ForwardToAlternateTarget(
     Ptr<Packet> packet)
 {
-    NS_LOG_LOGIC("(" << m_uid << ") Attempting to Forwarding packet to: " << sinkAddress);
-    Ptr<PointToPointNetDevice> alternativeTarget = m_frrPolicy.selectAlternativeTarget();
-    if (alternativeTarget)
-    {
-      NS_LOG_LOGIC("(" << m_uid << ") Forwarding packet to: " << sinkAddress);
-      bool rc = alternativeTarget->Send(packet, sinkAddress, 0x0800);
-      NS_LOG_LOGIC("(" << m_uid << ") Forwarded packet with: " << rc);
-    }
-    else
-    {
-      NS_LOG_LOGIC("(" << m_uid << ") No alternative target found, dropping packet.");
+    NS_LOG_LOGIC("(" << m_uid << ") Attempting to Forwarding packet to: "
+                     << sinkAddress);
+    Ptr<PointToPointNetDevice> alternativeTarget =
+        m_frrPolicy.selectAlternativeTarget();
+    if (alternativeTarget) {
+        NS_LOG_LOGIC("(" << m_uid << ") Forwarding packet to: " << sinkAddress);
+        bool rc = alternativeTarget->Send(packet, sinkAddress, 0x0800);
+        NS_LOG_LOGIC("(" << m_uid << ") Forwarded packet with: " << rc);
+    } else {
+        NS_LOG_LOGIC("(" << m_uid
+                         << ") No alternative target found, dropping packet.");
     }
 }
 

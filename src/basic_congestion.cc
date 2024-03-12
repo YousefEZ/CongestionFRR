@@ -356,15 +356,15 @@ int main(int argc, char* argv[])
     PointToPointHelper pointToPointRerouter;
     pointToPointRerouter.SetQueue(SimulationQueue::getQueueString());
     pointToPointRerouter.SetDeviceAttribute("DataRate",
-                                          StringValue(bandwidth_access));
+                                            StringValue(bandwidth_access));
     pointToPointRerouter.SetChannelAttribute("Delay",
-                                           StringValue(delay_access));
+                                             StringValue(delay_access));
 
     NetDeviceContainer r3r2ND =
         pointToPointRerouter.Install(routers.Get(2), routers.Get(1));
     std::cout << "2 -> 1: " << getQueue<0>(r3r2ND)->m_uid << std::endl;
     std::cout << "1 -> 2: " << getQueue<1>(r3r2ND)->m_uid << std::endl;
-    
+
     setAlternateTarget<0>(r1r2ND, getDevice<0>(r1r3ND));
     // setAlternateTarget<0>(r1r2ND, getDevice<0>(devices02));
 
@@ -387,8 +387,10 @@ int main(int argc, char* argv[])
     // Link CongestioNSender to Router1
     NetDeviceContainer congestionSenderToRouter =
         pointToPointLeaf.Install(congestionNode.Get(0), routers.Get(0));
-    std::cout << "C -> 0: " << getQueue<0>(congestionSenderToRouter)->m_uid << std::endl;
-    std::cout << "0 -> C: " << getQueue<1>(congestionSenderToRouter)->m_uid << std::endl;
+    std::cout << "C -> 0: " << getQueue<0>(congestionSenderToRouter)->m_uid
+              << std::endl;
+    std::cout << "0 -> C: " << getQueue<1>(congestionSenderToRouter)->m_uid
+              << std::endl;
 
     InternetStackHelper internetStack;
     internetStack.Install(leftNodes);
@@ -416,7 +418,8 @@ int main(int argc, char* argv[])
 
     Ipv4GlobalRoutingHelper::PopulateRoutingTables();
 
-    SimulationQueue::sinkAddress = Mac48Address::ConvertFrom(getDevice<1>(routerToRight)->GetAddress());
+    SimulationQueue::sinkAddress =
+        Mac48Address::ConvertFrom(getDevice<1>(routerToRight)->GetAddress());
     // Config::SetDefault("ns3::PfifoFastQueueDisc::MaxSize",
     // QueueSizeValue(QueueSize(QueueSizeUnit::PACKETS,
     // projected_queue_max_packets)));
