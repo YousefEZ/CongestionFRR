@@ -418,8 +418,6 @@ int main(int argc, char* argv[])
 
     Ipv4GlobalRoutingHelper::PopulateRoutingTables();
 
-    SimulationQueue::sinkAddress =
-        Mac48Address::ConvertFrom(getDevice<1>(routerToRight)->GetAddress());
     // Config::SetDefault("ns3::PfifoFastQueueDisc::MaxSize",
     // QueueSizeValue(QueueSize(QueueSizeUnit::PACKETS,
     // projected_queue_max_packets)));

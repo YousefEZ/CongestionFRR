@@ -81,8 +81,6 @@ int main(int argc, char* argv[])
     std::cout << "0 -> 2: " << getQueue<0>(devices02)->m_uid << std::endl;
     std::cout << "2 -> 0: " << getQueue<1>(devices02)->m_uid << std::endl;
 
-    SimulationQueue::sinkAddress =
-        Mac48Address::ConvertFrom(getDevice<1>(devices12)->GetAddress());
     // Assign IP addresses
     Ipv4AddressHelper address;
     address.SetBase("10.1.1.0", "255.255.255.0");

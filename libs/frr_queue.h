@@ -55,11 +55,8 @@ class FRRQueue : public Queue<Packet>
     void addAlternateTargets(DEVICES&&... devices);
 
     static const std::string& getQueueString();
-    static Mac48Address sinkAddress;
 };
 
-template <typename CONGESTION_POLICY, typename FRR_POLICY>
-Mac48Address FRRQueue<CONGESTION_POLICY, FRR_POLICY>::sinkAddress;
 
 template <typename CONGESTION_POLICY, typename FRR_POLICY>
 int FRRQueue<CONGESTION_POLICY, FRR_POLICY>::s_uid = 0;
@@ -146,15 +143,15 @@ template <typename CONGESTION_POLICY, typename FRR_POLICY>
 void FRRQueue<CONGESTION_POLICY, FRR_POLICY>::ForwardToAlternateTarget(
     Ptr<Packet> packet)
 {
-    NS_LOG_LOGIC("(" << m_uid << ") Attempting to Forwarding packet to: "
-                     << sinkAddress);
     Ptr<PointToPointNetDevice> alternativeTarget =
         m_frrPolicy.selectAlternativeTarget();
     if (alternativeTarget) {
-        NS_LOG_LOGIC("(" << m_uid << ") Forwarding packet to: " << sinkAddress);
         PppHeader header;
         packet->RemoveHeader(header, 2);
-        bool rc = alternativeTarget->Send(packet, sinkAddress, 0x0800);
+        Ipv4Header ipHeader;
+        packet->PeekHeader(ipHeader);
+        NS_LOG_LOGIC("(" << m_uid << ") Forwarding packet to: " << ipHeader.GetDestination());
+        bool rc = alternativeTarget->Send(packet, ipHeader.GetDestination(), 0x0800);
         NS_LOG_LOGIC("(" << m_uid << ") Forwarded packet with: " << rc);
     } else {
         NS_LOG_LOGIC("(" << m_uid
