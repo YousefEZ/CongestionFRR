@@ -6,7 +6,7 @@
 
 #include "ns3/queue.h"
 #include "ns3/packet.h"
-#include "ns3/point-to-point-net-device.h"
+#include "point_to_point/point_to_point_frr_net_device.h"
 
 namespace ns3
 {
@@ -14,7 +14,7 @@ namespace ns3
 class LFAPolicy
 {
   private:
-    std::list<ns3::Ptr<ns3::PointToPointNetDevice>> m_alternateTargets;
+    std::list<ns3::Ptr<ns3::PointToPointFRRNetDevice>> m_alternateTargets;
 
   public:
     LFAPolicy() = default;
@@ -22,7 +22,7 @@ class LFAPolicy
     template <typename... DEVICES>
     void addAlternateTargets(DEVICES&&... devices);
 
-    ns3::Ptr<ns3::PointToPointNetDevice> selectAlternativeTarget();
+    ns3::Ptr<ns3::PointToPointFRRNetDevice> selectAlternativeTarget();
 };
 
 template <typename... DEVICES>
@@ -31,7 +31,7 @@ void LFAPolicy::addAlternateTargets(DEVICES&&... devices)
     (m_alternateTargets.push_back(std::forward<DEVICES>(devices)), ...);
 }
 
-ns3::Ptr<ns3::PointToPointNetDevice> LFAPolicy::selectAlternativeTarget()
+ns3::Ptr<ns3::PointToPointFRRNetDevice> LFAPolicy::selectAlternativeTarget()
 {
     if (m_alternateTargets.empty()) {
         return nullptr;

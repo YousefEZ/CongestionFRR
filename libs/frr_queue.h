@@ -7,6 +7,7 @@
 #include <typeinfo>
 #include <cxxabi.h> // For __cxa_demangle
 
+#include "point_to_point/point_to_point_frr_net_device.h"
 #include "ns3/object-base.h"
 #include "ns3/queue.h"
 #include "ns3/packet.h"
@@ -54,9 +55,16 @@ class FRRQueue : public Queue<Packet>
     template <typename... DEVICES>
     void addAlternateTargets(DEVICES&&... devices);
 
+    bool isCongested();
+
     static const std::string& getQueueString();
 };
 
+template <typename CONGESTION_POLICY, typename FRR_POLICY>
+bool FRRQueue<CONGESTION_POLICY, FRR_POLICY>::isCongested() 
+{
+    return m_congestionPolicy.isCongested(this);
+}
 
 template <typename CONGESTION_POLICY, typename FRR_POLICY>
 int FRRQueue<CONGESTION_POLICY, FRR_POLICY>::s_uid = 0;
@@ -143,7 +151,7 @@ template <typename CONGESTION_POLICY, typename FRR_POLICY>
 void FRRQueue<CONGESTION_POLICY, FRR_POLICY>::ForwardToAlternateTarget(
     Ptr<Packet> packet)
 {
-    Ptr<PointToPointNetDevice> alternativeTarget =
+    Ptr<PointToPointFRRNetDevice> alternativeTarget =
         m_frrPolicy.selectAlternativeTarget();
     if (alternativeTarget) {
         PppHeader header;
@@ -189,7 +197,7 @@ const std::string& FRRQueue<CONGESTION_POLICY, FRR_POLICY>::getQueueString()
     return result;
 }
 
-NS_LOG_COMPONENT_DEFINE("FRRQueue");
+//NS_LOG_COMPONENT_DEFINE("FRRQueue");
 
 } // namespace ns3
 

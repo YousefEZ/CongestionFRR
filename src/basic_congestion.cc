@@ -18,6 +18,8 @@
 
 #include "../libs/frr_queue.h"
 #include "../libs/lfa_policy.h"
+#include "../libs/point_to_point/point_to_point_frr_helper.h"
+
 
 using namespace ns3;
 using Random = effolkronium::random_static;
@@ -34,9 +36,9 @@ NS_OBJECT_ENSURE_REGISTERED(SimulationQueue);
 // ---------------------------------------------------- //
 
 template <int INDEX>
-Ptr<PointToPointNetDevice> getDevice(const NetDeviceContainer& devices)
+Ptr<PointToPointFRRNetDevice> getDevice(const NetDeviceContainer& devices)
 {
-    return devices.Get(INDEX)->GetObject<PointToPointNetDevice>();
+    return devices.Get(INDEX)->GetObject<PointToPointFRRNetDevice>();
 }
 
 template <int INDEX>
@@ -47,7 +49,7 @@ Ptr<SimulationQueue> getQueue(const NetDeviceContainer& devices)
 
 template <int INDEX>
 void setAlternateTarget(const NetDeviceContainer& devices,
-                        Ptr<PointToPointNetDevice> target)
+                        Ptr<PointToPointFRRNetDevice> target)
 {
     getQueue<INDEX>(devices)->addAlternateTargets(target);
 }
@@ -329,7 +331,7 @@ int main(int argc, char* argv[])
                        StringValue("100p"));
 
     // Create the point-to-point link helpers and connect two router nodes
-    PointToPointHelper pointToPointRouter;
+    PointToPointFRRHelper pointToPointRouter;
     pointToPointRouter.SetQueue(SimulationQueue::getQueueString());
     pointToPointRouter.SetDeviceAttribute("DataRate",
                                           StringValue(bandwidth_bottleneck));
@@ -353,7 +355,7 @@ int main(int argc, char* argv[])
     std::cout << "0 -> 2: " << getQueue<0>(r1r3ND)->m_uid << std::endl;
     std::cout << "2 -> 0: " << getQueue<1>(r1r3ND)->m_uid << std::endl;
 
-    PointToPointHelper pointToPointRerouter;
+    PointToPointFRRHelper pointToPointRerouter;
     pointToPointRerouter.SetQueue(SimulationQueue::getQueueString());
     pointToPointRerouter.SetDeviceAttribute("DataRate",
                                             StringValue(bandwidth_access));
@@ -369,7 +371,7 @@ int main(int argc, char* argv[])
     // setAlternateTarget<0>(r1r2ND, getDevice<0>(devices02));
 
     // Create the point-to-point link helpers and connect leaf nodes to router
-    PointToPointHelper pointToPointLeaf;
+    PointToPointFRRHelper pointToPointLeaf;
     pointToPointLeaf.SetQueue(SimulationQueue::getQueueString());
     pointToPointLeaf.SetDeviceAttribute("DataRate",
                                         StringValue(bandwidth_access));
@@ -440,8 +442,8 @@ int main(int argc, char* argv[])
     /* Trace the DropTail Queue size */
     if (storeTraces) {
         Ptr<NetDevice> nd = routers.Get(0)->GetDevice(0);
-        Ptr<PointToPointNetDevice> ptpnd =
-            DynamicCast<PointToPointNetDevice>(nd);
+        Ptr<PointToPointFRRNetDevice> ptpnd =
+            DynamicCast<PointToPointFRRNetDevice>(nd);
         Ptr<Queue<Packet>> queue = ptpnd->GetQueue();
         queue->TraceConnectWithoutContext("PacketsInQueue",
                                           MakeCallback(&PacketsInDroptail));

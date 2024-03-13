@@ -11,6 +11,7 @@
 #include "../libs/dummy_congestion_policy.h"
 #include "../libs/modulo_congestion_policy.h"
 #include "../libs/lfa_policy.h"
+#include "../libs/point_to_point/point_to_point_frr_helper.h"
 
 using namespace ns3;
 
@@ -26,9 +27,9 @@ using SimulationQueue = FRRQueue<CongestionPolicy, FRRPolicy>;
 NS_OBJECT_ENSURE_REGISTERED(SimulationQueue);
 
 template <int INDEX>
-Ptr<PointToPointNetDevice> getDevice(const NetDeviceContainer& devices)
+Ptr<PointToPointFRRNetDevice> getDevice(const NetDeviceContainer& devices)
 {
-    return devices.Get(INDEX)->GetObject<PointToPointNetDevice>();
+    return devices.Get(INDEX)->GetObject<PointToPointFRRNetDevice>();
 }
 
 template <int INDEX>
@@ -39,7 +40,7 @@ Ptr<SimulationQueue> getQueue(const NetDeviceContainer& devices)
 
 template <int INDEX>
 void setAlternateTarget(const NetDeviceContainer& devices,
-                        Ptr<PointToPointNetDevice> target)
+                        Ptr<PointToPointFRRNetDevice> target)
 {
     getQueue<INDEX>(devices)->addAlternateTargets(target);
 }
@@ -54,7 +55,7 @@ int main(int argc, char* argv[])
     stack.Install(nodes);
 
     // Configure PointToPoint links
-    PointToPointHelper p2p;
+    PointToPointFRRHelper p2p;
     p2p.SetDeviceAttribute("DataRate", StringValue("5Mbps"));
     p2p.SetChannelAttribute("Delay", StringValue("1ms"));
 
