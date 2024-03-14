@@ -107,7 +107,7 @@ int main(int argc, char* argv[])
      *  /     \
      * 0 -----> 2
      */
-    uint16_t port = 9;
+    uint16_t port = 50000;
     OnOffHelper onoff("ns3::UdpSocketFactory",
                       InetSocketAddress(interfaces12.GetAddress(1), port));
     onoff.SetAttribute("OnTime",
