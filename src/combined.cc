@@ -12,7 +12,6 @@
 #include "../libs/modulo_congestion_policy.h"
 #include "../libs/lfa_policy.h"
 #include "../libs/random_congestion_policy.h"
-#include "../libs/basic_congestion.h"
 #include "../libs/point_to_point_frr_helper.h"
 
 using namespace ns3;
@@ -55,7 +54,7 @@ template <int INDEX>
 void setAlternateTarget(const NetDeviceContainer& devices,
                         Ptr<FRRNetDevice> target)
 {
-    getQueue<INDEX>(devices)->addAlternateTargets(target);
+    getDevice<INDEX>(devices)->addAlternateTarget(target);
 }
 
 void SetupTCPConfig()
@@ -125,14 +124,14 @@ int main(int argc, char* argv[])
     stack.Install(nodes);
 
     // Configure PointToPoint link for normal traffic
-    PointToPointFRRHelper p2p_traffic;
+    PointToPointFRRHelper<FRRPolicy> p2p_traffic;
     p2p_traffic.SetDeviceAttribute("DataRate", StringValue("1Mbps"));
     p2p_traffic.SetChannelAttribute("Delay", StringValue("1ms"));
     // Set the custom queue for the device
     p2p_traffic.SetQueue("ns3::DropTailQueue<Packet>");
     // Install devices and channels between nodes
 
-    PointToPointFRRHelper p2p_congested_link;
+    PointToPointFRRHelper<FRRPolicy> p2p_congested_link;
     p2p_congested_link.SetDeviceAttribute("DataRate", StringValue("1Mbps"));
     p2p_congested_link.SetChannelAttribute("Delay", StringValue("1ms"));
 
@@ -150,7 +149,7 @@ int main(int argc, char* argv[])
         p2p_traffic.Install(nodes.Get(3), nodes.Get(5));
 
     // Configure PointToPoint link for congestion link
-    PointToPointHelper p2p_congestion;
+    PointToPointFRRHelper<FRRPolicy> p2p_congestion;
     p2p_congestion.SetDeviceAttribute("DataRate", StringValue("1Mbps"));
     p2p_congestion.SetChannelAttribute("Delay", StringValue("1ms"));
     // Set the custom queue for the device
@@ -214,8 +213,8 @@ int main(int argc, char* argv[])
     tcp_app.Start(Seconds(0.0));
     tcp_app.Start(Seconds(10.0));
 
-    SimulationQueue::sinkAddress =
-        Mac48Address::ConvertFrom(getDevice<1>(devices_3_5)->GetAddress());
+    // SimulationQueue::sinkAddress =
+    //     Mac48Address::ConvertFrom(getDevice<1>(devices_3_5)->GetAddress());
     // NOTE: Is TrafficControlHelper needed here?
 
     // LFA Alternate Path setup
@@ -235,6 +234,16 @@ int main(int argc, char* argv[])
     // setAlternateTarget<1>(devices12, getDevice<1>(devices02));
 
     // enableRerouting(getQueue<0>(devices_2_3));
+    toggleCongestion(getQueue<0>(devices_0_2));
+    toggleCongestion(getQueue<1>(devices_0_2));
+    toggleCongestion(getQueue<0>(devices_2_4));
+    toggleCongestion(getQueue<1>(devices_2_4));
+    toggleCongestion(getQueue<0>(devices_4_3));
+    toggleCongestion(getQueue<1>(devices_4_3));
+    toggleCongestion(getQueue<0>(devices_3_5));
+    toggleCongestion(getQueue<1>(devices_3_5));
+    toggleCongestion(getQueue<0>(devices_1_2));
+    toggleCongestion(getQueue<1>(devices_1_2));
 
     p2p_traffic.EnablePcapAll("traces/");
     p2p_congestion.EnablePcapAll("traces/");
