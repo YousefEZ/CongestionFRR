@@ -5,31 +5,30 @@
 #include <utility>
 
 #include <typeinfo>
-#include <cxxabi.h> // For __cxa_demangle
+#include <cxxabi.h>
 
+#include "point_to_point_frr_net_device.h"
 #include "ns3/object-base.h"
-#include "ns3/queue.h"
-#include "ns3/packet.h"
-#include "ns3/point-to-point-net-device.h"
 #include <ns3/boolean.h>
+#include "frr_queue_base.h"
 
 #define STRINGIFY_TYPE_ALIAS(alias) typeid(alias).name()
 
 namespace ns3
 {
 
-template <typename CONGESTION_POLICY, typename FRR_POLICY>
-class FRRQueue : public Queue<Packet>
+template <typename CONGESTION_POLICY>
+class FRRQueue : public FRRQueueBase
 {
   public:
     int m_uid;
 
   private:
-    using Queue<Packet>::GetContainer;
-    using Queue<Packet>::DoEnqueue;
-    using Queue<Packet>::DoDequeue;
-    using Queue<Packet>::DoRemove;
-    using Queue<Packet>::DoPeek;
+    using FRRQueueBase::DoDequeue;
+    using FRRQueueBase::DoEnqueue;
+    using FRRQueueBase::DoPeek;
+    using FRRQueueBase::DoRemove;
+    using FRRQueueBase::GetContainer;
 
     NS_LOG_TEMPLATE_DECLARE;
 
@@ -44,47 +43,41 @@ class FRRQueue : public Queue<Packet>
 
   public:
     static int s_uid;
-    FRR_POLICY m_frrPolicy;
     CONGESTION_POLICY m_congestionPolicy;
 
     static TypeId GetTypeId();
     FRRQueue();
-    ~FRRQueue();
+    virtual ~FRRQueue() = default;
 
-    template <typename... DEVICES>
-    void addAlternateTargets(DEVICES&&... devices);
-
+    virtual bool isCongested() override;
     static const std::string& getQueueString();
     static Mac48Address sinkAddress;
 };
 
-template <typename CONGESTION_POLICY, typename FRR_POLICY>
-Mac48Address FRRQueue<CONGESTION_POLICY, FRR_POLICY>::sinkAddress;
+template <typename CONGESTION_POLICY>
+bool FRRQueue<CONGESTION_POLICY>::isCongested()
+{
+    return m_congestionPolicy.isCongested(this);
+}
 
-template <typename CONGESTION_POLICY, typename FRR_POLICY>
-int FRRQueue<CONGESTION_POLICY, FRR_POLICY>::s_uid = 0;
+template <typename CONGESTION_POLICY>
+int FRRQueue<CONGESTION_POLICY>::s_uid = 0;
 
-template <typename CONGESTION_POLICY, typename FRR_POLICY>
-FRRQueue<CONGESTION_POLICY, FRR_POLICY>::FRRQueue()
-    : Queue<Packet>(), m_uid(s_uid++), NS_LOG_TEMPLATE_DEFINE("FRRQueue")
+template <typename CONGESTION_POLICY>
+FRRQueue<CONGESTION_POLICY>::FRRQueue()
+    : FRRQueueBase(), m_uid(s_uid++), NS_LOG_TEMPLATE_DEFINE("FRRQueue")
 {
     NS_LOG_FUNCTION(this);
 }
 
-template <typename CONGESTION_POLICY, typename FRR_POLICY>
-FRRQueue<CONGESTION_POLICY, FRR_POLICY>::~FRRQueue()
-{
-    // NS_LOG_FUNCTION(this);
-}
-
-template <typename CONGESTION_POLICY, typename FRR_POLICY>
-TypeId FRRQueue<CONGESTION_POLICY, FRR_POLICY>::GetTypeId()
+template <typename CONGESTION_POLICY>
+TypeId FRRQueue<CONGESTION_POLICY>::GetTypeId()
 {
     static TypeId tid =
         TypeId(getQueueString())
             .SetParent<Queue<Packet>>()
             .SetGroupName("Network")
-            .template AddConstructor<FRRQueue<CONGESTION_POLICY, FRR_POLICY>>()
+            .template AddConstructor<FRRQueue<CONGESTION_POLICY>>()
             .AddAttribute("MaxSize", "The max queue size",
                           QueueSizeValue(QueueSize("100p")),
                           MakeQueueSizeAccessor(&QueueBase::SetMaxSize,
@@ -93,27 +86,15 @@ TypeId FRRQueue<CONGESTION_POLICY, FRR_POLICY>::GetTypeId()
     return tid;
 }
 
-template <typename CONGESTION_POLICY, typename FRR_POLICY>
-bool FRRQueue<CONGESTION_POLICY, FRR_POLICY>::Enqueue(Ptr<Packet> packet)
+template <typename CONGESTION_POLICY>
+bool FRRQueue<CONGESTION_POLICY>::Enqueue(Ptr<Packet> packet)
 {
-    NS_LOG_LOGIC("(" << m_uid << ") Checking Queue For " << packet
-                     << ", uuid:" << packet->GetUid());
-    if (m_congestionPolicy.isCongested(this)) {
-        NS_LOG_LOGIC("(" << m_uid
-                         << ") Congested Route, Rerouting packet: " << packet);
-        ForwardToAlternateTarget(packet);
-        NS_LOG_LOGIC("(" << m_uid << ") Rerouting complete");
-        return false;
-    }
-    NS_LOG_LOGIC("(" << m_uid << ") Enqueue " << packet
-                     << ", uuid:" << packet->GetUid()
-                     << " to curr: " << GetNPackets() << " packets in queue.");
-    DoEnqueue(GetContainer().end(), packet);
-    return true;
+    NS_LOG_LOGIC("(" << m_uid << ") Enqueuing: " << packet);
+    return DoEnqueue(GetContainer().end(), packet);
 }
 
-template <typename CONGESTION_POLICY, typename FRR_POLICY>
-Ptr<Packet> FRRQueue<CONGESTION_POLICY, FRR_POLICY>::Dequeue()
+template <typename CONGESTION_POLICY>
+Ptr<Packet> FRRQueue<CONGESTION_POLICY>::Dequeue()
 {
     // NS_LOG_FUNCTION(this);
 
@@ -122,8 +103,8 @@ Ptr<Packet> FRRQueue<CONGESTION_POLICY, FRR_POLICY>::Dequeue()
     return packet;
 }
 
-template <typename CONGESTION_POLICY, typename FRR_POLICY>
-Ptr<Packet> FRRQueue<CONGESTION_POLICY, FRR_POLICY>::Remove()
+template <typename CONGESTION_POLICY>
+Ptr<Packet> FRRQueue<CONGESTION_POLICY>::Remove()
 {
     NS_LOG_FUNCTION(this);
 
@@ -134,46 +115,18 @@ Ptr<Packet> FRRQueue<CONGESTION_POLICY, FRR_POLICY>::Remove()
     return packet;
 }
 
-template <typename CONGESTION_POLICY, typename FRR_POLICY>
-Ptr<const Packet> FRRQueue<CONGESTION_POLICY, FRR_POLICY>::Peek() const
+template <typename CONGESTION_POLICY>
+Ptr<const Packet> FRRQueue<CONGESTION_POLICY>::Peek() const
 {
     NS_LOG_FUNCTION(this);
 
     return DoPeek(GetContainer().begin());
 }
 
-template <typename CONGESTION_POLICY, typename FRR_POLICY>
-void FRRQueue<CONGESTION_POLICY, FRR_POLICY>::ForwardToAlternateTarget(
-    Ptr<Packet> packet)
+template <typename CONGESTION_POLICY>
+std::string FRRQueue<CONGESTION_POLICY>::makeQueueString()
 {
-    NS_LOG_LOGIC("(" << m_uid << ") Attempting to Forwarding packet to: "
-                     << sinkAddress);
-    Ptr<PointToPointNetDevice> alternativeTarget =
-        m_frrPolicy.selectAlternativeTarget();
-    if (alternativeTarget) {
-        NS_LOG_LOGIC("(" << m_uid << ") Forwarding packet to: " << sinkAddress);
-        PppHeader pppHeader;
-        packet->RemoveHeader(pppHeader);
-        bool rc = alternativeTarget->Send(packet, sinkAddress, 0x800);
-        NS_LOG_LOGIC("(" << m_uid << ") Forwarded packet with: " << rc);
-    } else {
-        NS_LOG_LOGIC("(" << m_uid
-                         << ") No alternative target found, dropping packet.");
-    }
-}
-
-template <typename CONGESTION_POLICY, typename FRR_POLICY>
-template <typename... DEVICES>
-void FRRQueue<CONGESTION_POLICY, FRR_POLICY>::addAlternateTargets(
-    DEVICES&&... devices)
-{
-    m_frrPolicy.addAlternateTargets(std::forward<DEVICES>(devices)...);
-}
-
-template <typename CONGESTION_POLICY, typename FRR_POLICY>
-std::string FRRQueue<CONGESTION_POLICY, FRR_POLICY>::makeQueueString()
-{
-    using QueueType = FRRQueue<CONGESTION_POLICY, FRR_POLICY>;
+    using QueueType = FRRQueue<CONGESTION_POLICY>;
     int status;
     char* demangled = abi::__cxa_demangle(STRINGIFY_TYPE_ALIAS(QueueType),
                                           nullptr, nullptr, &status);
@@ -184,15 +137,13 @@ std::string FRRQueue<CONGESTION_POLICY, FRR_POLICY>::makeQueueString()
     return result;
 }
 
-template <typename CONGESTION_POLICY, typename FRR_POLICY>
-const std::string& FRRQueue<CONGESTION_POLICY, FRR_POLICY>::getQueueString()
+template <typename CONGESTION_POLICY>
+const std::string& FRRQueue<CONGESTION_POLICY>::getQueueString()
 {
     const static std::string result =
-        FRRQueue<CONGESTION_POLICY, FRR_POLICY>::makeQueueString();
+        FRRQueue<CONGESTION_POLICY>::makeQueueString();
     return result;
 }
-
-NS_LOG_COMPONENT_DEFINE("FRRQueue");
 
 } // namespace ns3
 

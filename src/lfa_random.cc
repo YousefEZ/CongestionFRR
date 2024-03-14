@@ -12,15 +12,17 @@
 #include "../libs/modulo_congestion_policy.h"
 #include "../libs/lfa_policy.h"
 #include "../libs/random_congestion_policy.h"
-#include "../libs/basic_congestion.h"
+#include "../libs/point_to_point_frr_helper.h"
 
 using namespace ns3;
 
-using CongestionPolicy = RandomCongestionPolicy<50>;
+using CongestionPolicy = RandomCongestionPolicy<100>;
 // using CongestionPolicy = BasicCongestionPolicy<50>;
 using FRRPolicy = LFAPolicy;
 
-using SimulationQueue = FRRQueue<CongestionPolicy, FRRPolicy>;
+using SimulationQueue = FRRQueue<CongestionPolicy>;
+using FRRNetDevice = PointToPointFRRNetDevice<FRRPolicy>;
+using FRRChannel = PointToPointFRRChannel<FRRPolicy>;
 
 void toggleCongestion(Ptr<SimulationQueue> queue)
 {
@@ -28,11 +30,13 @@ void toggleCongestion(Ptr<SimulationQueue> queue)
 }
 
 NS_OBJECT_ENSURE_REGISTERED(SimulationQueue);
+NS_OBJECT_ENSURE_REGISTERED(FRRChannel);
+NS_OBJECT_ENSURE_REGISTERED(FRRNetDevice);
 
 template <int INDEX>
-Ptr<PointToPointNetDevice> getDevice(const NetDeviceContainer& devices)
+Ptr<FRRNetDevice> getDevice(const NetDeviceContainer& devices)
 {
-    return devices.Get(INDEX)->GetObject<PointToPointNetDevice>();
+    return devices.Get(INDEX)->GetObject<FRRNetDevice>();
 }
 
 template <int INDEX>
@@ -43,9 +47,9 @@ Ptr<SimulationQueue> getQueue(const NetDeviceContainer& devices)
 
 template <int INDEX>
 void setAlternateTarget(const NetDeviceContainer& devices,
-                        Ptr<PointToPointNetDevice> target)
+                        Ptr<FRRNetDevice> target)
 {
-    getQueue<INDEX>(devices)->addAlternateTargets(target);
+    getDevice<INDEX>(devices)->addAlternateTarget(target);
 }
 
 // NS_LOG_COMPONENT_DEFINE("CongestionFastReRoute");
@@ -61,7 +65,7 @@ int main(int argc, char* argv[])
     stack.Install(nodes);
 
     // Configure PointToPoint links
-    PointToPointHelper p2p;
+    PointToPointFRRHelper<FRRPolicy> p2p;
     p2p.SetDeviceAttribute("DataRate", StringValue("5Mbps"));
     p2p.SetChannelAttribute("Delay", StringValue("1ms"));
 
@@ -105,7 +109,7 @@ int main(int argc, char* argv[])
      *  /     \
      * 0 -----> 2
      */
-    uint16_t port = 9;
+    uint16_t port = 50000;
     OnOffHelper onoff("ns3::UdpSocketFactory",
                       InetSocketAddress(interfaces12.GetAddress(1), port));
     onoff.SetAttribute("OnTime",
@@ -137,6 +141,7 @@ int main(int argc, char* argv[])
     toggleCongestion(getQueue<1>(devices12));
     toggleCongestion(getQueue<1>(devices02));
 
+    p2p.EnablePcapAll("traces/");
     Simulator::Run();
     Simulator::Destroy();
     return 0;
