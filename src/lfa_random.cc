@@ -12,13 +12,17 @@
 #include "../libs/modulo_congestion_policy.h"
 #include "../libs/lfa_policy.h"
 #include "../libs/random_congestion_policy.h"
+#include "../libs/point_to_point_frr_helper.h"
 
 using namespace ns3;
 
-using CongestionPolicy = RandomCongestionPolicy<50>;
+using CongestionPolicy = RandomCongestionPolicy<100>;
+// using CongestionPolicy = BasicCongestionPolicy<50>;
 using FRRPolicy = LFAPolicy;
 
-using SimulationQueue = FRRQueue<CongestionPolicy, FRRPolicy>;
+using SimulationQueue = FRRQueue<CongestionPolicy>;
+using FRRNetDevice = PointToPointFRRNetDevice<FRRPolicy>;
+using FRRChannel = PointToPointFRRChannel<FRRPolicy>;
 
 void toggleCongestion(Ptr<SimulationQueue> queue)
 {
@@ -26,11 +30,13 @@ void toggleCongestion(Ptr<SimulationQueue> queue)
 }
 
 NS_OBJECT_ENSURE_REGISTERED(SimulationQueue);
+NS_OBJECT_ENSURE_REGISTERED(FRRChannel);
+NS_OBJECT_ENSURE_REGISTERED(FRRNetDevice);
 
 template <int INDEX>
-Ptr<PointToPointNetDevice> getDevice(const NetDeviceContainer& devices)
+Ptr<FRRNetDevice> getDevice(const NetDeviceContainer& devices)
 {
-    return devices.Get(INDEX)->GetObject<PointToPointNetDevice>();
+    return devices.Get(INDEX)->GetObject<FRRNetDevice>();
 }
 
 template <int INDEX>
@@ -41,9 +47,9 @@ Ptr<SimulationQueue> getQueue(const NetDeviceContainer& devices)
 
 template <int INDEX>
 void setAlternateTarget(const NetDeviceContainer& devices,
-                        Ptr<PointToPointNetDevice> target)
+                        Ptr<FRRNetDevice> target)
 {
-    getQueue<INDEX>(devices)->addAlternateTargets(target);
+    getDevice<INDEX>(devices)->addAlternateTarget(target);
 }
 
 // NS_LOG_COMPONENT_DEFINE("CongestionFastReRoute");
@@ -59,7 +65,7 @@ int main(int argc, char* argv[])
     stack.Install(nodes);
 
     // Configure PointToPoint links
-    PointToPointHelper p2p;
+    PointToPointFRRHelper<FRRPolicy> p2p;
     p2p.SetDeviceAttribute("DataRate", StringValue("5Mbps"));
     p2p.SetChannelAttribute("Delay", StringValue("1ms"));
 
@@ -68,10 +74,16 @@ int main(int argc, char* argv[])
 
     // Install devices and channels between nodes
     NetDeviceContainer devices01 = p2p.Install(nodes.Get(0), nodes.Get(1));
+    std::cout << "0 -> 1: " << getQueue<0>(devices01)->m_uid << std::endl;
+    std::cout << "1 -> 0: " << getQueue<1>(devices01)->m_uid << std::endl;
     NetDeviceContainer devices12 = p2p.Install(nodes.Get(1), nodes.Get(2));
+    std::cout << "1 -> 2: " << getQueue<0>(devices12)->m_uid << std::endl;
+    std::cout << "2 -> 1: " << getQueue<1>(devices12)->m_uid << std::endl;
     // Add the missing link between Node 0 and Node 2 to fully connect the
     // network
     NetDeviceContainer devices02 = p2p.Install(nodes.Get(0), nodes.Get(2));
+    std::cout << "0 -> 2: " << getQueue<0>(devices02)->m_uid << std::endl;
+    std::cout << "2 -> 0: " << getQueue<1>(devices02)->m_uid << std::endl;
 
     // Assign IP addresses
     Ipv4AddressHelper address;
@@ -83,7 +95,9 @@ int main(int argc, char* argv[])
     Ipv4InterfaceContainer interfaces02 = address.Assign(devices02);
 
     Ipv4GlobalRoutingHelper::PopulateRoutingTables();
-
+    Ptr<OutputStreamWrapper> routingStream =
+        Create<OutputStreamWrapper>(&std::cout);
+    Ipv4GlobalRoutingHelper::PrintRoutingTableAllAt(Seconds(1), routingStream);
     /* Configure the application to generate traffic
      * we have node 0 sending traffic to node 2
      *
@@ -100,7 +114,7 @@ int main(int argc, char* argv[])
                        StringValue("ns3::ConstantRandomVariable[Constant=1]"));
     onoff.SetAttribute("OffTime",
                        StringValue("ns3::ConstantRandomVariable[Constant=0]"));
-    onoff.SetAttribute("DataRate", DataRateValue(DataRate("1Mbps")));
+    onoff.SetAttribute("DataRate", DataRateValue(DataRate("100kbps")));
     onoff.SetAttribute("PacketSize", UintegerValue(1024));
 
     ApplicationContainer app = onoff.Install(nodes.Get(0));
@@ -125,6 +139,7 @@ int main(int argc, char* argv[])
     toggleCongestion(getQueue<1>(devices12));
     toggleCongestion(getQueue<1>(devices02));
 
+    p2p.EnablePcapAll("traces/");
     Simulator::Run();
     Simulator::Destroy();
     return 0;

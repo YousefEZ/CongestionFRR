@@ -11,24 +11,28 @@
 #include "../libs/dummy_congestion_policy.h"
 #include "../libs/modulo_congestion_policy.h"
 #include "../libs/lfa_policy.h"
+#include "../libs/point_to_point_frr_helper.h"
 
 using namespace ns3;
 
 NS_LOG_COMPONENT_DEFINE("CongestionFastReRoute");
 
-// place the policies for FRR here
 using CongestionPolicy = ModuloCongestionPolicy<2>;
-
+// using CongestionPolicy = BasicCongestionPolicy<50>;
 using FRRPolicy = LFAPolicy;
 
-using SimulationQueue = FRRQueue<CongestionPolicy, FRRPolicy>;
+using SimulationQueue = FRRQueue<CongestionPolicy>;
+using FRRNetDevice = PointToPointFRRNetDevice<FRRPolicy>;
+using FRRChannel = PointToPointFRRChannel<FRRPolicy>;
 
 NS_OBJECT_ENSURE_REGISTERED(SimulationQueue);
+NS_OBJECT_ENSURE_REGISTERED(FRRChannel);
+NS_OBJECT_ENSURE_REGISTERED(FRRNetDevice);
 
 template <int INDEX>
-Ptr<PointToPointNetDevice> getDevice(const NetDeviceContainer& devices)
+Ptr<FRRNetDevice> getDevice(const NetDeviceContainer& devices)
 {
-    return devices.Get(INDEX)->GetObject<PointToPointNetDevice>();
+    return devices.Get(INDEX)->GetObject<FRRNetDevice>();
 }
 
 template <int INDEX>
@@ -39,9 +43,9 @@ Ptr<SimulationQueue> getQueue(const NetDeviceContainer& devices)
 
 template <int INDEX>
 void setAlternateTarget(const NetDeviceContainer& devices,
-                        Ptr<PointToPointNetDevice> target)
+                        Ptr<FRRNetDevice> target)
 {
-    getQueue<INDEX>(devices)->addAlternateTargets(target);
+    getDevice<INDEX>(devices)->addAlternateTarget(target);
 }
 
 int main(int argc, char* argv[])
@@ -54,7 +58,7 @@ int main(int argc, char* argv[])
     stack.Install(nodes);
 
     // Configure PointToPoint links
-    PointToPointHelper p2p;
+    PointToPointFRRHelper<FRRPolicy> p2p;
     p2p.SetDeviceAttribute("DataRate", StringValue("5Mbps"));
     p2p.SetChannelAttribute("Delay", StringValue("1ms"));
 
