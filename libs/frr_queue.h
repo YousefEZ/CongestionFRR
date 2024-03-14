@@ -5,7 +5,7 @@
 #include <utility>
 
 #include <typeinfo>
-#include <cxxabi.h> // For __cxa_demangle
+#include <cxxabi.h>
 
 #include "point_to_point_frr_net_device.h"
 #include "ns3/object-base.h"
@@ -88,20 +88,8 @@ TypeId FRRQueue<CONGESTION_POLICY>::GetTypeId()
 template <typename CONGESTION_POLICY>
 bool FRRQueue<CONGESTION_POLICY>::Enqueue(Ptr<Packet> packet)
 {
+    NS_LOG_LOGIC("(" << m_uid << ") Enqueuing: " << packet);
     return DoEnqueue(GetContainer().end(), packet);
-
-    NS_LOG_LOGIC("(" << m_uid << ") Checking Queue For " << packet
-                     << ", uuid:" << packet->GetUid());
-    if (m_congestionPolicy.isCongested(this)) {
-        NS_LOG_LOGIC("(" << m_uid
-                         << ") Congested Route, Rerouting packet: " << packet);
-        // ForwardToAlternateTarget(packet);
-        NS_LOG_LOGIC("(" << m_uid << ") Rerouting complete");
-        return false;
-    }
-    NS_LOG_LOGIC("(" << m_uid << ") Enqueue " << packet
-                     << ", uuid:" << packet->GetUid()
-                     << " to curr: " << GetNPackets() << " packets in queue.");
 }
 
 template <typename CONGESTION_POLICY>
@@ -134,27 +122,6 @@ Ptr<const Packet> FRRQueue<CONGESTION_POLICY>::Peek() const
     return DoPeek(GetContainer().begin());
 }
 
-/*
-template <typename CONGESTION_POLICY>
-void FRRQueue<CONGESTION_POLICY>::ForwardToAlternateTarget(
-    Ptr<Packet> packet)
-{
-    Ptr<PointToPointFRRNetDevice> alternativeTarget =
-        m_frrPolicy.selectAlternativeTarget();
-    if (alternativeTarget) {
-        PppHeader header;
-        packet->RemoveHeader(header, 2);
-        Ipv4Header ipHeader;
-        packet->PeekHeader(ipHeader);
-        NS_LOG_LOGIC("(" << m_uid << ") Forwarding packet to: " <<
-ipHeader.GetDestination()); bool rc = alternativeTarget->Send(packet,
-ipHeader.GetDestination(), 0x0800); NS_LOG_LOGIC("(" << m_uid << ") Forwarded
-packet with: " << rc); } else { NS_LOG_LOGIC("(" << m_uid
-                         << ") No alternative target found, dropping packet.");
-    }
-}
-*/
-
 template <typename CONGESTION_POLICY>
 std::string FRRQueue<CONGESTION_POLICY>::makeQueueString()
 {
@@ -176,8 +143,6 @@ const std::string& FRRQueue<CONGESTION_POLICY>::getQueueString()
         FRRQueue<CONGESTION_POLICY>::makeQueueString();
     return result;
 }
-
-// NS_LOG_COMPONENT_DEFINE("FRRQueue");
 
 } // namespace ns3
 
