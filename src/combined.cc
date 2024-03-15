@@ -38,23 +38,24 @@ NS_OBJECT_ENSURE_REGISTERED(SimulationQueue);
 NS_OBJECT_ENSURE_REGISTERED(FRRChannel);
 NS_OBJECT_ENSURE_REGISTERED(FRRNetDevice);
 
-template <int INDEX>
-Ptr<FRRNetDevice> getDevice(const NetDeviceContainer& devices)
+template <int INDEX, typename DEVICE_TYPE>
+Ptr<DEVICE_TYPE> getDevice(const NetDeviceContainer& devices)
 {
-    return devices.Get(INDEX)->GetObject<FRRNetDevice>();
+    return devices.Get(INDEX)->GetObject<DEVICE_TYPE>();
 }
+
 
 template <int INDEX>
 Ptr<SimulationQueue> getQueue(const NetDeviceContainer& devices)
 {
-    return DynamicCast<SimulationQueue>(getDevice<INDEX>(devices)->GetQueue());
+    return DynamicCast<SimulationQueue>(getDevice<INDEX, FRRNetDevice>(devices)->GetQueue());
 }
 
 template <int INDEX>
 void setAlternateTarget(const NetDeviceContainer& devices,
-                        Ptr<FRRNetDevice> target)
+                        Ptr<ns3::NetDevice> target)
 {
-    getDevice<INDEX>(devices)->addAlternateTarget(target);
+    getDevice<INDEX, FRRNetDevice>(devices)->addAlternateTarget(target);
 }
 
 void SetupTCPConfig()
@@ -221,8 +222,8 @@ int main(int argc, char* argv[])
     // path configured
 
     // TODO: Need some help with setting alternate target
-    setAlternateTarget<0>(devices_2_3, getDevice<0>(devices_2_4));
-    setAlternateTarget<1>(devices_2_3, getDevice<1>(devices_4_3));
+    setAlternateTarget<0>(devices_2_3, getDevice<0, ns3::PointToPointNetDevice>(devices_2_4));
+    setAlternateTarget<1>(devices_2_3, getDevice<1, ns3::PointToPointNetDevice>(devices_4_3));
     // setAlternateTarget<0>(devices01, getDevice<0>(devices02));
     // setAlternateTarget<0>(devices02, getDevice<0>(devices01));
 
@@ -233,17 +234,6 @@ int main(int argc, char* argv[])
     // setAlternateTarget<1>(devices12, getDevice<1>(devices02));
 
     // enableRerouting(getQueue<0>(devices_2_3));
-    toggleCongestion(getQueue<0>(devices_0_2));
-    toggleCongestion(getQueue<1>(devices_0_2));
-    toggleCongestion(getQueue<0>(devices_2_4));
-    toggleCongestion(getQueue<1>(devices_2_4));
-    toggleCongestion(getQueue<0>(devices_4_3));
-    toggleCongestion(getQueue<1>(devices_4_3));
-    toggleCongestion(getQueue<0>(devices_3_5));
-    toggleCongestion(getQueue<1>(devices_3_5));
-    toggleCongestion(getQueue<0>(devices_1_2));
-    toggleCongestion(getQueue<1>(devices_1_2));
-
     p2p_traffic.EnablePcapAll("traces/");
     p2p_congestion.EnablePcapAll("traces/");
 
