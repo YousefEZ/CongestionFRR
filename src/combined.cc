@@ -124,7 +124,7 @@ int main(int argc, char* argv[])
     stack.Install(nodes);
 
     // Configure PointToPoint link for normal traffic
-    PointToPointFRRHelper<FRRPolicy> p2p_traffic;
+    PointToPointHelper p2p_traffic;
     p2p_traffic.SetDeviceAttribute("DataRate", StringValue("1Mbps"));
     p2p_traffic.SetChannelAttribute("Delay", StringValue("1ms"));
     // Set the custom queue for the device
@@ -134,7 +134,6 @@ int main(int argc, char* argv[])
     PointToPointFRRHelper<FRRPolicy> p2p_congested_link;
     p2p_congested_link.SetDeviceAttribute("DataRate", StringValue("1Mbps"));
     p2p_congested_link.SetChannelAttribute("Delay", StringValue("1ms"));
-
     p2p_congested_link.SetQueue(SimulationQueue::getQueueString());
 
     NetDeviceContainer devices_0_2 =
@@ -149,7 +148,7 @@ int main(int argc, char* argv[])
         p2p_traffic.Install(nodes.Get(3), nodes.Get(5));
 
     // Configure PointToPoint link for congestion link
-    PointToPointFRRHelper<FRRPolicy> p2p_congestion;
+    PointToPointHelper p2p_congestion;
     p2p_congestion.SetDeviceAttribute("DataRate", StringValue("1Mbps"));
     p2p_congestion.SetChannelAttribute("Delay", StringValue("1ms"));
     // Set the custom queue for the device
