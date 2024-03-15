@@ -44,11 +44,11 @@ Ptr<DEVICE_TYPE> getDevice(const NetDeviceContainer& devices)
     return devices.Get(INDEX)->GetObject<DEVICE_TYPE>();
 }
 
-
 template <int INDEX>
 Ptr<SimulationQueue> getQueue(const NetDeviceContainer& devices)
 {
-    return DynamicCast<SimulationQueue>(getDevice<INDEX, FRRNetDevice>(devices)->GetQueue());
+    return DynamicCast<SimulationQueue>(
+        getDevice<INDEX, FRRNetDevice>(devices)->GetQueue());
 }
 
 template <int INDEX>
@@ -222,8 +222,10 @@ int main(int argc, char* argv[])
     // path configured
 
     // TODO: Need some help with setting alternate target
-    setAlternateTarget<0>(devices_2_3, getDevice<0, ns3::PointToPointNetDevice>(devices_2_4));
-    setAlternateTarget<1>(devices_2_3, getDevice<1, ns3::PointToPointNetDevice>(devices_4_3));
+    setAlternateTarget<0>(
+        devices_2_3, getDevice<0, ns3::PointToPointNetDevice>(devices_2_4));
+    setAlternateTarget<1>(
+        devices_2_3, getDevice<1, ns3::PointToPointNetDevice>(devices_4_3));
     // setAlternateTarget<0>(devices01, getDevice<0>(devices02));
     // setAlternateTarget<0>(devices02, getDevice<0>(devices01));
 

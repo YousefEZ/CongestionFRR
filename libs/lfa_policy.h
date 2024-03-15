@@ -37,7 +37,8 @@ void LFAPolicy::addAlternateTargets(DEVICES&&... devices)
 bool LFAPolicy::reroute(Ptr<Packet> packet, const Address& dest,
                         uint16_t protocolNumber)
 {
-  return !m_alternateTargets.empty() && m_alternateTargets.front()->Send(packet, dest, protocolNumber);
+    return !m_alternateTargets.empty() &&
+           m_alternateTargets.front()->Send(packet, dest, protocolNumber);
 }
 
 } // namespace ns3
