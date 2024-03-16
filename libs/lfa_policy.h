@@ -16,8 +16,7 @@ class LFAPolicy;
 class LFAPolicy
 {
   private:
-    std::list<ns3::Ptr<ns3::PointToPointFRRNetDevice<LFAPolicy>>>
-        m_alternateTargets;
+    std::list<ns3::Ptr<ns3::NetDevice>> m_alternateTargets;
 
   public:
     LFAPolicy() = default;
@@ -38,13 +37,8 @@ void LFAPolicy::addAlternateTargets(DEVICES&&... devices)
 bool LFAPolicy::reroute(Ptr<Packet> packet, const Address& dest,
                         uint16_t protocolNumber)
 {
-    for (auto& target : m_alternateTargets) {
-        if (!target->isCongested()) {
-            target->Send(packet, dest, protocolNumber);
-            return true;
-        }
-    }
-    return false;
+    return !m_alternateTargets.empty() &&
+           m_alternateTargets.front()->Send(packet, dest, protocolNumber);
 }
 
 } // namespace ns3
