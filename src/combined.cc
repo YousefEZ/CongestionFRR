@@ -182,7 +182,7 @@ int main(int argc, char* argv[])
     Ipv4Address receiver_addr = interfaces_3_5.GetAddress(1);
 
     // UDP Congestion traffic setup
-    uint16_t udp_port = 5001;
+    uint16_t udp_port = 50001;
     OnOffHelper udp_source("ns3::UdpSocketFactory",
                            InetSocketAddress(receiver_addr, udp_port));
     udp_source.SetAttribute(
@@ -192,13 +192,13 @@ int main(int argc, char* argv[])
     udp_source.SetAttribute("DataRate", DataRateValue(DataRate("1Mbps")));
     udp_source.SetAttribute("PacketSize", UintegerValue(1024));
 
-    ApplicationContainer udp_app = udp_source.Install(nodes.Get(0));
-    udp_app.Start(Seconds(3.0));
-    udp_app.Stop(Seconds(6.0));
+    // ApplicationContainer udp_app = udp_source.Install(nodes.Get(0));
+    // udp_app.Start(Seconds(3.0));
+    // udp_app.Stop(Seconds(6.0));
 
     // TCP Setup
     SetupTCPConfig();
-    uint16_t tcp_port = 5002;
+    uint16_t tcp_port = 50002;
     BulkSendHelper tcp_source("ns3::TcpSocketFactory",
                               InetSocketAddress(receiver_addr, tcp_port));
     tcp_source.SetAttribute("MaxBytes", UintegerValue(10000)); // Tweak this
@@ -210,8 +210,8 @@ int main(int argc, char* argv[])
     PacketSinkHelper sink("ns3::TcpSocketFactory",
                           InetSocketAddress(Ipv4Address::GetAny(), tcp_port));
     ApplicationContainer sink_app = sink.Install(nodes.Get(5));
-    tcp_app.Start(Seconds(0.0));
-    tcp_app.Start(Seconds(10.0));
+    sink_app.Start(Seconds(0.0));
+    sink_app.Stop(Seconds(10.0));
 
     // SimulationQueue::sinkAddress =
     //     Mac48Address::ConvertFrom(getDevice<1>(devices_3_5)->GetAddress());
