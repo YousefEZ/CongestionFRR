@@ -199,12 +199,12 @@ int main(int argc, char* argv[])
     // TCP Setup
     SetupTCPConfig();
     uint16_t tcp_port = 50002;
-    // BulkSendHelper tcp_source("ns3::TcpSocketFactory",
-    //                           InetSocketAddress(receiver_addr, tcp_port));
-    // tcp_source.SetAttribute("MaxBytes", UintegerValue(10000)); // Tweak this
-    // ApplicationContainer tcp_app = tcp_source.Install(nodes.Get(1));
-    // tcp_app.Start(Seconds(0.0));
-    // tcp_app.Stop(Seconds(10.0));
+    BulkSendHelper tcp_source("ns3::TcpSocketFactory",
+                              InetSocketAddress(receiver_addr, tcp_port));
+    tcp_source.SetAttribute("MaxBytes", UintegerValue(10000)); // Tweak this
+    ApplicationContainer tcp_app = tcp_source.Install(nodes.Get(1));
+    tcp_app.Start(Seconds(0.0));
+    tcp_app.Stop(Seconds(10.0));
 
     // Packet sink setup (Receiver node)
     PacketSinkHelper sink("ns3::TcpSocketFactory",
