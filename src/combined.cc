@@ -192,19 +192,19 @@ int main(int argc, char* argv[])
     udp_source.SetAttribute("DataRate", DataRateValue(DataRate("1Mbps")));
     udp_source.SetAttribute("PacketSize", UintegerValue(1024));
 
-    // ApplicationContainer udp_app = udp_source.Install(nodes.Get(0));
-    // udp_app.Start(Seconds(3.0));
-    // udp_app.Stop(Seconds(6.0));
+    ApplicationContainer udp_app = udp_source.Install(nodes.Get(0));
+    udp_app.Start(Seconds(3.0));
+    udp_app.Stop(Seconds(6.0));
 
     // TCP Setup
     SetupTCPConfig();
     uint16_t tcp_port = 50002;
-    BulkSendHelper tcp_source("ns3::TcpSocketFactory",
-                              InetSocketAddress(receiver_addr, tcp_port));
-    tcp_source.SetAttribute("MaxBytes", UintegerValue(10000)); // Tweak this
-    ApplicationContainer tcp_app = tcp_source.Install(nodes.Get(1));
-    tcp_app.Start(Seconds(0.0));
-    tcp_app.Stop(Seconds(10.0));
+    // BulkSendHelper tcp_source("ns3::TcpSocketFactory",
+    //                           InetSocketAddress(receiver_addr, tcp_port));
+    // tcp_source.SetAttribute("MaxBytes", UintegerValue(10000)); // Tweak this
+    // ApplicationContainer tcp_app = tcp_source.Install(nodes.Get(1));
+    // tcp_app.Start(Seconds(0.0));
+    // tcp_app.Stop(Seconds(10.0));
 
     // Packet sink setup (Receiver node)
     PacketSinkHelper sink("ns3::TcpSocketFactory",
@@ -213,6 +213,12 @@ int main(int argc, char* argv[])
     sink_app.Start(Seconds(0.0));
     sink_app.Stop(Seconds(10.0));
 
+    PacketSinkHelper udp_sink(
+        "ns3::UdpSocketFactory",
+        InetSocketAddress(Ipv4Address::GetAny(), udp_port));
+    ApplicationContainer udp_sink_app = udp_sink.Install(nodes.Get(5));
+    udp_sink_app.Start(Seconds(0.0));
+    udp_sink_app.Stop(Seconds(10.0));
     // SimulationQueue::sinkAddress =
     //     Mac48Address::ConvertFrom(getDevice<1>(devices_3_5)->GetAddress());
     // NOTE: Is TrafficControlHelper needed here?
