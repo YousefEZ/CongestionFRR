@@ -13,11 +13,12 @@
 #include "../libs/lfa_policy.h"
 #include "../libs/random_congestion_policy.h"
 #include "../libs/point_to_point_frr_helper.h"
+#include "../libs/basic_congestion.h"
 
 using namespace ns3;
 
-// using CongestionPolicy = BasicCongestionPolicy<0>;
-using CongestionPolicy = RandomCongestionPolicy<100>;
+using CongestionPolicy = BasicCongestionPolicy<100>;
+// using CongestionPolicy = RandomCongestionPolicy<100>;
 using FRRPolicy = LFAPolicy;
 
 using SimulationQueue = FRRQueue<CongestionPolicy>;
@@ -26,7 +27,8 @@ using FRRChannel = PointToPointFRRChannel<FRRPolicy>;
 
 void toggleCongestion(Ptr<SimulationQueue> queue)
 {
-    queue->m_congestionPolicy.turnOff();
+    ;
+    // queue->m_congestionPolicy.turnOff();
 }
 
 // void enableRerouting(Ptr<SimulationQueue> queue)
@@ -58,6 +60,16 @@ void setAlternateTarget(const NetDeviceContainer& devices,
     getDevice<INDEX, FRRNetDevice>(devices)->addAlternateTarget(target);
 }
 
+// TCP parameters
+uint32_t segmentSize = 1024;
+uint32_t MTU_bytes = segmentSize + 54;
+
+// Topology parameters
+std::string bandwidth_bottleneck = "10Mbps";
+std::string bandwidth_normal = "20Mbps";
+std::string delay_bottleneck = "20ms";
+std::string delay_normal = "15ms";
+
 void SetupTCPConfig()
 {
     // TCP recovery algorithm
@@ -79,6 +91,29 @@ void SetupTCPConfig()
     // Enable/disable SACKs (disabled)
     Config::SetDefault("ns3::TcpSocketBase::Sack", BooleanValue(false));
     Config::SetDefault("ns3::TcpSocketBase::MinRto", TimeValue(Seconds(1.0)));
+}
+
+void CalculateExpectedPackets(uint32_t tcp_max_bytes, DataRate udp_data_rate)
+{
+    DataRate bandwidth_bottleneck_dr(bandwidth_bottleneck);
+    Time bottleneck_delay_t(delay_bottleneck);
+
+    double expected_tcp_packets =
+        static_cast<double>(tcp_max_bytes / MTU_bytes);
+
+    uint32_t udp_packet_size =
+        (udp_data_rate.GetBitRate() * bottleneck_delay_t.GetSeconds()) /
+        8; // Convert from bps to bytes
+
+    double expected_udp_packets = static_cast<double>(udp_packet_size) / 1054;
+    double total_packets = expected_udp_packets + expected_tcp_packets;
+
+    std::cout << "Expected TCP packets in queue: " << expected_tcp_packets
+              << std::endl;
+    std::cout << "Expected UDP packets in queue: " << expected_udp_packets
+              << std::endl;
+    std::cout << "Expected total packets in queue: " << total_packets
+              << std::endl;
 }
 
 // NS_LOG_COMPONENT_DEFINE("CongestionFastReRoute");
@@ -126,16 +161,23 @@ int main(int argc, char* argv[])
 
     // Configure PointToPoint link for normal traffic
     PointToPointHelper p2p_traffic;
-    p2p_traffic.SetDeviceAttribute("DataRate", StringValue("1Mbps"));
-    p2p_traffic.SetChannelAttribute("Delay", StringValue("1ms"));
+    p2p_traffic.SetDeviceAttribute("DataRate", StringValue(bandwidth_normal));
+    p2p_traffic.SetChannelAttribute("Delay", StringValue(delay_normal));
     // Set the custom queue for the device
     p2p_traffic.SetQueue("ns3::DropTailQueue<Packet>");
     // Install devices and channels between nodes
 
     PointToPointFRRHelper<FRRPolicy> p2p_congested_link;
-    p2p_congested_link.SetDeviceAttribute("DataRate", StringValue("1Mbps"));
-    p2p_congested_link.SetChannelAttribute("Delay", StringValue("1ms"));
+    p2p_congested_link.SetDeviceAttribute("DataRate",
+                                          StringValue(bandwidth_bottleneck));
+    p2p_congested_link.SetChannelAttribute("Delay",
+                                           StringValue(delay_bottleneck));
     p2p_congested_link.SetQueue(SimulationQueue::getQueueString());
+
+    Config::SetDefault("ns3::DropTailQueue<Packet>::MaxSize",
+                       StringValue("100p"));
+    Config::SetDefault(SimulationQueue::getQueueString() + "::MaxSize",
+                       StringValue("100p"));
 
     NetDeviceContainer devices_0_2 =
         p2p_traffic.Install(nodes.Get(0), nodes.Get(2));
@@ -150,8 +192,9 @@ int main(int argc, char* argv[])
 
     // Configure PointToPoint link for congestion link
     PointToPointHelper p2p_congestion;
-    p2p_congestion.SetDeviceAttribute("DataRate", StringValue("1Mbps"));
-    p2p_congestion.SetChannelAttribute("Delay", StringValue("1ms"));
+    p2p_congestion.SetDeviceAttribute("DataRate",
+                                      StringValue(bandwidth_normal));
+    p2p_congestion.SetChannelAttribute("Delay", StringValue(delay_normal));
     // Set the custom queue for the device
     p2p_congestion.SetQueue("ns3::DropTailQueue<Packet>");
     // Install devices and channels between nodes
@@ -222,6 +265,8 @@ int main(int argc, char* argv[])
     // SimulationQueue::sinkAddress =
     //     Mac48Address::ConvertFrom(getDevice<1>(devices_3_5)->GetAddress());
     // NOTE: Is TrafficControlHelper needed here?
+
+    CalculateExpectedPackets(10000, DataRate("1Mbps"));
 
     // LFA Alternate Path setup
     // Set up an alternate forwarding target, assuming you have an alternate
