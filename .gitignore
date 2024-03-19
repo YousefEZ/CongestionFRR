@@ -33,3 +33,6 @@
 
 # Traces
 traces/*
+
+*.DS_Store
+*.idea/
