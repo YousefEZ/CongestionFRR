@@ -36,3 +36,4 @@ traces/*
 
 *.DS_Store
 *.idea/
+*.vscode/
