@@ -60,12 +60,12 @@ def save_plot(timestamp, completion_time, stream_direction):
 
 
 if __name__ == '__main__':
-    sender_packets = read_pcap("-Sender-0.pcap")
-    receiver_packets = read_pcap("-Receiver-0.pcap")
-    sender_IP, receiver_IP = get_IP(sender_packets)
+    senderPackets = read_pcap("-Sender-0.pcap")
+    receiverPackets = read_pcap("-Receiver-0.pcap")
+    senderIP, receiverIP = get_IP(senderPackets)
 
     # timestamp, completion_time, stream_direction = packet_transfer_time(sender_packets, receiver_packets)
 
-    fc_time = flow_completion_time(sender_packets)
+    fc_time = flow_completion_time(senderPackets)
     print(fc_time)
     # save_plot(timestamp, completion_time, stream_direction)
