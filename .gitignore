@@ -32,8 +32,9 @@
 *.app
 
 # Traces
-traces/*
+*/traces/*
+*/plots/*
 
 *.DS_Store
 *.idea/
-*.vscode/
+*.vscode/*
