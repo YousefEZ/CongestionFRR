@@ -17,12 +17,9 @@
       </list>
     </option>
   </component>
-  <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
-  </component>
-  <component name="ProjectColorInfo">{
-  &quot;associatedIndex&quot;: 6
-}</component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 6
+}]]></component>
   <component name="ProjectId" id="2daSYR8GXQxqemArLymmblHqR2W" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -33,7 +30,6 @@
     "Python.process_pcap.executor": "Run",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "main",
     "last_opened_file_path": "/Users/junmin/Desktop/COMP0031 Research project/pcap analysis",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -90,7 +86,6 @@
       <option name="presentableId" value="Default" />
       <updated>1697209528521</updated>
       <workItem from="1710244744859" duration="1060000" />
-      <workItem from="1710857492590" duration="28000" />
     </task>
     <servers />
   </component>
