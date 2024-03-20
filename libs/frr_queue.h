@@ -29,6 +29,7 @@ class FRRQueue : public FRRQueueBase
     using FRRQueueBase::DoPeek;
     using FRRQueueBase::DoRemove;
     using FRRQueueBase::GetContainer;
+    using FRRQueueBase::GetNPackets;
 
     NS_LOG_TEMPLATE_DECLARE;
 
@@ -89,6 +90,7 @@ template <typename CONGESTION_POLICY>
 bool FRRQueue<CONGESTION_POLICY>::Enqueue(Ptr<Packet> packet)
 {
     NS_LOG_LOGIC("(" << m_uid << ") Enqueuing: " << packet);
+    NS_LOG_LOGIC(GetNPackets() << " packets in queue");
     return DoEnqueue(GetContainer().end(), packet);
 }
 
