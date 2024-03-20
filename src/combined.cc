@@ -17,7 +17,7 @@
 
 using namespace ns3;
 
-using CongestionPolicy = BasicCongestionPolicy<100>;
+using CongestionPolicy = BasicCongestionPolicy<20>;
 // using CongestionPolicy = RandomCongestionPolicy<100>;
 using FRRPolicy = LFAPolicy;
 
@@ -65,10 +65,11 @@ uint32_t segmentSize = 1024;
 uint32_t MTU_bytes = segmentSize + 54;
 
 // Topology parameters
-std::string bandwidth_bottleneck = "10Mbps";
-std::string bandwidth_normal = "20Mbps";
+std::string bandwidth_bottleneck = "3Mbps";
+std::string bandwidth_access = "1Mbps";
+std::string bandwidth_udp_access = "2Mbps";
 std::string delay_bottleneck = "20ms";
-std::string delay_normal = "15ms";
+std::string delay_access = "20ms";
 
 void SetupTCPConfig()
 {
@@ -96,23 +97,25 @@ void SetupTCPConfig()
 void CalculateExpectedPackets(uint32_t tcp_max_bytes, DataRate udp_data_rate)
 {
     DataRate bandwidth_bottleneck_dr(bandwidth_bottleneck);
+    DataRate bandwidth_access_dr(bandwidth_access);
     Time bottleneck_delay_t(delay_bottleneck);
+    Time access_delay_t(delay_access);
 
-    double expected_tcp_packets =
-        static_cast<double>(tcp_max_bytes / MTU_bytes);
+    // Serialization delay ~2ms
+    Time serialization_delay_t(
+        (1024 + 54) /
+        (std::min(bandwidth_bottleneck_dr, bandwidth_access_dr).GetBitRate()));
 
-    uint32_t udp_packet_size =
-        (udp_data_rate.GetBitRate() * bottleneck_delay_t.GetSeconds()) /
-        8; // Convert from bps to bytes
+    uint32_t max_bottleneck_tcp_bytes = static_cast<uint32_t>(
+        ((std::min(bandwidth_access_dr, bandwidth_bottleneck_dr).GetBitRate() /
+          8) *
+         (((access_delay_t * 2) + bottleneck_delay_t) * 2 +
+          serialization_delay_t)
+             .GetSeconds()));
 
-    double expected_udp_packets = static_cast<double>(udp_packet_size) / 1054;
-    double total_packets = expected_udp_packets + expected_tcp_packets;
-
+    uint32_t expected_tcp_packets =
+        std::ceil(max_bottleneck_tcp_bytes / (1024 + 54));
     std::cout << "Expected TCP packets in queue: " << expected_tcp_packets
-              << std::endl;
-    std::cout << "Expected UDP packets in queue: " << expected_udp_packets
-              << std::endl;
-    std::cout << "Expected total packets in queue: " << total_packets
               << std::endl;
 }
 
@@ -161,8 +164,8 @@ int main(int argc, char* argv[])
 
     // Configure PointToPoint link for normal traffic
     PointToPointHelper p2p_traffic;
-    p2p_traffic.SetDeviceAttribute("DataRate", StringValue(bandwidth_normal));
-    p2p_traffic.SetChannelAttribute("Delay", StringValue(delay_normal));
+    p2p_traffic.SetDeviceAttribute("DataRate", StringValue(bandwidth_access));
+    p2p_traffic.SetChannelAttribute("Delay", StringValue(delay_access));
     // Set the custom queue for the device
     p2p_traffic.SetQueue("ns3::DropTailQueue<Packet>");
     // Install devices and channels between nodes
@@ -175,9 +178,9 @@ int main(int argc, char* argv[])
     p2p_congested_link.SetQueue(SimulationQueue::getQueueString());
 
     Config::SetDefault("ns3::DropTailQueue<Packet>::MaxSize",
-                       StringValue("100p"));
+                       StringValue("10p"));
     Config::SetDefault(SimulationQueue::getQueueString() + "::MaxSize",
-                       StringValue("100p"));
+                       StringValue("10p"));
 
     NetDeviceContainer devices_0_2 =
         p2p_traffic.Install(nodes.Get(0), nodes.Get(2));
@@ -193,8 +196,8 @@ int main(int argc, char* argv[])
     // Configure PointToPoint link for congestion link
     PointToPointHelper p2p_congestion;
     p2p_congestion.SetDeviceAttribute("DataRate",
-                                      StringValue(bandwidth_normal));
-    p2p_congestion.SetChannelAttribute("Delay", StringValue(delay_normal));
+                                      StringValue(bandwidth_udp_access));
+    p2p_congestion.SetChannelAttribute("Delay", StringValue(delay_access));
     // Set the custom queue for the device
     p2p_congestion.SetQueue("ns3::DropTailQueue<Packet>");
     // Install devices and channels between nodes
@@ -232,12 +235,13 @@ int main(int argc, char* argv[])
         "OnTime", StringValue("ns3::ConstantRandomVariable[Constant=1]"));
     udp_source.SetAttribute(
         "OffTime", StringValue("ns3::ConstantRandomVariable[Constant=0]"));
-    udp_source.SetAttribute("DataRate", DataRateValue(DataRate("1Mbps")));
+    udp_source.SetAttribute("DataRate",
+                            DataRateValue(DataRate(bandwidth_udp_access)));
     udp_source.SetAttribute("PacketSize", UintegerValue(1024));
 
     ApplicationContainer udp_app = udp_source.Install(nodes.Get(0));
-    udp_app.Start(Seconds(3.0));
-    udp_app.Stop(Seconds(6.0));
+    udp_app.Start(Seconds(0.0));
+    udp_app.Stop(Seconds(10.0));
 
     // TCP Setup
     SetupTCPConfig();
