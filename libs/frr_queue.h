@@ -29,6 +29,7 @@ class FRRQueue : public FRRQueueBase
     using FRRQueueBase::DoPeek;
     using FRRQueueBase::DoRemove;
     using FRRQueueBase::GetContainer;
+    using FRRQueueBase::GetNPackets;
 
     NS_LOG_TEMPLATE_DECLARE;
 
@@ -78,7 +79,7 @@ TypeId FRRQueue<CONGESTION_POLICY>::GetTypeId()
             .SetGroupName("Network")
             .template AddConstructor<FRRQueue<CONGESTION_POLICY>>()
             .AddAttribute("MaxSize", "The max queue size",
-                          QueueSizeValue(QueueSize("100p")),
+                          QueueSizeValue(QueueSize("10p")),
                           MakeQueueSizeAccessor(&QueueBase::SetMaxSize,
                                                 &QueueBase::GetMaxSize),
                           MakeQueueSizeChecker());
@@ -89,6 +90,7 @@ template <typename CONGESTION_POLICY>
 bool FRRQueue<CONGESTION_POLICY>::Enqueue(Ptr<Packet> packet)
 {
     NS_LOG_LOGIC("(" << m_uid << ") Enqueuing: " << packet);
+    NS_LOG_LOGIC(GetNPackets() << " packets in queue");
     return DoEnqueue(GetContainer().end(), packet);
 }
 

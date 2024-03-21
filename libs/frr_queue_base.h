@@ -15,6 +15,7 @@ class FRRQueueBase : public Queue<Packet>
     using Queue<Packet>::DoDequeue;
     using Queue<Packet>::DoRemove;
     using Queue<Packet>::DoPeek;
+    using Queue<Packet>::GetNPackets;
 
   public:
     FRRQueueBase() = default;
