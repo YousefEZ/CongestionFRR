@@ -242,7 +242,7 @@ int main(int argc, char* argv[])
 
     ApplicationContainer udp_app = udp_source.Install(nodes.Get(0));
     udp_app.Start(Seconds(0.0));
-    udp_app.Stop(Seconds(5.0));    
+    udp_app.Stop(Seconds(5.0));
 
     DataRate b_access(bandwidth_access);
     DataRate b_bottleneck(bandwidth_bottleneck);
@@ -255,8 +255,10 @@ int main(int argc, char* argv[])
     uint16_t tcp_port = 50002;
     BulkSendHelper tcp_source("ns3::TcpSocketFactory",
                               InetSocketAddress(receiver_addr, tcp_port));
-    tcp_source.SetAttribute("MaxBytes", UintegerValue(100000)); // 0 for unlimited data
-    tcp_source.SetAttribute("SendSize", UintegerValue(1024)); // Packet size in bytes
+    tcp_source.SetAttribute("MaxBytes",
+                            UintegerValue(100000)); // 0 for unlimited data
+    tcp_source.SetAttribute("SendSize",
+                            UintegerValue(1024)); // Packet size in bytes
     ApplicationContainer tcp_app = tcp_source.Install(nodes.Get(1));
     tcp_app.Start(Seconds(0.0));
     tcp_app.Stop(Seconds(5.0));
