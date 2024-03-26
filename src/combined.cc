@@ -275,7 +275,7 @@ int main(int argc, char* argv[])
         InetSocketAddress(Ipv4Address::GetAny(), udp_port));
     ApplicationContainer udp_sink_app = udp_sink.Install(nodes.Get(5));
     udp_sink_app.Start(Seconds(0.0));
-    udp_sink_app.Stop(Seconds(5.0));
+    udp_sink_app.Stop(Seconds(10.0));
     // SimulationQueue::sinkAddress =
     //     Mac48Address::ConvertFrom(getDevice<1>(devices_3_5)->GetAddress());
     // NOTE: Is TrafficControlHelper needed here?
