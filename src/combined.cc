@@ -18,7 +18,7 @@
 
 using namespace ns3;
 
-using CongestionPolicy = BasicCongestionPolicy<20>;
+using CongestionPolicy = BasicCongestionPolicy<40>;
 // using CongestionPolicy = RandomCongestionPolicy<100>;
 using FRRPolicy = LFAPolicy;
 
@@ -172,11 +172,13 @@ int main(int argc, char* argv[])
     // Install devices and channels between nodes
 
     PointToPointFRRHelper<FRRPolicy> p2p_congested_link;
+    // PointToPointHelper p2p_congested_link;
     p2p_congested_link.SetDeviceAttribute("DataRate",
                                           StringValue(bandwidth_bottleneck));
     p2p_congested_link.SetChannelAttribute("Delay",
                                            StringValue(delay_bottleneck));
     p2p_congested_link.SetQueue(SimulationQueue::getQueueString());
+    // p2p_congested_link.SetQueue("ns3::DropTailQueue<Packet>");
 
     Config::SetDefault("ns3::DropTailQueue<Packet>::MaxSize",
                        StringValue("10p"));
@@ -240,9 +242,9 @@ int main(int argc, char* argv[])
                             DataRateValue(DataRate(bandwidth_udp_access)));
     udp_source.SetAttribute("PacketSize", UintegerValue(1024));
 
-    ApplicationContainer udp_app = udp_source.Install(nodes.Get(0));
-    udp_app.Start(Seconds(0.0));
-    udp_app.Stop(Seconds(5.0));
+    // ApplicationContainer udp_app = udp_source.Install(nodes.Get(0));
+    // udp_app.Start(Seconds(0.0));
+    // udp_app.Stop(Seconds(5.0));
 
     DataRate b_access(bandwidth_access);
     DataRate b_bottleneck(bandwidth_bottleneck);
@@ -268,7 +270,7 @@ int main(int argc, char* argv[])
                           InetSocketAddress(Ipv4Address::GetAny(), tcp_port));
     ApplicationContainer sink_app = sink.Install(nodes.Get(5));
     sink_app.Start(Seconds(0.0));
-    sink_app.Stop(Seconds(5.0));
+    sink_app.Stop(Seconds(10.0));
 
     PacketSinkHelper udp_sink(
         "ns3::UdpSocketFactory",
@@ -280,7 +282,7 @@ int main(int argc, char* argv[])
     //     Mac48Address::ConvertFrom(getDevice<1>(devices_3_5)->GetAddress());
     // NOTE: Is TrafficControlHelper needed here?
 
-    CalculateExpectedPackets(10000, DataRate("1Mbps"));
+    // CalculateExpectedPackets(10000, DataRate("1Mbps"));
 
     // LFA Alternate Path setup
     // Set up an alternate forwarding target, assuming you have an alternate
