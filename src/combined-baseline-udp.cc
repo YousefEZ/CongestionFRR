@@ -69,8 +69,8 @@ uint32_t MTU_bytes = segmentSize + 54;
 std::string bandwidth_bottleneck = "150kbps";
 std::string bandwidth_access = "600kbps";
 std::string bandwidth_udp_access = "100kbps";
-std::string delay_bottleneck = "2ms";
-std::string delay_access = "2ms";
+std::string delay_bottleneck = "100ms";
+std::string delay_access = "100ms";
 
 void SetupTCPConfig()
 {
