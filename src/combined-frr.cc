@@ -18,7 +18,7 @@
 
 using namespace ns3;
 
-using CongestionPolicy = BasicCongestionPolicy<40>;
+using CongestionPolicy = BasicCongestionPolicy<99>;
 // using CongestionPolicy = RandomCongestionPolicy<100>;
 using FRRPolicy = LFAPolicy;
 
@@ -69,8 +69,8 @@ uint32_t MTU_bytes = segmentSize + 54;
 std::string bandwidth_bottleneck = "150kbps";
 std::string bandwidth_access = "600kbps";
 std::string bandwidth_udp_access = "100kbps";
-std::string delay_bottleneck = "20ms";
-std::string delay_access = "20ms";
+std::string delay_bottleneck = "2ms";
+std::string delay_access = "2ms";
 
 void SetupTCPConfig()
 {

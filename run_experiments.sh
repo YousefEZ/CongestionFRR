@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Check if arguments are provided
-if [ "$#" -ne 6 ]; then
-	echo "Usage: $0 <test_number> <bandwidth_bottleneck> <bandwidth_access> <bandwidth_udp_access> <delay_bottleneck> <delay_access>"
+if [ "$#" -ne 7 ]; then
+	echo "Usage: $0 <test_number> <bandwidth_bottleneck> <bandwidth_access> <bandwidth_udp_access> <delay_bottleneck> <delay_access> <policy>"
 	exit 1
 fi
 
@@ -13,18 +13,21 @@ bandwidth_access=$3
 bandwidth_udp_access=$4
 delay_bottleneck=$5
 delay_access=$6
+policy=$7
 
 # Define function to edit lines in C++ files
 edit_cpp_files() {
 	local filename=$1
+	local policy=$2
 
-	awk -v BB="$bandwidth_bottleneck" -v BA="$bandwidth_access" -v BUA="$bandwidth_udp_access" -v DB="$delay_bottleneck" -v DA="$delay_access" '
+	awk -v BB="$bandwidth_bottleneck" -v BA="$bandwidth_access" -v BUA="$bandwidth_udp_access" -v DB="$delay_bottleneck" -v DA="$delay_access" -v POL="$policy" '
         { 
             gsub(/std::string bandwidth_bottleneck = ".+";/, "std::string bandwidth_bottleneck = \"" BB "\";");
             gsub(/std::string bandwidth_access = ".+";/, "std::string bandwidth_access = \"" BA "\";");
             gsub(/std::string bandwidth_udp_access = ".+";/, "std::string bandwidth_udp_access = \"" BUA "\";");
             gsub(/std::string delay_bottleneck = ".+";/, "std::string delay_bottleneck = \"" DB "\";");
             gsub(/std::string delay_access = ".+";/, "std::string delay_access = \"" DA "\";");
+            gsub(/CongestionPolicy = BasicCongestionPolicy<[0-9]+>;$/, "CongestionPolicy = BasicCongestionPolicy<" POL ">;");
             print
         }
     ' "$filename" >"$filename.tmp" && mv "$filename.tmp" "$filename"
@@ -59,7 +62,9 @@ for test_type in "${test_types[@]}"; do
 	# Loop through each C++ file
 	for file in combined-$test_type.cc; do
 		# Edit lines in the C++ file
-		edit_cpp_files "src/$file"
+		edit_cpp_files "src/$file" "$policy"
+
+		sleep 1
 
 		# Run Docker command
 		run_docker_command $file
@@ -68,3 +73,12 @@ for test_type in "${test_types[@]}"; do
 		copy_files_to_experiments $test_type
 	done
 done
+
+# Write parameters to a markdown file
+echo "### Experiment Parameters" >"experiments/$test_number/parameters.md"
+echo "- Bandwidth Bottleneck: $bandwidth_bottleneck" >>"experiments/$test_number/parameters.md"
+echo "- Bandwidth Access: $bandwidth_access" >>"experiments/$test_number/parameters.md"
+echo "- Bandwidth UDP Access: $bandwidth_udp_access" >>"experiments/$test_number/parameters.md"
+echo "- Delay Bottleneck: $delay_bottleneck" >>"experiments/$test_number/parameters.md"
+echo "- Delay Access: $delay_access" >>"experiments/$test_number/parameters.md"
+echo "- Congestion Policy: $policy" >>"experiments/$test_number/parameters.md"
