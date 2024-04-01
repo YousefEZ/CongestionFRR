@@ -171,14 +171,14 @@ int main(int argc, char* argv[])
     p2p_traffic.SetQueue("ns3::DropTailQueue<Packet>");
     // Install devices and channels between nodes
 
-    // PointToPointFRRHelper<FRRPolicy> p2p_congested_link;
-    PointToPointHelper p2p_congested_link;
+    PointToPointFRRHelper<FRRPolicy> p2p_congested_link;
+    // PointToPointHelper p2p_congested_link;
     p2p_congested_link.SetDeviceAttribute("DataRate",
                                           StringValue(bandwidth_bottleneck));
     p2p_congested_link.SetChannelAttribute("Delay",
                                            StringValue(delay_bottleneck));
-    // p2p_congested_link.SetQueue(SimulationQueue::getQueueString());
-    p2p_congested_link.SetQueue("ns3::DropTailQueue<Packet>");
+    p2p_congested_link.SetQueue(SimulationQueue::getQueueString());
+    // p2p_congested_link.SetQueue("ns3::DropTailQueue<Packet>");
 
     Config::SetDefault("ns3::DropTailQueue<Packet>::MaxSize",
                        StringValue("10p"));
@@ -242,9 +242,9 @@ int main(int argc, char* argv[])
                             DataRateValue(DataRate(bandwidth_udp_access)));
     udp_source.SetAttribute("PacketSize", UintegerValue(1024));
 
-    ApplicationContainer udp_app = udp_source.Install(nodes.Get(0));
-    udp_app.Start(Seconds(0.0));
-    udp_app.Stop(Seconds(5.0));
+    // ApplicationContainer udp_app = udp_source.Install(nodes.Get(0));
+    // udp_app.Start(Seconds(0.0));
+    // udp_app.Stop(Seconds(5.0));
 
     DataRate b_access(bandwidth_access);
     DataRate b_bottleneck(bandwidth_bottleneck);
@@ -289,10 +289,10 @@ int main(int argc, char* argv[])
     // path configured
 
     // TODO: Need some help with setting alternate target
-    // setAlternateTarget<0>(
-    //     devices_2_3, getDevice<0, ns3::PointToPointNetDevice>(devices_2_4));
-    // setAlternateTarget<1>(
-    //     devices_2_3, getDevice<1, ns3::PointToPointNetDevice>(devices_4_3));
+    setAlternateTarget<0>(
+        devices_2_3, getDevice<0, ns3::PointToPointNetDevice>(devices_2_4));
+    setAlternateTarget<1>(
+        devices_2_3, getDevice<1, ns3::PointToPointNetDevice>(devices_4_3));
     // setAlternateTarget<0>(devices01, getDevice<0>(devices02));
     // setAlternateTarget<0>(devices02, getDevice<0>(devices01));
 

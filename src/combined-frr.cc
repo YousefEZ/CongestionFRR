@@ -171,14 +171,14 @@ int main(int argc, char* argv[])
     p2p_traffic.SetQueue("ns3::DropTailQueue<Packet>");
     // Install devices and channels between nodes
 
-    // PointToPointFRRHelper<FRRPolicy> p2p_congested_link;
-    PointToPointHelper p2p_congested_link;
+    PointToPointFRRHelper<FRRPolicy> p2p_congested_link;
+    // PointToPointHelper p2p_congested_link;
     p2p_congested_link.SetDeviceAttribute("DataRate",
                                           StringValue(bandwidth_bottleneck));
     p2p_congested_link.SetChannelAttribute("Delay",
                                            StringValue(delay_bottleneck));
-    // p2p_congested_link.SetQueue(SimulationQueue::getQueueString());
-    p2p_congested_link.SetQueue("ns3::DropTailQueue<Packet>");
+    p2p_congested_link.SetQueue(SimulationQueue::getQueueString());
+    // p2p_congested_link.SetQueue("ns3::DropTailQueue<Packet>");
 
     Config::SetDefault("ns3::DropTailQueue<Packet>::MaxSize",
                        StringValue("10p"));
@@ -289,10 +289,10 @@ int main(int argc, char* argv[])
     // path configured
 
     // TODO: Need some help with setting alternate target
-    // setAlternateTarget<0>(
-    //     devices_2_3, getDevice<0, ns3::PointToPointNetDevice>(devices_2_4));
-    // setAlternateTarget<1>(
-    //     devices_2_3, getDevice<1, ns3::PointToPointNetDevice>(devices_4_3));
+    setAlternateTarget<0>(
+        devices_2_3, getDevice<0, ns3::PointToPointNetDevice>(devices_2_4));
+    setAlternateTarget<1>(
+        devices_2_3, getDevice<1, ns3::PointToPointNetDevice>(devices_4_3));
     // setAlternateTarget<0>(devices01, getDevice<0>(devices02));
     // setAlternateTarget<0>(devices02, getDevice<0>(devices01));
 

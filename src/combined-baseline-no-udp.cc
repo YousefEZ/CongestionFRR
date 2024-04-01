@@ -242,9 +242,9 @@ int main(int argc, char* argv[])
                             DataRateValue(DataRate(bandwidth_udp_access)));
     udp_source.SetAttribute("PacketSize", UintegerValue(1024));
 
-    ApplicationContainer udp_app = udp_source.Install(nodes.Get(0));
-    udp_app.Start(Seconds(0.0));
-    udp_app.Stop(Seconds(5.0));
+    // ApplicationContainer udp_app = udp_source.Install(nodes.Get(0));
+    // udp_app.Start(Seconds(0.0));
+    // udp_app.Stop(Seconds(5.0));
 
     DataRate b_access(bandwidth_access);
     DataRate b_bottleneck(bandwidth_bottleneck);
