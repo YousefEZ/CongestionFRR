@@ -24,6 +24,11 @@ template <int MAX_USAGE_PERCENTAGE>
 bool BasicCongestionPolicy<MAX_USAGE_PERCENTAGE>::isCongested(
     ns3::Queue<ns3::Packet>* queue)
 {
+    NS_LOG_DEBUG("Queue size: " << queue->GetMaxSize().GetValue());
+    NS_LOG_DEBUG("Queue packets: " << queue->GetNPackets());
+    // return queue->GetNPackets() >=
+    //        static_cast<uint32_t>(queue->GetMaxSize().GetValue() *
+    //                              (MAX_USAGE_PERCENTAGE / 100));
     return queue->GetNPackets() * 100 >=
            queue->GetMaxSize().GetValue() * MAX_USAGE_PERCENTAGE;
 }
