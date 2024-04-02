@@ -6,6 +6,7 @@
 #include "ns3/point-to-point-module.h"
 #include "ns3/applications-module.h"
 #include "ns3/log.h"
+#include "ns3/traffic-control-module.h"
 
 #include "../libs/frr_queue.h"
 #include "../libs/dummy_congestion_policy.h"
@@ -17,7 +18,7 @@
 
 using namespace ns3;
 
-using CongestionPolicy = BasicCongestionPolicy<20>;
+using CongestionPolicy = BasicCongestionPolicy<40>;
 // using CongestionPolicy = RandomCongestionPolicy<100>;
 using FRRPolicy = LFAPolicy;
 
@@ -65,9 +66,9 @@ uint32_t segmentSize = 1024;
 uint32_t MTU_bytes = segmentSize + 54;
 
 // Topology parameters
-std::string bandwidth_bottleneck = "3Mbps";
-std::string bandwidth_access = "1Mbps";
-std::string bandwidth_udp_access = "2Mbps";
+std::string bandwidth_bottleneck = "150kbps";
+std::string bandwidth_access = "600kbps";
+std::string bandwidth_udp_access = "100kbps";
 std::string delay_bottleneck = "20ms";
 std::string delay_access = "20ms";
 
@@ -170,20 +171,22 @@ int main(int argc, char* argv[])
     p2p_traffic.SetQueue("ns3::DropTailQueue<Packet>");
     // Install devices and channels between nodes
 
-    PointToPointFRRHelper<FRRPolicy> p2p_congested_link;
+    // PointToPointFRRHelper<FRRPolicy> p2p_congested_link;
+    PointToPointHelper p2p_congested_link;
     p2p_congested_link.SetDeviceAttribute("DataRate",
                                           StringValue(bandwidth_bottleneck));
     p2p_congested_link.SetChannelAttribute("Delay",
                                            StringValue(delay_bottleneck));
-    p2p_congested_link.SetQueue(SimulationQueue::getQueueString());
+    // p2p_congested_link.SetQueue(SimulationQueue::getQueueString());
+    p2p_congested_link.SetQueue("ns3::DropTailQueue<Packet>");
 
     Config::SetDefault("ns3::DropTailQueue<Packet>::MaxSize",
                        StringValue("10p"));
     Config::SetDefault(SimulationQueue::getQueueString() + "::MaxSize",
                        StringValue("10p"));
 
-    NetDeviceContainer devices_0_2 =
-        p2p_traffic.Install(nodes.Get(0), nodes.Get(2));
+    NetDeviceContainer devices_1_2 =
+        p2p_traffic.Install(nodes.Get(1), nodes.Get(2));
     NetDeviceContainer devices_2_3 =
         p2p_congested_link.Install(nodes.Get(2), nodes.Get(3));
     NetDeviceContainer devices_2_4 =
@@ -201,8 +204,8 @@ int main(int argc, char* argv[])
     // Set the custom queue for the device
     p2p_congestion.SetQueue("ns3::DropTailQueue<Packet>");
     // Install devices and channels between nodes
-    NetDeviceContainer devices_1_2 =
-        p2p_congestion.Install(nodes.Get(1), nodes.Get(2));
+    NetDeviceContainer devices_0_2 =
+        p2p_congestion.Install(nodes.Get(0), nodes.Get(2));
 
     // Assign IP addresses to subnets
     Ipv4AddressHelper address;
@@ -239,19 +242,28 @@ int main(int argc, char* argv[])
                             DataRateValue(DataRate(bandwidth_udp_access)));
     udp_source.SetAttribute("PacketSize", UintegerValue(1024));
 
-    // ApplicationContainer udp_app = udp_source.Install(nodes.Get(0));
-    // udp_app.Start(Seconds(0.0));
-    // udp_app.Stop(Seconds(10.0));
+    ApplicationContainer udp_app = udp_source.Install(nodes.Get(0));
+    udp_app.Start(Seconds(0.0));
+    udp_app.Stop(Seconds(5.0));
+
+    DataRate b_access(bandwidth_access);
+    DataRate b_bottleneck(bandwidth_bottleneck);
+    Time d_access(delay_access);
+    Time d_bottleneck(delay_bottleneck);
+    Time d_serialization("1.9ms");
 
     // TCP Setup
     SetupTCPConfig();
     uint16_t tcp_port = 50002;
     BulkSendHelper tcp_source("ns3::TcpSocketFactory",
                               InetSocketAddress(receiver_addr, tcp_port));
-    tcp_source.SetAttribute("MaxBytes", UintegerValue(10000)); // Tweak this
+    tcp_source.SetAttribute("MaxBytes",
+                            UintegerValue(100000)); // 0 for unlimited data
+    tcp_source.SetAttribute("SendSize",
+                            UintegerValue(1024)); // Packet size in bytes
     ApplicationContainer tcp_app = tcp_source.Install(nodes.Get(1));
     tcp_app.Start(Seconds(0.0));
-    tcp_app.Stop(Seconds(10.0));
+    tcp_app.Stop(Seconds(5.0));
 
     // Packet sink setup (Receiver node)
     PacketSinkHelper sink("ns3::TcpSocketFactory",
@@ -270,17 +282,17 @@ int main(int argc, char* argv[])
     //     Mac48Address::ConvertFrom(getDevice<1>(devices_3_5)->GetAddress());
     // NOTE: Is TrafficControlHelper needed here?
 
-    CalculateExpectedPackets(10000, DataRate("1Mbps"));
+    // CalculateExpectedPackets(10000, DataRate("1Mbps"));
 
     // LFA Alternate Path setup
     // Set up an alternate forwarding target, assuming you have an alternate
     // path configured
 
     // TODO: Need some help with setting alternate target
-    setAlternateTarget<0>(
-        devices_2_3, getDevice<0, ns3::PointToPointNetDevice>(devices_2_4));
-    setAlternateTarget<1>(
-        devices_2_3, getDevice<1, ns3::PointToPointNetDevice>(devices_4_3));
+    // setAlternateTarget<0>(
+    //     devices_2_3, getDevice<0, ns3::PointToPointNetDevice>(devices_2_4));
+    // setAlternateTarget<1>(
+    //     devices_2_3, getDevice<1, ns3::PointToPointNetDevice>(devices_4_3));
     // setAlternateTarget<0>(devices01, getDevice<0>(devices02));
     // setAlternateTarget<0>(devices02, getDevice<0>(devices01));
 
