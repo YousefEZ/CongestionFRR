@@ -70,8 +70,8 @@ def save_plot(timestamp, completion_time, stream_direction):
 
 if __name__ == '__main__':
     groups = os.listdir("experiments")
-    os.makedirs("host/results", exist_ok=True)
-    directory = "host/results"
+    os.makedirs("/host/results", exist_ok=True)
+    directory = "/host/results"
     for group in groups:
         if os.path.isdir(os.path.join("experiments", group)):
             results = []
