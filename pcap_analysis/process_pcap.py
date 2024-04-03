@@ -71,6 +71,8 @@ if __name__ == '__main__':
     files = os.listdir("traces")
     print(os.listdir("traces"))
 
+    results = []
+
     for file in files:
         if file.endswith(".pcap"):
             senderPackets = read_pcap("traces/" + file)
@@ -79,5 +81,13 @@ if __name__ == '__main__':
             # timestamp, completion_time, stream_direction = packet_transfer_time(sender_packets, receiver_packets)
 
             fc_time = flow_completion_time(senderPackets)
-            print(file, ":", fc_time)
+            result = file + ":" + str(fc_time) + "\n"
+            print(result)
+            results.append(result)
             # save_plot(timestamp, completion_time, stream_direction)
+
+    os.makedirs("/host/results", exist_ok=True)
+
+    with open("/host/results/results.txt", "w") as f:
+        for result in results:
+            f.write(result)
