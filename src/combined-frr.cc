@@ -18,7 +18,7 @@
 
 using namespace ns3;
 
-using CongestionPolicy = BasicCongestionPolicy<99>;
+using CongestionPolicy = BasicCongestionPolicy<40>;
 // using CongestionPolicy = RandomCongestionPolicy<100>;
 using FRRPolicy = LFAPolicy;
 
