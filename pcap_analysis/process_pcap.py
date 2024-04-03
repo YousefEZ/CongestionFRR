@@ -1,3 +1,4 @@
+import base64
 import os
 import sys
 from scapy.all import *
@@ -68,26 +69,54 @@ def save_plot(timestamp, completion_time, stream_direction):
 
 
 if __name__ == '__main__':
-    files = os.listdir("traces")
-    print(os.listdir("traces"))
+    groups = os.listdir("experiments")
+    os.makedirs("host/results", exist_ok=True)
+    directory = "host/results"
+    for group in groups:
+        if os.path.isdir(os.path.join("experiments", group)):
+            results = []
+            queue_sizes = os.listdir("experiments/" + group)
+            for queue_size in queue_sizes:
+                if os.path.isdir(os.path.join("experiments/" + group + "/" + queue_size)):
+                    senderPackets = read_pcap("experiments/" + group + "/" + queue_size + "/" + "baseline-no-udp/-TrafficSender-1.pcap")
+                    fc_time = flow_completion_time(senderPackets)
+                    results.append(("baseline_no_udp", queue_size, fc_time))
 
-    results = []
+                    senderPackets = read_pcap("experiments/" + group + "/" + queue_size + "/" + "baseline-udp/-TrafficSender-1.pcap")
+                    fc_time = flow_completion_time(senderPackets)
+                    results.append(("baseline_udp", queue_size, fc_time))
 
-    for file in files:
-        if file.endswith(".pcap"):
-            senderPackets = read_pcap("traces/" + file)
-            senderIP, receiverIP = get_IP(senderPackets)
+                    senderPackets = read_pcap("experiments/" + group + "/" + queue_size + "/" + "frr-no-udp/-TrafficSender-1.pcap")
+                    fc_time = flow_completion_time(senderPackets)
+                    results.append(("frr_no_udp", queue_size, fc_time))
 
-            # timestamp, completion_time, stream_direction = packet_transfer_time(sender_packets, receiver_packets)
+                    senderPackets = read_pcap("experiments/" + group + "/" + queue_size + "/" + "frr/-TrafficSender-1.pcap")
+                    fc_time = flow_completion_time(senderPackets)
+                    results.append(("frr", queue_size, fc_time))
 
-            fc_time = flow_completion_time(senderPackets)
-            result = file + ":" + str(fc_time) + "\n"
-            print(result)
-            results.append(result)
-            # save_plot(timestamp, completion_time, stream_direction)
+            group_name = str(group)
+            filepath = os.path.join(directory, f"{group_name}.txt")
+            with open(filepath, 'w') as f:
+                for result in results:
+                    f.write(str(result) + "\n")
 
-    os.makedirs("/host/results", exist_ok=True)
-
-    with open("/host/results/results.txt", "w") as f:
-        for result in results:
-            f.write(result)
+    # results = []
+    #
+    # for file in files:
+    #     if file.endswith(".pcap"):
+    #         senderPackets = read_pcap("traces/" + file)
+    #         senderIP, receiverIP = get_IP(senderPackets)
+    #
+    #         # timestamp, completion_time, stream_direction = packet_transfer_time(sender_packets, receiver_packets)
+    #
+    #         fc_time = flow_completion_time(senderPackets)
+    #         result = file + ":" + str(fc_time) + "\n"
+    #         print(result)
+    #         results.append(result)
+    #         # save_plot(timestamp, completion_time, stream_direction)
+    #
+    # os.makedirs("/host/results", exist_ok=True)
+    #
+    # with open("/host/results/results.txt", "w") as f:
+    #     for result in results:
+    #         f.write(result)
