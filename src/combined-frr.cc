@@ -18,7 +18,7 @@
 
 using namespace ns3;
 
-using CongestionPolicy = BasicCongestionPolicy<99>;
+using CongestionPolicy = BasicCongestionPolicy<20>;
 // using CongestionPolicy = RandomCongestionPolicy<100>;
 using FRRPolicy = LFAPolicy;
 
@@ -69,8 +69,10 @@ uint32_t MTU_bytes = segmentSize + 54;
 std::string bandwidth_bottleneck = "150kbps";
 std::string bandwidth_access = "600kbps";
 std::string bandwidth_udp_access = "100kbps";
-std::string delay_bottleneck = "100ms";
-std::string delay_access = "100ms";
+std::string delay_bottleneck = "20ms";
+std::string delay_access = "20ms";
+std::string delay_alternate = "100ms";
+std::string bandwidth_alternate = "600kbps";
 
 void SetupTCPConfig()
 {
@@ -185,14 +187,20 @@ int main(int argc, char* argv[])
     Config::SetDefault(SimulationQueue::getQueueString() + "::MaxSize",
                        StringValue("10p"));
 
+    PointToPointHelper p2p_alternate;
+    p2p_alternate.SetDeviceAttribute("DataRate",
+                                     StringValue(bandwidth_alternate));
+    p2p_alternate.SetChannelAttribute("Delay", StringValue(delay_alternate));
+    p2p_alternate.SetQueue("ns3::DropTailQueue<Packet>");
+
     NetDeviceContainer devices_1_2 =
         p2p_traffic.Install(nodes.Get(1), nodes.Get(2));
     NetDeviceContainer devices_2_3 =
         p2p_congested_link.Install(nodes.Get(2), nodes.Get(3));
     NetDeviceContainer devices_2_4 =
-        p2p_traffic.Install(nodes.Get(2), nodes.Get(4));
+        p2p_alternate.Install(nodes.Get(2), nodes.Get(4));
     NetDeviceContainer devices_4_3 =
-        p2p_traffic.Install(nodes.Get(4), nodes.Get(3));
+        p2p_alternate.Install(nodes.Get(4), nodes.Get(3));
     NetDeviceContainer devices_3_5 =
         p2p_traffic.Install(nodes.Get(3), nodes.Get(5));
 
