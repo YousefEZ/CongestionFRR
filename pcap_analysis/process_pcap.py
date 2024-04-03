@@ -72,14 +72,24 @@ def plot_flow_completion_time(results, group):
     sorted_results = sorted(results, key=lambda x: x[1])
     figure, axes = plt.subplots()
 
+    marker_styles = {'baseline_no_udp': {'marker': 'o', 'colour': 'red'},
+                     'baseline_udp': {'marker': 's', 'colour': 'blue'},
+                     'frr_no_udp': {'marker': '^', 'colour': 'green'},
+                     'frr': {'marker': 'x', 'colour': 'blue'}}
+
     for result in sorted_results:
         if result is not None:
-            axes.plot(result[1], result[2], label=result[0], marker='o')
+            marker_style = marker_styles.get(result[0])
+            axes.plot(result[1], result[2], label=result[0], marker=marker_style['marker'], color=marker_style['colour'])
 
     axes.set_xlabel("number of packets in the queue")
     axes.set_ylabel("flow completion time in seconds")
 
     axes.set_title(f"flow completion for {group}")
+
+    figure.legend(loc='upper left', bbox_to_anchor=(1.05, 1), fontsize='large', title='Legend')
+
+    figure.tight_layout()
 
     figure.savefig(f"/host/plots/{group}.png")
 
