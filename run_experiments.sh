@@ -1,13 +1,13 @@
 #!/bin/bash
 
 # Check if arguments are provided
-if [ "$#" -ne 9 ]; then
-	echo "Usage: $0 <test_number> <bandwidth_bottleneck> <bandwidth_access> <bandwidth_udp_access> <delay_bottleneck> <delay_access> <delay_alternate> <bandwidth_alternate> <policy>"
+if [ "$#" -ne 10 ]; then
+	echo "Usage: $0 <test_name> <bandwidth_bottleneck> <bandwidth_access> <bandwidth_udp_access> <delay_bottleneck> <delay_access> <delay_alternate> <bandwidth_alternate> <policy> <test_variable>"
 	exit 1
 fi
 
 # Extract arguments
-test_number=$1
+test_name=$1
 bandwidth_bottleneck=$2
 bandwidth_access=$3
 bandwidth_udp_access=$4
@@ -16,6 +16,7 @@ delay_access=$6
 delay_alternate=$7
 bandwidth_alternate=$8
 policy=$9
+variable=${10}
 
 edit_cpp_files() {
 	local filename=$1
@@ -39,6 +40,7 @@ edit_cpp_files() {
 # Define function to run Docker command for each file
 run_docker_command() {
 	local filename=$1
+	echo "Running script: $filename"
 
 	docker-compose run ns3 $filename
 }
@@ -46,8 +48,9 @@ run_docker_command() {
 # Define function to copy files to experiments directory
 copy_files_to_experiments() {
 	local test_type=$1
+	local variable=$2
 
-	dest_dir="experiments/$test_number/$test_type"
+	dest_dir="experiments/$test_name/$variable/$policy/$test_type"
 
 	# Create directory if it doesn't exist
 	mkdir -p $dest_dir
@@ -64,18 +67,16 @@ test_types=("baseline-no-udp" "baseline-udp" "frr" "frr-no-udp")
 for test_type in "${test_types[@]}"; do
 	# Loop through each C++ file
 	for file in combined-$test_type.cc; do
-		(
-			# Edit lines in the C++ file
-			edit_cpp_files "src/$file" "$policy"
+		# Edit lines in the C++ file
+		edit_cpp_files "src/$file" "$policy"
 
-			sleep 1
+		sleep 1
 
-			# Run Docker command
-			run_docker_command $file
+		# Run Docker command
+		run_docker_command $file
 
-			# Copy resulting files to experiments directory
-			copy_files_to_experiments $test_type
-		) &
+		# Copy resulting files to experiments directory
+		copy_files_to_experiments $test_type "$variable"
 	done
 done
 
@@ -83,12 +84,12 @@ done
 wait
 
 # Write parameters to a markdown file
-echo "### Experiment Parameters" >"experiments/$test_number/parameters.md"
-echo "- Bandwidth Bottleneck: $bandwidth_bottleneck" >>"experiments/$test_number/parameters.md"
-echo "- Bandwidth Access: $bandwidth_access" >>"experiments/$test_number/parameters.md"
-echo "- Bandwidth UDP Access: $bandwidth_udp_access" >>"experiments/$test_number/parameters.md"
-echo "- Delay Bottleneck: $delay_bottleneck" >>"experiments/$test_number/parameters.md"
-echo "- Delay Access: $delay_access" >>"experiments/$test_number/parameters.md"
-echo "- Delay Alternate: $delay_alternate" >>"experiments/$test_number/parameters.md"
-echo "- Bandwidth Alternate: $bandwidth_alternate" >>"experiments/$test_number/parameters.md"
-echo "- Congestion Policy: $policy" >>"experiments/$test_number/parameters.md"
+echo "### Experiment Parameters" >"experiments/$test_name/README.md"
+echo "- Bandwidth Bottleneck: $bandwidth_bottleneck" >>"experiments/$test_name/README.md"
+echo "- Bandwidth Access: $bandwidth_access" >>"experiments/$test_name/README.md"
+echo "- Bandwidth UDP Access: $bandwidth_udp_access" >>"experiments/$test_name/README.md"
+echo "- Delay Bottleneck: $delay_bottleneck" >>"experiments/$test_name/README.md"
+echo "- Delay Access: $delay_access" >>"experiments/$test_name/README.md"
+echo "- Delay Alternate: $delay_alternate" >>"experiments/$test_name/README.md"
+echo "- Bandwidth Alternate: $bandwidth_alternate" >>"experiments/$test_name/README.md"
+#echo "- Congestion Policy: $policy" >>"experiments/$test_name/README.md"
