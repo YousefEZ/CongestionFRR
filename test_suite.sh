@@ -7,10 +7,10 @@ bandwidth_udp_access="100kbps"
 delay_bottleneck="20ms"
 delay_access="20ms"
 delay_alternate="100ms"
-bandwidth_alternate="600kbps"
+bandwidth_alternate="150kbps"
 
 # Define initial test number
-test_number=16
+test_number=26
 
 # Define function to run experiments for a given policy number
 run_experiment() {
