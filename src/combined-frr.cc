@@ -1,4 +1,6 @@
 #include <iostream>
+#include <filesystem>
+namespace fs = std::filesystem;
 
 #include "ns3/core-module.h"
 #include "ns3/network-module.h"
@@ -122,8 +124,18 @@ void CalculateExpectedPackets(uint32_t tcp_max_bytes, DataRate udp_data_rate)
               << std::endl;
 }
 
-// NS_LOG_COMPONENT_DEFINE("CongestionFastReRoute");
-int main(int argc, char* argv[])
+void SetDefaultParams()
+{
+    bandwidth_bottleneck = "150Kbps";
+    bandwidth_access = "600kbps";
+    bandwidth_udp_access = "100kbps";
+    delay_bottleneck = "20ms";
+    delay_access = "20ms";
+    delay_alternate = "100ms";
+    bandwidth_alternate = "600kbps";
+}
+
+void RunExperiment(std::string traces_dir)
 {
     LogComponentEnable("FRRQueue", LOG_LEVEL_LOGIC);
     /*
@@ -155,12 +167,12 @@ int main(int argc, char* argv[])
     NS_LOG_INFO("Creating Topology");
     NodeContainer nodes;
     nodes.Create(6);
-    Names::Add("CongestionSender", nodes.Get(0));
-    Names::Add("TrafficSender", nodes.Get(1));
-    Names::Add("Router01", nodes.Get(2));
-    Names::Add("Router02", nodes.Get(3));
-    Names::Add("Router03", nodes.Get(4));
-    Names::Add("Receiver", nodes.Get(5));
+    // Names::Add("/Names/" + traces_dir + "CongestionSender", nodes.Get(0));
+    // Names::Add("TrafficSender", nodes.Get(1));
+    // Names::Add("Router01", nodes.Get(2));
+    // Names::Add("Router02", nodes.Get(3));
+    // Names::Add("Router03", nodes.Get(4));
+    // Names::Add("Receiver", nodes.Get(5));
 
     InternetStackHelper stack;
     stack.Install(nodes);
@@ -286,35 +298,115 @@ int main(int argc, char* argv[])
     ApplicationContainer udp_sink_app = udp_sink.Install(nodes.Get(5));
     udp_sink_app.Start(Seconds(0.0));
     udp_sink_app.Stop(Seconds(10.0));
-    // SimulationQueue::sinkAddress =
-    //     Mac48Address::ConvertFrom(getDevice<1>(devices_3_5)->GetAddress());
-    // NOTE: Is TrafficControlHelper needed here?
-
-    // CalculateExpectedPackets(10000, DataRate("1Mbps"));
 
     // LFA Alternate Path setup
     // Set up an alternate forwarding target, assuming you have an alternate
     // path configured
-
-    // TODO: Need some help with setting alternate target
     setAlternateTarget<0>(
         devices_2_3, getDevice<0, ns3::PointToPointNetDevice>(devices_2_4));
     setAlternateTarget<1>(
         devices_2_3, getDevice<1, ns3::PointToPointNetDevice>(devices_4_3));
-    // setAlternateTarget<0>(devices01, getDevice<0>(devices02));
-    // setAlternateTarget<0>(devices02, getDevice<0>(devices01));
 
-    // setAlternateTarget<0>(devices12, getDevice<1>(devices01));
-    // setAlternateTarget<1>(devices01, getDevice<0>(devices12));
-
-    // setAlternateTarget<1>(devices02, getDevice<1>(devices12));
-    // setAlternateTarget<1>(devices12, getDevice<1>(devices02));
-
-    // enableRerouting(getQueue<0>(devices_2_3));
-    p2p_traffic.EnablePcapAll("traces/");
-    p2p_congestion.EnablePcapAll("traces/");
+    p2p_traffic.EnablePcapAll(traces_dir);
+    p2p_congestion.EnablePcapAll(traces_dir);
 
     Simulator::Run();
     Simulator::Destroy();
+}
+
+// NS_LOG_COMPONENT_DEFINE("CongestionFastReRoute");
+int main(int argc, char* argv[])
+{
+    std::string experiment_group = "frr";
+    // Primary bandwidth experiments
+    std::vector<std::string> primary_bandwidths = {"75Kbps", "150Kbps",
+                                                   "300Kbps"};
+    for (std::string pb : primary_bandwidths) {
+        std::string dir_name = std::string("traces/") + "bandwidth-primary/" +
+                               pb + "/" + experiment_group;
+        if (!fs::exists(dir_name)) {
+            if (fs::create_directories(dir_name)) {
+                std::cout << "Directory created successfully: " << dir_name
+                          << std::endl;
+            } else {
+                std::cerr << "Failed to create directory: " << dir_name
+                          << std::endl;
+            }
+        } else {
+            std::cerr << "Directory already exists: " << dir_name << std::endl;
+        }
+
+        SetDefaultParams();
+        bandwidth_bottleneck = pb;
+        RunExperiment(dir_name + "/");
+    }
+
+    std::vector<std::string> alternate_bandwidths = {
+        "200Kbps", "400Kbps", "600Kbps", "800Kbps", "1000Kbps"};
+
+    for (std::string ab : alternate_bandwidths) {
+        std::string dir_name = std::string("traces/") + "bandwidth-alternate/" +
+                               ab + "/" + experiment_group;
+        if (!fs::exists(dir_name)) {
+            if (fs::create_directories(dir_name)) {
+                std::cout << "Directory created successfully: " << dir_name
+                          << std::endl;
+            } else {
+                std::cerr << "Failed to create directory: " << dir_name
+                          << std::endl;
+            }
+        } else {
+            std::cerr << "Directory already exists: " << dir_name << std::endl;
+        }
+
+        SetDefaultParams();
+        bandwidth_alternate = ab;
+        RunExperiment(dir_name + "/");
+    }
+
+    std::vector<std::string> primary_delays = {"0ms",  "20ms", "40ms",
+                                               "60ms", "80ms", "100ms"};
+    for (std::string pd : primary_delays) {
+        std::string dir_name = std::string("traces/") + "delay-primary/" + pd +
+                               "/" + experiment_group;
+        if (!fs::exists(dir_name)) {
+            if (fs::create_directories(dir_name)) {
+                std::cout << "Directory created successfully: " << dir_name
+                          << std::endl;
+            } else {
+                std::cerr << "Failed to create directory: " << dir_name
+                          << std::endl;
+            }
+        } else {
+            std::cerr << "Directory already exists: " << dir_name << std::endl;
+        }
+
+        SetDefaultParams();
+        delay_bottleneck = pd;
+        RunExperiment(dir_name + "/");
+    }
+
+    std::vector<std::string> alternate_delays = {"0ms",  "20ms", "40ms",
+                                                 "60ms", "80ms", "100ms"};
+    for (std::string ad : alternate_delays) {
+        std::string dir_name = std::string("traces/") + "delay-alternate/" +
+                               ad + "/" + experiment_group;
+        if (!fs::exists(dir_name)) {
+            if (fs::create_directories(dir_name)) {
+                std::cout << "Directory created successfully: " << dir_name
+                          << std::endl;
+            } else {
+                std::cerr << "Failed to create directory: " << dir_name
+                          << std::endl;
+            }
+        } else {
+            std::cerr << "Directory already exists: " << dir_name << std::endl;
+        }
+
+        SetDefaultParams();
+        delay_alternate = ad;
+        RunExperiment(dir_name + "/");
+    }
+
     return 0;
 }
