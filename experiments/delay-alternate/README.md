@@ -4,5 +4,5 @@
 - Bandwidth UDP Access: 100kbps
 - Delay Bottleneck: 20ms
 - Delay Access: 20ms
-- Delay Alternate: 40ms
+- Delay Alternate: 100ms
 - Bandwidth Alternate: 600kbps
