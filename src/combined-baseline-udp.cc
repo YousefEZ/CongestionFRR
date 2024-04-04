@@ -71,7 +71,7 @@ std::string bandwidth_access = "600kbps";
 std::string bandwidth_udp_access = "100kbps";
 std::string delay_bottleneck = "20ms";
 std::string delay_access = "20ms";
-std::string delay_alternate = "20ms";
+std::string delay_alternate = "100ms";
 std::string bandwidth_alternate = "600kbps";
 
 void SetupTCPConfig()
