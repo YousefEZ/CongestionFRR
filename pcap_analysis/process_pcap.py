@@ -105,16 +105,22 @@ def record_flow_completion_time(source_directory, result_directory, mode):
 
 
 def plot_flow_completion_time(results, mode, cases):
-    sorted_results = sorted(results, key=lambda x: x[3])
+    sorted_results = sorted(results,
+                            key=lambda x: int(x[3].split('Kbps')[0]) if 'Kbps' in x[3] else int(x[3].split('ms')[0]))
     figure, axes = plt.subplots(figsize=(10, 6))
 
-    marker_styles = {'baseline': {'marker': 'o', 'colour': 'red'},
+    marker_styles = {'baseline': {'marker': 'o', 'colour': 'black'},
                      '20': {'marker': 's', 'colour': 'blue'},
                      '40': {'marker': '^', 'colour': 'green'},
                      '60': {'marker': 'v', 'colour': 'purple'},
-                     '80': {'marker': 'x', 'colour': 'blue'},
-                     '99': {'marker': 'v', 'colour': 'yellow'}
+                     '80': {'marker': 'x', 'colour': 'brown'},
+                     '99': {'marker': 'd', 'colour': 'red'}
                      }
+
+    legend_handles = {}
+    legend_labels = {}
+
+    points_dict = {}
 
     for result in sorted_results:
         if result is not None and result[2] is not None:
@@ -123,17 +129,44 @@ def plot_flow_completion_time(results, mode, cases):
                 axes.plot(result[3], result[2], label=result[1], marker=marker_style['marker'],
                           color=marker_style['colour'], linestyle='-', markersize=5)
 
+                if 'baseline' not in legend_handles:
+                    legend_handles['baseline'], = axes.plot([], [], marker=marker_style['marker'],
+                                                            color=marker_style['colour'], linestyle='-')
+                    legend_labels['baseline'] = 'baseline'
+
+                key = (result[0], result[1])
+                if key not in points_dict:
+                    points_dict[key] = []
+                points_dict[key].append(result)
+
             if cases[1] == result[0]:
                 marker_style = marker_styles.get(result[1])
                 axes.plot(result[3], result[2], label=result[1], marker=marker_style['marker'],
                           color=marker_style['colour'], linestyle='-')
+
+                if result[1] not in legend_handles:
+                    legend_handles[result[1]], = axes.plot([], [], marker=marker_style['marker'],
+                                                           color=marker_style['colour'], linestyle='-')
+                    legend_labels[result[1]] = result[1]
+
+                key = (result[0], result[1])
+                if key not in points_dict:
+                    points_dict[key] = []
+                points_dict[key].append(result)
+
+    for key, points in points_dict.items():
+        for i in range(1, len(points)):
+            axes.plot([points[i - 1][3], points[i][3]], [points[i - 1][2], points[i][2]],
+                      color=marker_styles[points[i][1]]['colour'], linestyle='-')
 
     axes.set_xlabel(mode)
     axes.set_ylabel("flow completion time in seconds")
 
     axes.set_title(f"flow completion for {mode}, {cases[0]} and {cases[1]}")
 
-    figure.legend(loc='upper left', fontsize='large', title='Legend')
+    handles = [legend_handles[key] for key in sorted(legend_handles.keys())]
+    labels = [legend_labels[key] for key in sorted(legend_handles.keys())]
+    figure.legend(handles, labels, loc='upper left', fontsize='large', title='Legend')
 
     figure.subplots_adjust(left=0.2)
     # figure.tight_layout()
@@ -148,19 +181,15 @@ if __name__ == '__main__':
     bandwidth_results = record_flow_completion_time("experiments/bandwidth-primary/",
                                                     "/host/results", "bandwidth")
 
-    plot_flow_completion_time(bandwidth_results,
-                              "bandwidth", ['baseline_no_udp', 'frr_no_udp'])
+    plot_flow_completion_time(bandwidth_results, "bandwidth", ['baseline_no_udp', 'frr_no_udp'])
     # no udp
-
-    plot_flow_completion_time(bandwidth_results,
-                              "bandwidth", ['baseline_udp', 'frr'])
+    plot_flow_completion_time(bandwidth_results, "bandwidth", ['baseline_udp', 'frr'])
     # with udp
 
     delay_results = record_flow_completion_time("experiments/delay-all/",
                                                 "/host/results", "delay")
 
     plot_flow_completion_time(delay_results, "delay", ['baseline_no_udp', 'frr_no_udp'])
-
     plot_flow_completion_time(delay_results, "delay", ['baseline_udp', 'frr'])
 
     # results = []
