@@ -178,19 +178,32 @@ if __name__ == '__main__':
     os.makedirs("/host/results", exist_ok=True)
     os.makedirs("/host/plots", exist_ok=True)
 
-    bandwidth_results = record_flow_completion_time("experiments/bandwidth-primary/",
-                                                    "/host/results", "bandwidth")
-
-    plot_flow_completion_time(bandwidth_results, "bandwidth", ['baseline_no_udp', 'frr_no_udp'])
+    bandwidth_primary_results = record_flow_completion_time("experiments/bandwidth-primary/",
+                                                            "/host/results", "bandwidth_primary")
+    plot_flow_completion_time(bandwidth_primary_results, "bandwidth_primary", ['baseline_no_udp', 'frr_no_udp'])
     # no udp
-    plot_flow_completion_time(bandwidth_results, "bandwidth", ['baseline_udp', 'frr'])
+    plot_flow_completion_time(bandwidth_primary_results, "bandwidth_primary", ['baseline_udp', 'frr'])
     # with udp
 
-    delay_results = record_flow_completion_time("experiments/delay-all/",
-                                                "/host/results", "delay")
+    bandwidth_alternate_results = record_flow_completion_time("experiments/bandwidth-alternate/",
+                                                              "host/results", "bandwidth_alternate")
+    plot_flow_completion_time(bandwidth_alternate_results, "bandwidth_alternate", ['baseline_no_udp', 'frr_no_udp'])
+    plot_flow_completion_time(bandwidth_alternate_results, "bandwidth_alternate", ['baseline_udp', 'frr'])
 
-    plot_flow_completion_time(delay_results, "delay", ['baseline_no_udp', 'frr_no_udp'])
-    plot_flow_completion_time(delay_results, "delay", ['baseline_udp', 'frr'])
+    delay_all_results = record_flow_completion_time("experiments/delay-all/",
+                                                    "/host/results", "delay_all")
+    plot_flow_completion_time(delay_all_results, "delay_all", ['baseline_no_udp', 'frr_no_udp'])
+    plot_flow_completion_time(delay_all_results, "delay_all", ['baseline_udp', 'frr'])
+
+    delay_primary_results = record_flow_completion_time("experiments/delay-primary/",
+                                                        "/host/results", "delay_primary")
+    plot_flow_completion_time(delay_primary_results, "delay_primary", ['baseline_no_udp', 'frr_no_udp'])
+    plot_flow_completion_time(delay_primary_results, "delay_primary", ['baseline_udp', 'frr'])
+
+    delay_alternate_results = record_flow_completion_time("experiments/delay-alternate/",
+                                                          "/host/results", "delay_alternate")
+    plot_flow_completion_time(delay_alternate_results, "delay_alternate", ['baseline_no_udp', 'frr_no_udp'])
+    plot_flow_completion_time(delay_alternate_results, "delay_alternate", ['baseline_udp', 'frr'])
 
     # results = []
     #
