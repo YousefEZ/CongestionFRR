@@ -4,33 +4,23 @@
 namespace ns3
 {
 
-template <int MAX_USAGE_PERCENTAGE>
 class BasicCongestionPolicy
 {
-    static_assert(MAX_USAGE_PERCENTAGE > 0 && MAX_USAGE_PERCENTAGE <= 100,
-                  "MAX_USAGE_PERCENTAGE must be between 1 and 100");
 
   public:
+    static int usage_percentage;
+
     static bool isCongested(ns3::Queue<ns3::Packet>* queue);
 };
 
-template <>
-bool BasicCongestionPolicy<100>::isCongested(ns3::Queue<ns3::Packet>* queue)
-{
-    return queue->GetNPackets() >= queue->GetMaxSize().GetValue();
-}
+int BasicCongestionPolicy::usage_percentage = 0;
 
-template <int MAX_USAGE_PERCENTAGE>
-bool BasicCongestionPolicy<MAX_USAGE_PERCENTAGE>::isCongested(
-    ns3::Queue<ns3::Packet>* queue)
+bool BasicCongestionPolicy::isCongested(ns3::Queue<ns3::Packet>* queue)
 {
     NS_LOG_DEBUG("Queue size: " << queue->GetMaxSize().GetValue());
     NS_LOG_DEBUG("Queue packets: " << queue->GetNPackets());
-    // return queue->GetNPackets() >=
-    //        static_cast<uint32_t>(queue->GetMaxSize().GetValue() *
-    //                              (MAX_USAGE_PERCENTAGE / 100));
     return queue->GetNPackets() * 100 >=
-           queue->GetMaxSize().GetValue() * MAX_USAGE_PERCENTAGE;
+           queue->GetMaxSize().GetValue() * usage_percentage;
 }
 
 } // namespace ns3
