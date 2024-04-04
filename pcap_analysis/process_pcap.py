@@ -106,36 +106,39 @@ def record_flow_completion_time(source_directory, result_directory, mode):
 
 def plot_flow_completion_time(results, mode, cases):
     sorted_results = sorted(results, key=lambda x: x[3])
-    figure, axes = plt.subplots()
+    figure, axes = plt.subplots(figsize=(10, 6))
 
     marker_styles = {'baseline': {'marker': 'o', 'colour': 'red'},
                      '20': {'marker': 's', 'colour': 'blue'},
                      '40': {'marker': '^', 'colour': 'green'},
+                     '60': {'marker': 'v', 'colour': 'purple'},
                      '80': {'marker': 'x', 'colour': 'blue'},
                      '99': {'marker': 'v', 'colour': 'yellow'}
                      }
 
     for result in sorted_results:
-        if result is not None:
+        if result is not None and result[2] is not None:
             if cases[0] == result[0]:
                 marker_style = marker_styles.get('baseline')
                 axes.plot(result[3], result[2], label=result[1], marker=marker_style['marker'],
-                          color=marker_style['colour'])
+                          color=marker_style['colour'], linestyle='-', markersize=5)
+
             if cases[1] == result[0]:
                 marker_style = marker_styles.get(result[1])
                 axes.plot(result[3], result[2], label=result[1], marker=marker_style['marker'],
-                          color=marker_style['colour'])
+                          color=marker_style['colour'], linestyle='-')
 
     axes.set_xlabel(mode)
     axes.set_ylabel("flow completion time in seconds")
 
-    axes.set_title(f"flow completion for {mode}")
+    axes.set_title(f"flow completion for {mode}, {cases[0]} and {cases[1]}")
 
-    figure.legend(loc='upper left', bbox_to_anchor=(1.05, 1), fontsize='large', title='Legend')
+    figure.legend(loc='upper left', fontsize='large', title='Legend')
 
-    figure.tight_layout()
+    figure.subplots_adjust(left=0.2)
+    # figure.tight_layout()
 
-    figure.savefig(f"/host/plots/{mode}.png")
+    figure.savefig(f"/host/plots/{mode}-{cases[0]}-{cases[1]}.png", dpi=300)
 
 
 if __name__ == '__main__':
