@@ -1,5 +1,5 @@
 ### Experiment Parameters
-- Bandwidth Bottleneck: 150Kbps
+- Bandwidth Bottleneck: 600Kbps
 - Bandwidth Access: 600kbps
 - Bandwidth UDP Access: 100kbps
 - Delay Bottleneck: 20ms
