@@ -152,8 +152,16 @@ if __name__ == '__main__':
                               "bandwidth", ['baseline_no_udp', 'frr_no_udp'])
     # no udp
 
+    plot_flow_completion_time(bandwidth_results,
+                              "bandwidth", ['baseline_udp', 'frr'])
+    # with udp
+
     delay_results = record_flow_completion_time("experiments/delay-all/",
                                                 "/host/results", "delay")
+
+    plot_flow_completion_time(delay_results, "delay", ['baseline_no_udp', 'frr_no_udp'])
+
+    plot_flow_completion_time(delay_results, "delay", ['baseline_udp', 'frr'])
 
     # results = []
     #
