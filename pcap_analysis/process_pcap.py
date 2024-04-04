@@ -75,7 +75,7 @@ def record_flow_completion_time(source_directory, result_directory, mode):
         if os.path.isdir(os.path.join(source_directory, variable)):
             queue_sizes = os.listdir(source_directory + variable)
             for queue_size in queue_sizes:
-                if os.path.isdir(os.path.join(source_directory + variable + "/" + queue_size)):
+                if os.path.isdir(os.path.join(source_directory + variable + "/" + queue_size)) and queue_size != '99':
                     senderPackets = read_pcap(
                         source_directory + variable + "/" + queue_size + "/" + "baseline-no-udp/-TrafficSender-1.pcap")
                     fc_time = flow_completion_time(senderPackets)
@@ -127,7 +127,7 @@ def plot_flow_completion_time(results, mode, cases):
             if cases[0] == result[0]:
                 marker_style = marker_styles.get('baseline')
                 axes.plot(result[3], result[2], label=result[1], marker=marker_style['marker'],
-                          color=marker_style['colour'], linestyle='-', markersize=5)
+                          color=marker_style['colour'], linestyle='-')
 
                 if 'baseline' not in legend_handles:
                     legend_handles['baseline'], = axes.plot([], [], marker=marker_style['marker'],
@@ -156,8 +156,12 @@ def plot_flow_completion_time(results, mode, cases):
 
     for key, points in points_dict.items():
         for i in range(1, len(points)):
-            axes.plot([points[i - 1][3], points[i][3]], [points[i - 1][2], points[i][2]],
-                      color=marker_styles[points[i][1]]['colour'], linestyle='-')
+            if points[i][0] == cases[0]:
+                axes.plot([points[i - 1][3], points[i][3]], [points[i - 1][2], points[i][2]],
+                          color=marker_styles['baseline']['colour'], linestyle='-')
+            else:
+                axes.plot([points[i - 1][3], points[i][3]], [points[i - 1][2], points[i][2]],
+                          color=marker_styles[points[i][1]]['colour'], linestyle='-')
 
     axes.set_xlabel(mode)
     axes.set_ylabel("flow completion time in seconds")
