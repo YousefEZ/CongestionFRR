@@ -59,45 +59,16 @@ def flow_completion_time(packets):
     return None
 
 
-def save_plot(timestamp, completion_time, stream_direction):
-    os.makedirs("/host/plots", exist_ok=True)
-    plt.plot(timestamp, completion_time, label=stream_direction, marker='o')
-    plt.xlabel("time stamp of the sender of the packet")
-    plt.ylabel("transfer completion time")
-
-    plt.savefig("/host/plots/completion_time-timestamp.png")
-
-
-def plot_flow_completion_time(results, variable):
-    sorted_results = sorted(results, key=lambda x: x[1])
-    figure, axes = plt.subplots()
-
-    marker_styles = {'baseline_no_udp': {'marker': 'o', 'colour': 'red'},
-                     'baseline_udp': {'marker': 's', 'colour': 'blue'},
-                     'frr_no_udp': {'marker': '^', 'colour': 'green'},
-                     'frr': {'marker': 'x', 'colour': 'blue'}}
-
-    for result in sorted_results:
-        if result is not None:
-            marker_style = marker_styles.get(result[0])
-            axes.plot(result[1], result[2], label=result[0], marker=marker_style['marker'], color=marker_style['colour'])
-
-    axes.set_xlabel("number of packets in the queue")
-    axes.set_ylabel("flow completion time in seconds")
-
-    axes.set_title(f"flow completion for {variable}")
-
-    figure.legend(loc='upper left', bbox_to_anchor=(1.05, 1), fontsize='large', title='Legend')
-
-    figure.tight_layout()
-
-    figure.savefig(f"/host/plots/{variable}.png")
+# def save_plot(timestamp, completion_time, stream_direction):
+#     os.makedirs("/host/plots", exist_ok=True)
+#     plt.plot(timestamp, completion_time, label=stream_direction, marker='o')
+#     plt.xlabel("time stamp of the sender of the packet")
+#     plt.ylabel("transfer completion time")
+#
+#     plt.savefig("/host/plots/completion_time-timestamp.png")
 
 
-
-
-
-def record_flow_completion_time(source_directory, result_directory):
+def record_flow_completion_time(source_directory, result_directory, mode):
     variables = os.listdir(source_directory)
     results = []
     for variable in variables:
@@ -108,40 +79,78 @@ def record_flow_completion_time(source_directory, result_directory):
                     senderPackets = read_pcap(
                         source_directory + variable + "/" + queue_size + "/" + "baseline-no-udp/-TrafficSender-1.pcap")
                     fc_time = flow_completion_time(senderPackets)
-                    results.append(("baseline_no_udp", queue_size, fc_time))
+                    results.append(("baseline_no_udp", queue_size, fc_time, variable))
 
                     senderPackets = read_pcap(
                         source_directory + variable + "/" + queue_size + "/" + "baseline-udp/-TrafficSender-1.pcap")
                     fc_time = flow_completion_time(senderPackets)
-                    results.append(("baseline_udp", queue_size, fc_time))
+                    results.append(("baseline_udp", queue_size, fc_time, variable))
 
                     senderPackets = read_pcap(
                         source_directory + variable + "/" + queue_size + "/" + "frr-no-udp/-TrafficSender-1.pcap")
                     fc_time = flow_completion_time(senderPackets)
-                    results.append(("frr_no_udp", queue_size, fc_time))
+                    results.append(("frr_no_udp", queue_size, fc_time, variable))
 
                     senderPackets = read_pcap(
                         source_directory + variable + "/" + queue_size + "/" + "frr/-TrafficSender-1.pcap")
                     fc_time = flow_completion_time(senderPackets)
-                    results.append(("frr", queue_size, fc_time))
+                    results.append(("frr", queue_size, fc_time, variable))
 
-            filepath = os.path.join(result_directory, f"{variable}.txt")
-            with open(filepath, 'w') as f:
-                for result in results:
-                    f.write(str(result) + "\n")
+        filepath = os.path.join(result_directory, f"{mode}.txt")
+        with open(filepath, 'w') as f:
+            for result in results:
+                f.write(str(result) + "\n")
 
     return results
+
+
+def plot_flow_completion_time(results, mode, cases):
+    sorted_results = sorted(results, key=lambda x: x[3])
+    figure, axes = plt.subplots()
+
+    marker_styles = {'baseline': {'marker': 'o', 'colour': 'red'},
+                     '20': {'marker': 's', 'colour': 'blue'},
+                     '40': {'marker': '^', 'colour': 'green'},
+                     '80': {'marker': 'x', 'colour': 'blue'},
+                     '99': {'marker': 'v', 'colour': 'yellow'}
+                     }
+
+    for result in sorted_results:
+        if result is not None:
+            if cases[0] == result[0]:
+                marker_style = marker_styles.get('baseline')
+                axes.plot(result[3], result[2], label=result[1], marker=marker_style['marker'],
+                          color=marker_style['colour'])
+            if cases[1] == result[0]:
+                marker_style = marker_styles.get(result[1])
+                axes.plot(result[3], result[2], label=result[1], marker=marker_style['marker'],
+                          color=marker_style['colour'])
+
+    axes.set_xlabel(mode)
+    axes.set_ylabel("flow completion time in seconds")
+
+    axes.set_title(f"flow completion for {mode}")
+
+    figure.legend(loc='upper left', bbox_to_anchor=(1.05, 1), fontsize='large', title='Legend')
+
+    figure.tight_layout()
+
+    figure.savefig(f"/host/plots/{mode}.png")
 
 
 if __name__ == '__main__':
     os.makedirs("/host/results", exist_ok=True)
     os.makedirs("/host/plots", exist_ok=True)
 
-    bandwidth_results = record_flow_completion_time("experiments/bandwidth-primary/", "/host/results/bandwidth-primary")
+    bandwidth_results = record_flow_completion_time("experiments/bandwidth-primary/",
+                                                    "/host/results", "bandwidth")
 
-    # plot_flow_completion_time(bandwidth_results)
+    plot_flow_completion_time(bandwidth_results,
+                              "bandwidth", ['baseline_no_udp', 'frr_no_udp'])
+    # no udp
 
-    delay_results = record_flow_completion_time("experiments/delay-all/", "/host/results/delay-all")
+    delay_results = record_flow_completion_time("experiments/delay-all/",
+                                                "/host/results", "delay")
 
     # results = []
     #
