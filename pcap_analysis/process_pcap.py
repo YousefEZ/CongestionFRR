@@ -68,7 +68,7 @@ def save_plot(timestamp, completion_time, stream_direction):
     plt.savefig("/host/plots/completion_time-timestamp.png")
 
 
-def plot_flow_completion_time(results, group):
+def plot_flow_completion_time(results, variable):
     sorted_results = sorted(results, key=lambda x: x[1])
     figure, axes = plt.subplots()
 
@@ -85,56 +85,63 @@ def plot_flow_completion_time(results, group):
     axes.set_xlabel("number of packets in the queue")
     axes.set_ylabel("flow completion time in seconds")
 
-    axes.set_title(f"flow completion for {group}")
+    axes.set_title(f"flow completion for {variable}")
 
     figure.legend(loc='upper left', bbox_to_anchor=(1.05, 1), fontsize='large', title='Legend')
 
     figure.tight_layout()
 
-    figure.savefig(f"/host/plots/{group}.png")
+    figure.savefig(f"/host/plots/{variable}.png")
+
+
+
 
 
 def record_flow_completion_time(source_directory, result_directory):
-    groups = os.listdir(source_directory)
-    for group in groups:
-        if os.path.isdir(os.path.join(source_directory, group)):
-            results = []
-            queue_sizes = os.listdir(source_directory + group)
+    variables = os.listdir(source_directory)
+    results = []
+    for variable in variables:
+        if os.path.isdir(os.path.join(source_directory, variable)):
+            queue_sizes = os.listdir(source_directory + variable)
             for queue_size in queue_sizes:
-                if os.path.isdir(os.path.join(source_directory + group + "/" + queue_size)):
+                if os.path.isdir(os.path.join(source_directory + variable + "/" + queue_size)):
                     senderPackets = read_pcap(
-                        source_directory + group + "/" + queue_size + "/" + "baseline-no-udp/-TrafficSender-1.pcap")
+                        source_directory + variable + "/" + queue_size + "/" + "baseline-no-udp/-TrafficSender-1.pcap")
                     fc_time = flow_completion_time(senderPackets)
                     results.append(("baseline_no_udp", queue_size, fc_time))
 
                     senderPackets = read_pcap(
-                        source_directory + group + "/" + queue_size + "/" + "baseline-udp/-TrafficSender-1.pcap")
+                        source_directory + variable + "/" + queue_size + "/" + "baseline-udp/-TrafficSender-1.pcap")
                     fc_time = flow_completion_time(senderPackets)
                     results.append(("baseline_udp", queue_size, fc_time))
 
                     senderPackets = read_pcap(
-                        source_directory + group + "/" + queue_size + "/" + "frr-no-udp/-TrafficSender-1.pcap")
+                        source_directory + variable + "/" + queue_size + "/" + "frr-no-udp/-TrafficSender-1.pcap")
                     fc_time = flow_completion_time(senderPackets)
                     results.append(("frr_no_udp", queue_size, fc_time))
 
                     senderPackets = read_pcap(
-                        source_directory + group + "/" + queue_size + "/" + "frr/-TrafficSender-1.pcap")
+                        source_directory + variable + "/" + queue_size + "/" + "frr/-TrafficSender-1.pcap")
                     fc_time = flow_completion_time(senderPackets)
                     results.append(("frr", queue_size, fc_time))
 
-            filepath = os.path.join(result_directory, f"{group}.txt")
+            filepath = os.path.join(result_directory, f"{variable}.txt")
             with open(filepath, 'w') as f:
                 for result in results:
                     f.write(str(result) + "\n")
 
-            plot_flow_completion_time(results, group)
+    return results
 
 
 if __name__ == '__main__':
     os.makedirs("/host/results", exist_ok=True)
     os.makedirs("/host/plots", exist_ok=True)
 
-    record_flow_completion_time("experiments/", "/host/results")
+    bandwidth_results = record_flow_completion_time("experiments/bandwidth-primary/", "/host/results/bandwidth-primary")
+
+    # plot_flow_completion_time(bandwidth_results)
+
+    delay_results = record_flow_completion_time("experiments/delay-all/", "/host/results/delay-all")
 
     # results = []
     #
