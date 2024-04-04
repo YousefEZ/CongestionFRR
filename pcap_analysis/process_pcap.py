@@ -186,7 +186,7 @@ if __name__ == '__main__':
     # with udp
 
     bandwidth_alternate_results = record_flow_completion_time("experiments/bandwidth-alternate/",
-                                                              "host/results", "bandwidth_alternate")
+                                                              "/host/results", "bandwidth_alternate")
     plot_flow_completion_time(bandwidth_alternate_results, "bandwidth_alternate", ['baseline_no_udp', 'frr_no_udp'])
     plot_flow_completion_time(bandwidth_alternate_results, "bandwidth_alternate", ['baseline_udp', 'frr'])
 
