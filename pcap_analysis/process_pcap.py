@@ -60,12 +60,12 @@ def flow_completion_time(packets):
 
 
 # def save_plot(timestamp, completion_time, stream_direction):
-#     os.makedirs("/host/plots", exist_ok=True)
+#     os.makedirs("/host/pcap_analysis/plots", exist_ok=True)
 #     plt.plot(timestamp, completion_time, label=stream_direction, marker='o')
 #     plt.xlabel("time stamp of the sender of the packet")
 #     plt.ylabel("transfer completion time")
 #
-#     plt.savefig("/host/plots/completion_time-timestamp.png")
+#     plt.savefig("/host/pcap_analysis/plots/completion_time-timestamp.png")
 
 
 def record_flow_completion_time(source_directory, result_directory, mode):
@@ -171,37 +171,37 @@ def plot_flow_completion_time(results, mode, cases):
     figure.subplots_adjust(left=0.2)
     # figure.tight_layout()
 
-    figure.savefig(f"/host/plots/{mode}-{cases[0]}-{cases[1]}.png", dpi=300)
+    figure.savefig(f"/host/pcap_analysis/plots/{mode}-{cases[0]}-{cases[1]}.png", dpi=300)
 
 
 if __name__ == '__main__':
-    os.makedirs("/host/results", exist_ok=True)
-    os.makedirs("/host/plots", exist_ok=True)
+    os.makedirs("/host/pcap_analysis/results", exist_ok=True)
+    os.makedirs("/host/pcap_analysis/plots", exist_ok=True)
 
-    bandwidth_primary_results = record_flow_completion_time("experiments/bandwidth-primary/",
-                                                            "/host/results", "bandwidth_primary")
+    bandwidth_primary_results = record_flow_completion_time("/host/experiments/bandwidth-primary/",
+                                                            "/host/pcap_analysis/results", "bandwidth_primary")
     plot_flow_completion_time(bandwidth_primary_results, "bandwidth_primary", ['baseline_no_udp', 'frr_no_udp'])
     # no udp
     plot_flow_completion_time(bandwidth_primary_results, "bandwidth_primary", ['baseline_udp', 'frr'])
     # with udp
 
-    bandwidth_alternate_results = record_flow_completion_time("experiments/bandwidth-alternate/",
-                                                              "/host/results", "bandwidth_alternate")
+    bandwidth_alternate_results = record_flow_completion_time("/host/experiments/bandwidth-alternate/",
+                                                              "/host/pcap_analysis/results", "bandwidth_alternate")
     plot_flow_completion_time(bandwidth_alternate_results, "bandwidth_alternate", ['baseline_no_udp', 'frr_no_udp'])
     plot_flow_completion_time(bandwidth_alternate_results, "bandwidth_alternate", ['baseline_udp', 'frr'])
 
-    delay_all_results = record_flow_completion_time("experiments/delay-all/",
-                                                    "/host/results", "delay_all")
+    delay_all_results = record_flow_completion_time("/host/experiments/delay-all/",
+                                                    "/host/pcap_analysis/results", "delay_all")
     plot_flow_completion_time(delay_all_results, "delay_all", ['baseline_no_udp', 'frr_no_udp'])
     plot_flow_completion_time(delay_all_results, "delay_all", ['baseline_udp', 'frr'])
 
-    delay_primary_results = record_flow_completion_time("experiments/delay-primary/",
-                                                        "/host/results", "delay_primary")
+    delay_primary_results = record_flow_completion_time("/host/experiments/delay-primary/",
+                                                        "/host/pcap_analysis/results", "delay_primary")
     plot_flow_completion_time(delay_primary_results, "delay_primary", ['baseline_no_udp', 'frr_no_udp'])
     plot_flow_completion_time(delay_primary_results, "delay_primary", ['baseline_udp', 'frr'])
 
-    delay_alternate_results = record_flow_completion_time("experiments/delay-alternate/",
-                                                          "/host/results", "delay_alternate")
+    delay_alternate_results = record_flow_completion_time("/host/experiments/delay-alternate/",
+                                                          "/host/pcap_analysis/results", "delay_alternate")
     plot_flow_completion_time(delay_alternate_results, "delay_alternate", ['baseline_no_udp', 'frr_no_udp'])
     plot_flow_completion_time(delay_alternate_results, "delay_alternate", ['baseline_udp', 'frr'])
 
@@ -220,8 +220,8 @@ if __name__ == '__main__':
     #         results.append(result)
     #         # save_plot(timestamp, completion_time, stream_direction)
     #
-    # os.makedirs("/host/results", exist_ok=True)
+    # os.makedirs("/host/pcap_analysis/results", exist_ok=True)
     #
-    # with open("/host/results/results.txt", "w") as f:
+    # with open("/host/pcap_analysis/results/results.txt", "w") as f:
     #     for result in results:
     #         f.write(result)
