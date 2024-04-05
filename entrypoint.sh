@@ -9,17 +9,17 @@ export NS_LOG=FRRQueue=level_all
 ./ns3 build
 
 if [ $? -ne 0 ]; then
-  echo "ns3 build failed"
-  exit 1
+	echo "ns3 build failed"
+	exit 1
 fi
 
 if [ -z "$1" ]; then
-  exit 0
+	exit 0
 fi
 
-./ns3 run "scratch/$1"
+./ns3 run "scratch/$1" --delay_bottleneck=1ms
 if [ $? -ne 0 ]; then
-  echo "./ns3 run for $name failed"
-  exit 1
+	echo "./ns3 run for $name failed"
+	exit 1
 fi
 exit 0

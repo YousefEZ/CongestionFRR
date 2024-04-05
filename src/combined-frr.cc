@@ -19,7 +19,6 @@
 using namespace ns3;
 
 using CongestionPolicy = BasicCongestionPolicy;
-
 // using CongestionPolicy = RandomCongestionPolicy<100>;
 using FRRPolicy = LFAPolicy;
 
@@ -67,12 +66,12 @@ uint32_t segmentSize = 1024;
 uint32_t MTU_bytes = segmentSize + 54;
 
 // Topology parameters
-std::string bandwidth_bottleneck = "150Kbps";
+// std::string bandwidth_bottleneck = "600Kbps";
 std::string bandwidth_access = "600kbps";
 std::string bandwidth_udp_access = "100kbps";
 std::string delay_bottleneck = "20ms";
 std::string delay_access = "20ms";
-std::string delay_alternate = "100ms";
+std::string delay_alternate = "20ms";
 std::string bandwidth_alternate = "600kbps";
 
 void SetupTCPConfig()
@@ -98,36 +97,37 @@ void SetupTCPConfig()
     Config::SetDefault("ns3::TcpSocketBase::MinRto", TimeValue(Seconds(1.0)));
 }
 
-void CalculateExpectedPackets(uint32_t tcp_max_bytes, DataRate udp_data_rate)
-{
-    DataRate bandwidth_bottleneck_dr(bandwidth_bottleneck);
-    DataRate bandwidth_access_dr(bandwidth_access);
-    Time bottleneck_delay_t(delay_bottleneck);
-    Time access_delay_t(delay_access);
-
-    // Serialization delay ~2ms
-    Time serialization_delay_t(
-        (1024 + 54) /
-        (std::min(bandwidth_bottleneck_dr, bandwidth_access_dr).GetBitRate()));
-
-    uint32_t max_bottleneck_tcp_bytes = static_cast<uint32_t>(
-        ((std::min(bandwidth_access_dr, bandwidth_bottleneck_dr).GetBitRate() /
-          8) *
-         (((access_delay_t * 2) + bottleneck_delay_t) * 2 +
-          serialization_delay_t)
-             .GetSeconds()));
-
-    uint32_t expected_tcp_packets =
-        std::ceil(max_bottleneck_tcp_bytes / (1024 + 54));
-    std::cout << "Expected TCP packets in queue: " << expected_tcp_packets
-              << std::endl;
-}
-
 // NS_LOG_COMPONENT_DEFINE("CongestionFastReRoute");
 int main(int argc, char* argv[])
 {
-    BasicCongestionPolicy::usage_percentage =
-        80; // change it to whatever you want
+    CommandLine cmd;
+    int cong_threshold = 20;
+    std::string bandwidth_bottleneck = "600Kbps";
+    cmd.Usage("...");
+    cmd.AddValue("bandwidth_primary", "Bandwidth primary",
+                 bandwidth_bottleneck);
+    cmd.AddValue("bandwidth_access", "Bandwidth Access", bandwidth_access);
+    cmd.AddValue("bandwidth_udp_access", "Bandwidth UDP Access",
+                 bandwidth_udp_access);
+    cmd.AddValue("delay_bottleneck", "Delay Bottleneck", delay_bottleneck);
+    cmd.AddValue("delay_access", "Delay Access", delay_access);
+    cmd.AddValue("delay_alternate", "Delay Alternate", delay_alternate);
+    cmd.AddValue("bandwidth_alternate", "Bandwidth Alternate",
+                 bandwidth_alternate);
+    //     cmd.AddValue("policy_threshold", "Congestion policy threshold",
+    //                cong_threshold);
+    cmd.Parse(argc, argv);
+
+    std::cout << "Parsed command-line arguments:" << std::endl;
+    for (int i = 1; i < argc; ++i) {
+        std::cout << argv[i] << std::endl;
+    }
+
+    std::cout << "Congestion policy threshold: " << cong_threshold << std::endl;
+    BasicCongestionPolicy::usage_percentage = cong_threshold;
+    std::cout << "Bandwidth primary: " << bandwidth_bottleneck << std::endl;
+    std::cout << "delay_bottleneck" << delay_bottleneck << std::endl;
+
     LogComponentEnable("FRRQueue", LOG_LEVEL_LOGIC);
     /*
      *  +----------+      +-----------+
@@ -289,31 +289,15 @@ int main(int argc, char* argv[])
     ApplicationContainer udp_sink_app = udp_sink.Install(nodes.Get(5));
     udp_sink_app.Start(Seconds(0.0));
     udp_sink_app.Stop(Seconds(10.0));
-    // SimulationQueue::sinkAddress =
-    //     Mac48Address::ConvertFrom(getDevice<1>(devices_3_5)->GetAddress());
-    // NOTE: Is TrafficControlHelper needed here?
-
-    // CalculateExpectedPackets(10000, DataRate("1Mbps"));
 
     // LFA Alternate Path setup
     // Set up an alternate forwarding target, assuming you have an alternate
     // path configured
-
-    // TODO: Need some help with setting alternate target
     setAlternateTarget<0>(
         devices_2_3, getDevice<0, ns3::PointToPointNetDevice>(devices_2_4));
     setAlternateTarget<1>(
         devices_2_3, getDevice<1, ns3::PointToPointNetDevice>(devices_4_3));
-    // setAlternateTarget<0>(devices01, getDevice<0>(devices02));
-    // setAlternateTarget<0>(devices02, getDevice<0>(devices01));
 
-    // setAlternateTarget<0>(devices12, getDevice<1>(devices01));
-    // setAlternateTarget<1>(devices01, getDevice<0>(devices12));
-
-    // setAlternateTarget<1>(devices02, getDevice<1>(devices12));
-    // setAlternateTarget<1>(devices12, getDevice<1>(devices02));
-
-    // enableRerouting(getQueue<0>(devices_2_3));
     p2p_traffic.EnablePcapAll("traces/");
     p2p_congestion.EnablePcapAll("traces/");
 
