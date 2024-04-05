@@ -18,7 +18,7 @@
 
 using namespace ns3;
 
-using CongestionPolicy = BasicCongestionPolicy<99>;
+using CongestionPolicy = BasicCongestionPolicy;
 // using CongestionPolicy = RandomCongestionPolicy<100>;
 using FRRPolicy = LFAPolicy;
 
@@ -126,6 +126,8 @@ void CalculateExpectedPackets(uint32_t tcp_max_bytes, DataRate udp_data_rate)
 int main(int argc, char* argv[])
 {
     LogComponentEnable("FRRQueue", LOG_LEVEL_LOGIC);
+    BasicCongestionPolicy::usage_percentage =
+        80; // change it to whatever you want
     /*
      *  +----------+      +-----------+
      *  |Congestion|      |  Traffic  |

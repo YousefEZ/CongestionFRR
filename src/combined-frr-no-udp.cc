@@ -18,7 +18,7 @@
 
 using namespace ns3;
 
-using CongestionPolicy = BasicCongestionPolicy<99>;
+using CongestionPolicy = BasicCongestionPolicy;
 // using CongestionPolicy = RandomCongestionPolicy<100>;
 using FRRPolicy = LFAPolicy;
 
@@ -125,6 +125,8 @@ void CalculateExpectedPackets(uint32_t tcp_max_bytes, DataRate udp_data_rate)
 // NS_LOG_COMPONENT_DEFINE("CongestionFastReRoute");
 int main(int argc, char* argv[])
 {
+    BasicCongestionPolicy::usage_percentage =
+        80; // change it to whatever you want
     LogComponentEnable("FRRQueue", LOG_LEVEL_LOGIC);
     /*
      *  +----------+      +-----------+
