@@ -1,0 +1,5 @@
+To run,
+
+docker build -t pcap . && docker run -it --rm -v /$(pwd)/..:/host pcap:latest
+
+if path error, put in absolute route to the working directory in place of $(pwd) with spaces escaped with \
