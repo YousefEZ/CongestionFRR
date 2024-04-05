@@ -66,7 +66,7 @@ uint32_t segmentSize = 1024;
 uint32_t MTU_bytes = segmentSize + 54;
 
 // Topology parameters
-// std::string bandwidth_bottleneck = "600Kbps";
+std::string bandwidth_bottleneck = "600Kbps";
 std::string bandwidth_access = "600kbps";
 std::string bandwidth_udp_access = "100kbps";
 std::string delay_bottleneck = "20ms";
@@ -100,22 +100,22 @@ void SetupTCPConfig()
 // NS_LOG_COMPONENT_DEFINE("CongestionFastReRoute");
 int main(int argc, char* argv[])
 {
-    CommandLine cmd;
     int cong_threshold = 20;
-    std::string bandwidth_bottleneck = "600Kbps";
-    cmd.Usage("...");
+    std::string dir = "";
+    CommandLine cmd;
     cmd.AddValue("bandwidth_primary", "Bandwidth primary",
                  bandwidth_bottleneck);
     cmd.AddValue("bandwidth_access", "Bandwidth Access", bandwidth_access);
     cmd.AddValue("bandwidth_udp_access", "Bandwidth UDP Access",
                  bandwidth_udp_access);
-    cmd.AddValue("delay_bottleneck", "Delay Bottleneck", delay_bottleneck);
+    cmd.AddValue("delay_primary", "Delay Bottleneck", delay_bottleneck);
     cmd.AddValue("delay_access", "Delay Access", delay_access);
     cmd.AddValue("delay_alternate", "Delay Alternate", delay_alternate);
     cmd.AddValue("bandwidth_alternate", "Bandwidth Alternate",
                  bandwidth_alternate);
-    //     cmd.AddValue("policy_threshold", "Congestion policy threshold",
-    //                cong_threshold);
+    cmd.AddValue("policy_threshold", "Congestion policy threshold",
+                 cong_threshold);
+    cmd.AddValue("dir", "Traces directory", dir);
     cmd.Parse(argc, argv);
 
     std::cout << "Parsed command-line arguments:" << std::endl;
@@ -298,8 +298,8 @@ int main(int argc, char* argv[])
     setAlternateTarget<1>(
         devices_2_3, getDevice<1, ns3::PointToPointNetDevice>(devices_4_3));
 
-    p2p_traffic.EnablePcapAll("traces/");
-    p2p_congestion.EnablePcapAll("traces/");
+    p2p_traffic.EnablePcapAll(dir);
+    p2p_congestion.EnablePcapAll(dir);
 
     Simulator::Run();
     Simulator::Destroy();

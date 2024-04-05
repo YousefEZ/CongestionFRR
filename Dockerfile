@@ -19,7 +19,7 @@ RUN apt-get install -y ccache gdb valgrind
 
 # python dependencies
 RUN apt install -y python3-dev pkg-config python3-setuptools
-RUN python3 -m pip install cppyy==2.4.2
+# RUN python3 -m pip install cppyy==2.4.2
 
 # Download the tar file
 ADD https://www.nsnam.org/release/ns-allinone-3.41.tar.bz2 /usr/workspace
