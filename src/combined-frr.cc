@@ -100,7 +100,7 @@ void SetupTCPConfig()
 // NS_LOG_COMPONENT_DEFINE("CongestionFastReRoute");
 int main(int argc, char* argv[])
 {
-    int cong_threshold = 20;
+    int cong_threshold = 0;
     std::string dir = "";
     CommandLine cmd;
     cmd.AddValue("bandwidth_primary", "Bandwidth primary",
@@ -118,17 +118,11 @@ int main(int argc, char* argv[])
     cmd.AddValue("dir", "Traces directory", dir);
     cmd.Parse(argc, argv);
 
-    std::cout << "Parsed command-line arguments:" << std::endl;
-    for (int i = 1; i < argc; ++i) {
-        std::cout << argv[i] << std::endl;
-    }
-
     std::cout << "Congestion policy threshold: " << cong_threshold << std::endl;
     BasicCongestionPolicy::usage_percentage = cong_threshold;
-    std::cout << "Bandwidth primary: " << bandwidth_bottleneck << std::endl;
-    std::cout << "delay_bottleneck" << delay_bottleneck << std::endl;
 
-    LogComponentEnable("FRRQueue", LOG_LEVEL_LOGIC);
+    // LogComponentEnable("FRRQueue", LOG_LEVEL_ERROR);
+    // LogComponentEnableAll(LOG_LEVEL_ERROR);
     /*
      *  +----------+      +-----------+
      *  |Congestion|      |  Traffic  |

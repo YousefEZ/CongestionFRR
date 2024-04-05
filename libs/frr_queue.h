@@ -100,7 +100,7 @@ Ptr<Packet> FRRQueue<CONGESTION_POLICY>::Dequeue()
     // NS_LOG_FUNCTION(this);
 
     Ptr<Packet> packet = DoDequeue(GetContainer().begin());
-    NS_LOG_LOGIC("(" << m_uid << ") Popped " << packet);
+    NS_LOG_LOGIC("(" << m_uid << ") popped " << packet);
     return packet;
 }
 
