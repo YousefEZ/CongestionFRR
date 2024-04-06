@@ -122,7 +122,7 @@ int main(int argc, char* argv[])
     BasicCongestionPolicy::usage_percentage = cong_threshold;
 
     // LogComponentEnable("FRRQueue", LOG_LEVEL_ERROR);
-    // LogComponentEnableAll(LOG_LEVEL_ERROR);
+    LogComponentEnableAll(LOG_LEVEL_ERROR);
     /*
      *  +----------+      +-----------+
      *  |Congestion|      |  Traffic  |

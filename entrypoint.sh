@@ -4,7 +4,7 @@ rm -rf traces/
 mkdir traces
 
 cp user_src/* scratch/
-export NS_LOG=FRRQueue=level_all
+# export NS_LOG=FRRQueue=level_all
 
 cp ./run_ns3.sh ./.
 
