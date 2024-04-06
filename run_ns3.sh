@@ -10,15 +10,26 @@ run_experiment() {
 	local policy_threshold=$3
 	local dir="traces/$test_variable/$test_value/$policy_threshold"
 	for seed in "${seeds[@]}"; do
-		mkdir -p "$dir/frr/$seed"
-		mkdir -p "$dir/frr-no-udp/$seed"
-		mkdir -p "$dir/baseline-udp/$seed"
-		mkdir -p "$dir/baseline-no-udp/$seed"
+		mkdir -p "$dir/frr/$seed/1"
+		mkdir -p "$dir/frr/$seed/3"
+		mkdir -p "$dir/frr-no-udp/$seed/1"
+		mkdir -p "$dir/frr-no-udp/$seed/3"
+		mkdir -p "$dir/baseline-udp/$seed/1"
+		mkdir -p "$dir/baseline-udp/$seed/3"
+		mkdir -p "$dir/baseline-no-udp/$seed/1"
+		mkdir -p "$dir/baseline-no-udp/$seed/3"
 
-		NS_LOG="" ./ns3 run "scratch/combined-frr.cc --$test_variable=$test_value --tcp_senders=1 --policy_threshold=$policy_threshold --dir=$dir/frr/$seed/ --seed=$seed"
-		NS_LOG="" ./ns3 run "scratch/combined-frr-no-udp.cc --$test_variable=$test_value --tcp_senders=1 --policy_threshold=$policy_threshold --dir=$dir/frr-no-udp/$seed/ --seed=$seed"
-		NS_LOG="" ./ns3 run "scratch/combined-baseline-udp.cc --$test_variable=$test_value --tcp_senders=1 --policy_threshold=$policy_threshold --dir=$dir/baseline-udp/$seed/ --seed=$seed"
-		NS_LOG="" ./ns3 run "scratch/combined-baseline-no-udp.cc --$test_variable=$test_value --tcp_senders=1 --policy_threshold=$policy_threshold --dir=$dir/baseline-no-udp/$seed/ --seed=$seed"
+		NS_LOG="" ./ns3 run "scratch/combined-frr.cc --$test_variable=$test_value --tcp_senders=1 --policy_threshold=$policy_threshold --dir=$dir/frr/$seed/1/ --seed=$seed"
+		NS_LOG="" ./ns3 run "scratch/combined-frr.cc --$test_variable=$test_value --tcp_senders=3 --policy_threshold=$policy_threshold --dir=$dir/frr/$seed/3/ --seed=$seed"
+
+		NS_LOG="" ./ns3 run "scratch/combined-frr-no-udp.cc --$test_variable=$test_value --tcp_senders=1 --policy_threshold=$policy_threshold --dir=$dir/frr-no-udp/$seed/1/ --seed=$seed"
+		NS_LOG="" ./ns3 run "scratch/combined-frr-no-udp.cc --$test_variable=$test_value --tcp_senders=1 --policy_threshold=$policy_threshold --dir=$dir/frr-no-udp/$seed/3/ --seed=$seed"
+
+		NS_LOG="" ./ns3 run "scratch/combined-baseline-udp.cc --$test_variable=$test_value --tcp_senders=1 --policy_threshold=$policy_threshold --dir=$dir/baseline-udp/$seed/1/ --seed=$seed"
+		NS_LOG="" ./ns3 run "scratch/combined-baseline-udp.cc --$test_variable=$test_value --tcp_senders=1 --policy_threshold=$policy_threshold --dir=$dir/baseline-udp/$seed/3/ --seed=$seed"
+
+		NS_LOG="" ./ns3 run "scratch/combined-baseline-no-udp.cc --$test_variable=$test_value --tcp_senders=1 --policy_threshold=$policy_threshold --dir=$dir/baseline-no-udp/$seed/1/ --seed=$seed"
+		NS_LOG="" ./ns3 run "scratch/combined-baseline-no-udp.cc --$test_variable=$test_value --tcp_senders=1 --policy_threshold=$policy_threshold --dir=$dir/baseline-no-udp/$seed/3/ --seed=$seed"
 	done
 }
 
