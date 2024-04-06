@@ -4,7 +4,7 @@ rm -rf traces/
 mkdir traces
 
 cp user_src/* scratch/
-export NS_LOG=FRRQueue=level_all
+# export NS_LOG=FRRQueue=level_all
 
 cp ./run_ns3.sh ./.
 
@@ -15,9 +15,9 @@ if [ $? -ne 0 ]; then
 	exit 1
 fi
 
-if [ -z "$1" ]; then
-	exit 0
-fi
+# if [ -z "$1" ]; then
+# 	exit 0
+# fi
 
 # ./ns3 run 'scratch/combined-frr.cc --delay_bottleneck=1ms'
 ./run_ns3.sh
