@@ -229,7 +229,7 @@ int main(int argc, char* argv[])
     NetDeviceContainer devices_2_3 = p2p_congested_link.Install(
         nodes.Get(offset + 1), nodes.Get(offset + 2));
     NetDeviceContainer devices_2_4 =
-        p2p_alternate.Install(nodes.Get(offest + 1), nodes.Get(offset + 3));
+        p2p_alternate.Install(nodes.Get(offset + 1), nodes.Get(offset + 3));
     NetDeviceContainer devices_4_3 =
         p2p_alternate.Install(nodes.Get(offset + 3), nodes.Get(offset + 2));
     NetDeviceContainer devices_3_5 =
@@ -252,9 +252,9 @@ int main(int argc, char* argv[])
     Ipv4InterfaceContainer interfaces_0_2 = address.Assign(devices_0_2);
     address.NewNetwork();
 
-    for (int i = 0; i < number_of_tcp_senders; i++) {
-        address.Assign(tcp_senders[i]);
-        address.NewNetwork();
+    for (auto& tcp_sender : tcp_senders) {
+	address.Assign(tcp_sender);
+	address.NewNetwork();
     }
 
     Ipv4InterfaceContainer interfaces_2_3 = address.Assign(devices_2_3);
