@@ -101,6 +101,7 @@ void SetupTCPConfig()
 int main(int argc, char* argv[])
 {
     int cong_threshold = 0;
+    int number_of_tcp_senders = 1;
     std::string dir = "";
     CommandLine cmd;
     cmd.AddValue("bandwidth_primary", "Bandwidth primary",
@@ -113,6 +114,7 @@ int main(int argc, char* argv[])
     cmd.AddValue("delay_alternate", "Delay Alternate", delay_alternate);
     cmd.AddValue("bandwidth_alternate", "Bandwidth Alternate",
                  bandwidth_alternate);
+    cmd.AddValue("tcp_senders", "Number of TCP Senders", number_of_tcp_senders);
     cmd.AddValue("policy_threshold", "Congestion policy threshold",
                  cong_threshold);
     cmd.AddValue("dir", "Traces directory", dir);
@@ -147,19 +149,24 @@ int main(int argc, char* argv[])
      *           |          |
      *          5+----------+
      */
-    // Topology setup
+    // Topology Setup
     NS_LOG_INFO("Creating Topology");
     NodeContainer nodes;
-    nodes.Create(6);
+    NodeContainer tcp_devices;
+    nodes.Create(5);
+    tcp_devices.Create(number_of_tcp_senders);
     Names::Add("CongestionSender", nodes.Get(0));
-    Names::Add("TrafficSender", nodes.Get(1));
-    Names::Add("Router01", nodes.Get(2));
-    Names::Add("Router02", nodes.Get(3));
-    Names::Add("Router03", nodes.Get(4));
-    Names::Add("Receiver", nodes.Get(5));
+    for (int i = 0; i < number_of_tcp_senders; i++)
+        Names::Add("TrafficSender" + std::to_string(i), tcp_devices.Get(i));
+
+    Names::Add("Router01", nodes.Get(1));
+    Names::Add("Router02", nodes.Get(2));
+    Names::Add("Router03", nodes.Get(3));
+    Names::Add("Receiver", nodes.Get(4));
 
     InternetStackHelper stack;
     stack.Install(nodes);
+    stack.Install(tcp_devices);
 
     // Configure PointToPoint link for normal traffic
     PointToPointHelper p2p_traffic;
@@ -189,16 +196,21 @@ int main(int argc, char* argv[])
     p2p_alternate.SetChannelAttribute("Delay", StringValue(delay_alternate));
     p2p_alternate.SetQueue("ns3::DropTailQueue<Packet>");
 
-    NetDeviceContainer devices_1_2 =
-        p2p_traffic.Install(nodes.Get(1), nodes.Get(2));
+    std::list<NetDeviceContainer> tcp_senders;
+
+    for (int i = 0; i < number_of_tcp_senders; i++) {
+        tcp_senders.push_back(
+            p2p_traffic.Install(tcp_devices.Get(i), nodes.Get(1)));
+    }
+
     NetDeviceContainer devices_2_3 =
-        p2p_congested_link.Install(nodes.Get(2), nodes.Get(3));
+        p2p_congested_link.Install(nodes.Get(1), nodes.Get(2));
     NetDeviceContainer devices_2_4 =
-        p2p_alternate.Install(nodes.Get(2), nodes.Get(4));
+        p2p_alternate.Install(nodes.Get(1), nodes.Get(3));
     NetDeviceContainer devices_4_3 =
-        p2p_alternate.Install(nodes.Get(4), nodes.Get(3));
+        p2p_alternate.Install(nodes.Get(3), nodes.Get(2));
     NetDeviceContainer devices_3_5 =
-        p2p_traffic.Install(nodes.Get(3), nodes.Get(5));
+        p2p_traffic.Install(nodes.Get(2), nodes.Get(4));
 
     // Configure PointToPoint link for congestion link
     PointToPointHelper p2p_congestion;
@@ -209,26 +221,31 @@ int main(int argc, char* argv[])
     p2p_congestion.SetQueue("ns3::DropTailQueue<Packet>");
     // Install devices and channels between nodes
     NetDeviceContainer devices_0_2 =
-        p2p_congestion.Install(nodes.Get(0), nodes.Get(2));
+        p2p_congestion.Install(nodes.Get(0), nodes.Get(1));
 
     // Assign IP addresses to subnets
     Ipv4AddressHelper address;
     address.SetBase("10.1.1.0", "255.255.255.0");
     Ipv4InterfaceContainer interfaces_0_2 = address.Assign(devices_0_2);
-    Ipv4InterfaceContainer interfaces_1_2 = address.Assign(devices_1_2);
     address.NewNetwork();
-    address.SetBase("10.1.2.0", "255.255.255.0");
+
+    for (auto& tcp_sender : tcp_senders) {
+        address.Assign(tcp_sender);
+        address.NewNetwork();
+    }
+
     Ipv4InterfaceContainer interfaces_2_3 = address.Assign(devices_2_3);
     address.NewNetwork();
-    address.SetBase("10.1.3.0", "255.255.255.0");
+
     Ipv4InterfaceContainer interfaces_2_4 = address.Assign(devices_2_4);
     address.NewNetwork();
-    address.SetBase("10.1.4.0", "255.255.255.0");
+
     Ipv4InterfaceContainer interfaces_4_3 = address.Assign(devices_4_3);
     address.NewNetwork();
-    address.SetBase("10.1.5.0", "255.255.255.0");
+
     Ipv4InterfaceContainer interfaces_3_5 = address.Assign(devices_3_5);
     address.NewNetwork();
+
     Ipv4GlobalRoutingHelper::PopulateRoutingTables();
 
     // Receiver address
@@ -259,27 +276,32 @@ int main(int argc, char* argv[])
     // TCP Setup
     SetupTCPConfig();
     uint16_t tcp_port = 50002;
-    BulkSendHelper tcp_source("ns3::TcpSocketFactory",
-                              InetSocketAddress(receiver_addr, tcp_port));
-    tcp_source.SetAttribute("MaxBytes",
-                            UintegerValue(100000)); // 0 for unlimited data
-    tcp_source.SetAttribute("SendSize",
-                            UintegerValue(1024)); // Packet size in bytes
-    ApplicationContainer tcp_app = tcp_source.Install(nodes.Get(1));
-    tcp_app.Start(Seconds(0.0));
-    tcp_app.Stop(Seconds(5.0));
+
+    std::list<ApplicationContainer> tcp_apps;
+    for (int i = 0; i < number_of_tcp_senders; i++) {
+        BulkSendHelper tcp_source("ns3::TcpSocketFactory",
+                                  InetSocketAddress(receiver_addr, tcp_port));
+        tcp_source.SetAttribute("MaxBytes",
+                                UintegerValue(100000)); // 0 for unlimited data
+        tcp_source.SetAttribute("SendSize",
+                                UintegerValue(1024)); // Packet size in bytes
+
+        tcp_apps.push_back(tcp_source.Install(tcp_devices.Get(i)));
+        tcp_apps.back().Start(Seconds(0.0));
+        tcp_apps.back().Stop(Seconds(5.0));
+    }
 
     // Packet sink setup (Receiver node)
     PacketSinkHelper sink("ns3::TcpSocketFactory",
                           InetSocketAddress(Ipv4Address::GetAny(), tcp_port));
-    ApplicationContainer sink_app = sink.Install(nodes.Get(5));
+    ApplicationContainer sink_app = sink.Install(nodes.Get(4));
     sink_app.Start(Seconds(0.0));
     sink_app.Stop(Seconds(10.0));
 
     PacketSinkHelper udp_sink(
         "ns3::UdpSocketFactory",
         InetSocketAddress(Ipv4Address::GetAny(), udp_port));
-    ApplicationContainer udp_sink_app = udp_sink.Install(nodes.Get(5));
+    ApplicationContainer udp_sink_app = udp_sink.Install(nodes.Get(4));
     udp_sink_app.Start(Seconds(0.0));
     udp_sink_app.Stop(Seconds(10.0));
 
