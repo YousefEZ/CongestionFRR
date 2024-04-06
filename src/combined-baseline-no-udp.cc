@@ -279,7 +279,6 @@ int main(int argc, char* argv[])
     udp_sink_app.Start(Seconds(0.0));
     udp_sink_app.Stop(Seconds(20.0));
 
-
     p2p_traffic.EnablePcapAll(dir);
     p2p_congestion.EnablePcapAll(dir);
 
