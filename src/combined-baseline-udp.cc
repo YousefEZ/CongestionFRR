@@ -125,9 +125,30 @@ void CalculateExpectedPackets(uint32_t tcp_max_bytes, DataRate udp_data_rate)
 // NS_LOG_COMPONENT_DEFINE("CongestionFastReRoute");
 int main(int argc, char* argv[])
 {
-    LogComponentEnable("FRRQueue", LOG_LEVEL_LOGIC);
-    BasicCongestionPolicy::usage_percentage =
-        80; // change it to whatever you want
+    int cong_threshold = 0;
+    std::string dir = "";
+    CommandLine cmd;
+    cmd.AddValue("bandwidth_primary", "Bandwidth primary",
+                 bandwidth_bottleneck);
+    cmd.AddValue("bandwidth_access", "Bandwidth Access", bandwidth_access);
+    cmd.AddValue("bandwidth_udp_access", "Bandwidth UDP Access",
+                 bandwidth_udp_access);
+    cmd.AddValue("delay_primary", "Delay Bottleneck", delay_bottleneck);
+    cmd.AddValue("delay_access", "Delay Access", delay_access);
+    cmd.AddValue("delay_alternate", "Delay Alternate", delay_alternate);
+    cmd.AddValue("bandwidth_alternate", "Bandwidth Alternate",
+                 bandwidth_alternate);
+    cmd.AddValue("policy_threshold", "Congestion policy threshold",
+                 cong_threshold);
+    cmd.AddValue("dir", "Traces directory", dir);
+    cmd.Parse(argc, argv);
+
+    std::cout << "Congestion policy threshold: " << cong_threshold << std::endl;
+    BasicCongestionPolicy::usage_percentage = cong_threshold;
+
+    // LogComponentEnable("FRRQueue", LOG_LEVEL_ERROR);
+    // LogComponentEnableAll(LOG_LEVEL_ERROR);
+
     /*
      *  +----------+      +-----------+
      *  |Congestion|      |  Traffic  |
@@ -313,8 +334,8 @@ int main(int argc, char* argv[])
     // setAlternateTarget<1>(devices12, getDevice<1>(devices02));
 
     // enableRerouting(getQueue<0>(devices_2_3));
-    p2p_traffic.EnablePcapAll("traces/");
-    p2p_congestion.EnablePcapAll("traces/");
+    p2p_traffic.EnablePcapAll(dir);
+    p2p_congestion.EnablePcapAll(dir);
 
     Simulator::Run();
     Simulator::Destroy();
