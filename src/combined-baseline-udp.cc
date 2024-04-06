@@ -297,6 +297,7 @@ int main(int argc, char* argv[])
     // TCP Setup
     SetupTCPConfig();
     uint16_t tcp_port = 50002;
+
     std::list<ApplicationContainer> tcp_apps;
     for (int i = 0; i < number_of_tcp_senders; i++) {
         BulkSendHelper tcp_source("ns3::TcpSocketFactory",

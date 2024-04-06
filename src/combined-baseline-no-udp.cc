@@ -224,6 +224,7 @@ int main(int argc, char* argv[])
     Ipv4GlobalRoutingHelper::PopulateRoutingTables();
     // Receiver address
     Ipv4Address receiver_addr = interfaces_3_5.GetAddress(1);
+
     // UDP Congestion traffic setup
     uint16_t udp_port = 50001;
     OnOffHelper udp_source("ns3::UdpSocketFactory",
@@ -249,6 +250,7 @@ int main(int argc, char* argv[])
     // TCP Setup
     SetupTCPConfig();
     uint16_t tcp_port = 50002;
+
     std::list<ApplicationContainer> tcp_apps;
     for (int i = 0; i < number_of_tcp_senders; i++) {
         BulkSendHelper tcp_source("ns3::TcpSocketFactory",
@@ -276,6 +278,7 @@ int main(int argc, char* argv[])
     ApplicationContainer udp_sink_app = udp_sink.Install(nodes.Get(4));
     udp_sink_app.Start(Seconds(0.0));
     udp_sink_app.Stop(Seconds(20.0));
+
 
     p2p_traffic.EnablePcapAll(dir);
     p2p_congestion.EnablePcapAll(dir);
