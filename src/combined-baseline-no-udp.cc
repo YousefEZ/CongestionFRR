@@ -224,7 +224,6 @@ int main(int argc, char* argv[])
     Ipv4GlobalRoutingHelper::PopulateRoutingTables();
     // Receiver address
     Ipv4Address receiver_addr = interfaces_3_5.GetAddress(1);
-    std::cout << receiver_addr << std::endl;
     // UDP Congestion traffic setup
     uint16_t udp_port = 50001;
     OnOffHelper udp_source("ns3::UdpSocketFactory",

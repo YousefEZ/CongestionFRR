@@ -324,31 +324,7 @@ int main(int argc, char* argv[])
     ApplicationContainer udp_sink_app = udp_sink.Install(nodes.Get(4));
     udp_sink_app.Start(Seconds(0.0));
     udp_sink_app.Stop(Seconds(20.0));
-    // SimulationQueue::sinkAddress =
-    //     Mac48Address::ConvertFrom(getDevice<1>(devices_3_5)->GetAddress());
-    // NOTE: Is TrafficControlHelper needed here?
 
-    // CalculateExpectedPackets(10000, DataRate("1Mbps"));
-
-    // LFA Alternate Path setup
-    // Set up an alternate forwarding target, assuming you have an alternate
-    // path configured
-
-    // TODO: Need some help with setting alternate target
-    // setAlternateTarget<0>(
-    //     devices_2_3, getDevice<0, ns3::PointToPointNetDevice>(devices_2_4));
-    // setAlternateTarget<1>(
-    //     devices_2_3, getDevice<1, ns3::PointToPointNetDevice>(devices_4_3));
-    // setAlternateTarget<0>(devices01, getDevice<0>(devices02));
-    // setAlternateTarget<0>(devices02, getDevice<0>(devices01));
-
-    // setAlternateTarget<0>(devices12, getDevice<1>(devices01));
-    // setAlternateTarget<1>(devices01, getDevice<0>(devices12));
-
-    // setAlternateTarget<1>(devices02, getDevice<1>(devices12));
-    // setAlternateTarget<1>(devices12, getDevice<1>(devices02));
-
-    // enableRerouting(getQueue<0>(devices_2_3));
     p2p_traffic.EnablePcapAll(dir);
     p2p_congestion.EnablePcapAll(dir);
 
