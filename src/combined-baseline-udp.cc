@@ -314,6 +314,8 @@ int main(int argc, char* argv[])
         tcp_source.SetAttribute("SendSize",
                                 UintegerValue(1024)); // Packet size in bytes
 
+        p2p_traffic.EnablePcap(dir, tcp_devices.Get(i)->GetId(), 1);
+
         tcp_apps.push_back(tcp_source.Install(tcp_devices.Get(i)));
         tcp_apps.back().Start(Seconds(0.0));
         tcp_apps.back().Stop(Seconds(10.0));
@@ -333,8 +335,8 @@ int main(int argc, char* argv[])
     udp_sink_app.Start(Seconds(0.0));
     udp_sink_app.Stop(Seconds(20.0));
 
-    p2p_traffic.EnablePcapAll(dir);
-    p2p_congestion.EnablePcapAll(dir);
+    // p2p_traffic.EnablePcapAll(dir);
+    // p2p_congestion.EnablePcapAll(dir);
 
     Simulator::Run();
     Simulator::Destroy();
