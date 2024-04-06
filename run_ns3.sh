@@ -12,10 +12,10 @@ run_experiment() {
 	mkdir -p "$dir/baseline-udp/"
 	mkdir -p "$dir/baseline-no-udp/"
 
-	NS_LOG="" ./ns3 run "scratch/combined-frr.cc --$test_variable=$test_value --policy_threshold=$policy_threshold --dir=$dir/frr/"
-	NS_LOG="" ./ns3 run "scratch/combined-frr-no-udp.cc --$test_variable=$test_value --policy_threshold=$policy_threshold --dir=$dir/frr-no-udp/"
-	NS_LOG="" ./ns3 run "scratch/combined-baseline-udp.cc --$test_variable=$test_value --policy_threshold=$policy_threshold --dir=$dir/baseline-udp/"
-	NS_LOG="" ./ns3 run "scratch/combined-baseline-no-udp.cc --$test_variable=$test_value --policy_threshold=$policy_threshold --dir=$dir/baseline-no-udp/"
+	NS_LOG="" ./ns3 run "scratch/combined-frr.cc --$test_variable=$test_value --tcp_senders=1 --policy_threshold=$policy_threshold --dir=$dir/frr/"
+	NS_LOG="" ./ns3 run "scratch/combined-frr-no-udp.cc --$test_variable=$test_value --tcp_senders=1 --policy_threshold=$policy_threshold --dir=$dir/frr-no-udp/"
+	NS_LOG="" ./ns3 run "scratch/combined-baseline-udp.cc --$test_variable=$test_value --tcp_senders=1 --policy_threshold=$policy_threshold --dir=$dir/baseline-udp/"
+	NS_LOG="" ./ns3 run "scratch/combined-baseline-no-udp.cc --$test_variable=$test_value --tcp_senders=1 --policy_threshold=$policy_threshold --dir=$dir/baseline-no-udp/"
 }
 
 # Delay primary experiments
