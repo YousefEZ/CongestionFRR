@@ -302,11 +302,6 @@ int main(int argc, char* argv[])
 
     std::list<ApplicationContainer> tcp_apps;
     for (int i = 0; i < number_of_tcp_senders; i++) {
-<<<<<<< HEAD
-        ApplicationContainer tcp_app = tcp_source.Install(nodes.Get(1 + i));
-        tcp_app.Start(Seconds(0.0));
-        tcp_app.Stop(Seconds(10.0));
-=======
         BulkSendHelper tcp_source("ns3::TcpSocketFactory",
                                   InetSocketAddress(receiver_addr, tcp_port));
         tcp_source.SetAttribute("MaxBytes",
@@ -316,8 +311,7 @@ int main(int argc, char* argv[])
 
         tcp_apps.push_back(tcp_source.Install(tcp_devices.Get(i)));
         tcp_apps.back().Start(Seconds(0.0));
-        tcp_apps.back().Stop(Seconds(5.0));
->>>>>>> 142da06 (:sparkles: working implementation)
+        tcp_apps.back().Stop(Seconds(10.0));
     }
 
     // Packet sink setup (Receiver node)
@@ -330,13 +324,8 @@ int main(int argc, char* argv[])
     PacketSinkHelper udp_sink(
         "ns3::UdpSocketFactory",
         InetSocketAddress(Ipv4Address::GetAny(), udp_port));
-<<<<<<< HEAD
-    ApplicationContainer udp_sink_app = udp_sink.Install(nodes.Get(5));
-    udp_sink_app.Start(Seconds(2.0));
-=======
     ApplicationContainer udp_sink_app = udp_sink.Install(nodes.Get(4));
-    udp_sink_app.Start(Seconds(0.0));
->>>>>>> 142da06 (:sparkles: working implementation)
+    udp_sink_app.Start(Seconds(2.0));
     udp_sink_app.Stop(Seconds(10.0));
 
     // LFA Alternate Path setup
