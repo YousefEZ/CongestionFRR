@@ -66,13 +66,13 @@ uint32_t segmentSize = 1024;
 uint32_t MTU_bytes = segmentSize + 54;
 
 // Topology parameters
-std::string bandwidth_bottleneck = "150Kbps";
-std::string bandwidth_access = "600kbps";
+std::string bandwidth_primary = "300Kbps";
+std::string bandwidth_access = "200kbps";
 std::string bandwidth_udp_access = "100kbps";
 std::string delay_bottleneck = "20ms";
 std::string delay_access = "20ms";
-std::string delay_alternate = "100ms";
-std::string bandwidth_alternate = "600kbps";
+std::string delay_alternate = "20ms";
+std::string bandwidth_alternate = "300kbps";
 
 void SetupTCPConfig()
 {
@@ -99,7 +99,7 @@ void SetupTCPConfig()
 
 void CalculateExpectedPackets(uint32_t tcp_max_bytes, DataRate udp_data_rate)
 {
-    DataRate bandwidth_bottleneck_dr(bandwidth_bottleneck);
+    DataRate bandwidth_primary_dr(bandwidth_primary);
     DataRate bandwidth_access_dr(bandwidth_access);
     Time bottleneck_delay_t(delay_bottleneck);
     Time access_delay_t(delay_access);
@@ -107,14 +107,13 @@ void CalculateExpectedPackets(uint32_t tcp_max_bytes, DataRate udp_data_rate)
     // Serialization delay ~2ms
     Time serialization_delay_t(
         (1024 + 54) /
-        (std::min(bandwidth_bottleneck_dr, bandwidth_access_dr).GetBitRate()));
+        (std::min(bandwidth_primary_dr, bandwidth_access_dr).GetBitRate()));
 
-    uint32_t max_bottleneck_tcp_bytes = static_cast<uint32_t>(
-        ((std::min(bandwidth_access_dr, bandwidth_bottleneck_dr).GetBitRate() /
-          8) *
-         (((access_delay_t * 2) + bottleneck_delay_t) * 2 +
-          serialization_delay_t)
-             .GetSeconds()));
+    uint32_t max_bottleneck_tcp_bytes = static_cast<uint32_t>((
+        (std::min(bandwidth_access_dr, bandwidth_primary_dr).GetBitRate() / 8) *
+        (((access_delay_t * 2) + bottleneck_delay_t) * 2 +
+         serialization_delay_t)
+            .GetSeconds()));
 
     uint32_t expected_tcp_packets =
         std::ceil(max_bottleneck_tcp_bytes / (1024 + 54));
@@ -128,8 +127,7 @@ int main(int argc, char* argv[])
     int cong_threshold = 0;
     std::string dir = "";
     CommandLine cmd;
-    cmd.AddValue("bandwidth_primary", "Bandwidth primary",
-                 bandwidth_bottleneck);
+    cmd.AddValue("bandwidth_primary", "Bandwidth primary", bandwidth_primary);
     cmd.AddValue("bandwidth_access", "Bandwidth Access", bandwidth_access);
     cmd.AddValue("bandwidth_udp_access", "Bandwidth UDP Access",
                  bandwidth_udp_access);
@@ -197,7 +195,7 @@ int main(int argc, char* argv[])
     // PointToPointFRRHelper<FRRPolicy> p2p_congested_link;
     PointToPointHelper p2p_congested_link;
     p2p_congested_link.SetDeviceAttribute("DataRate",
-                                          StringValue(bandwidth_bottleneck));
+                                          StringValue(bandwidth_primary));
     p2p_congested_link.SetChannelAttribute("Delay",
                                            StringValue(delay_bottleneck));
     // p2p_congested_link.SetQueue(SimulationQueue::getQueueString());
@@ -272,11 +270,11 @@ int main(int argc, char* argv[])
     udp_source.SetAttribute("PacketSize", UintegerValue(1024));
 
     ApplicationContainer udp_app = udp_source.Install(nodes.Get(0));
-    udp_app.Start(Seconds(0.0));
-    udp_app.Stop(Seconds(5.0));
+    udp_app.Start(Seconds(2.0));
+    udp_app.Stop(Seconds(10.0));
 
     DataRate b_access(bandwidth_access);
-    DataRate b_bottleneck(bandwidth_bottleneck);
+    DataRate b_bottleneck(bandwidth_primary);
     Time d_access(delay_access);
     Time d_bottleneck(delay_bottleneck);
     Time d_serialization("1.9ms");
@@ -292,21 +290,21 @@ int main(int argc, char* argv[])
                             UintegerValue(1024)); // Packet size in bytes
     ApplicationContainer tcp_app = tcp_source.Install(nodes.Get(1));
     tcp_app.Start(Seconds(0.0));
-    tcp_app.Stop(Seconds(5.0));
+    tcp_app.Stop(Seconds(10.0));
 
     // Packet sink setup (Receiver node)
     PacketSinkHelper sink("ns3::TcpSocketFactory",
                           InetSocketAddress(Ipv4Address::GetAny(), tcp_port));
     ApplicationContainer sink_app = sink.Install(nodes.Get(5));
     sink_app.Start(Seconds(0.0));
-    sink_app.Stop(Seconds(10.0));
+    sink_app.Stop(Seconds(20.0));
 
     PacketSinkHelper udp_sink(
         "ns3::UdpSocketFactory",
         InetSocketAddress(Ipv4Address::GetAny(), udp_port));
     ApplicationContainer udp_sink_app = udp_sink.Install(nodes.Get(5));
     udp_sink_app.Start(Seconds(0.0));
-    udp_sink_app.Stop(Seconds(10.0));
+    udp_sink_app.Stop(Seconds(20.0));
     // SimulationQueue::sinkAddress =
     //     Mac48Address::ConvertFrom(getDevice<1>(devices_3_5)->GetAddress());
     // NOTE: Is TrafficControlHelper needed here?

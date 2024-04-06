@@ -40,7 +40,7 @@ done
 
 # Bandwidth primary experiments
 echo "Bandwidth Primary experiments"
-bandwidth_vals=("75Kbps" "100Kbps" "125Kbps" "150Kbps" "175Kbps" "200Kbps" "225Kbps" "250Kbps" "275Kbps" "300Kbps")
+bandwidth_vals=("200Kbps" "225Kbps" "250Kbps" "275Kbps" "300Kbps" "325Kbps" "350Kbps" "375Kbps" "400Kbps")
 for bandwidth_val in "${bandwidth_vals[@]}"; do
 	echo "Bandwidth Primary value: $bandwidth_vals"
 	for policy_number in 20 40 60 80 99; do
@@ -50,7 +50,7 @@ done
 
 # Bandwidth alternate experiments
 echo "Bandwidth alternate experiments"
-bandwidth_vals=("75Kbps" "100Kbps" "125Kbps" "150Kbps" "175Kbps" "200Kbps" "225Kbps" "250Kbps" "275Kbps" "300Kbps")
+bandwidth_vals=("200Kbps" "225Kbps" "250Kbps" "275Kbps" "300Kbps" "325Kbps" "350Kbps" "375Kbps" "400Kbps")
 for bandwidth_val in "${bandwidth_vals[@]}"; do
 	echo "Bandwidth Alternate value: $bandwidth_vals"
 	for policy_number in 20 40 60 80 99; do
