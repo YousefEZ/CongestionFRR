@@ -118,7 +118,6 @@ int main(int argc, char* argv[])
     cmd.AddValue("dir", "Traces directory", dir);
     cmd.Parse(argc, argv);
 
-    std::cout << "Congestion policy threshold: " << cong_threshold << std::endl;
     BasicCongestionPolicy::usage_percentage = cong_threshold;
 
     // LogComponentEnable("FRRQueue", LOG_LEVEL_ERROR);

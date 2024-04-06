@@ -15,9 +15,9 @@ if [ $? -ne 0 ]; then
 	exit 1
 fi
 
-if [ -z "$1" ]; then
-	exit 0
-fi
+# if [ -z "$1" ]; then
+# 	exit 0
+# fi
 
 # ./ns3 run 'scratch/combined-frr.cc --delay_bottleneck=1ms'
 ./run_ns3.sh
