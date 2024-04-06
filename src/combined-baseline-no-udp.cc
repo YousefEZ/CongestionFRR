@@ -223,7 +223,7 @@ int main(int argc, char* argv[])
     address.NewNetwork();
 
     Ipv4InterfaceContainer interfaces_3_5 = address.Assign(devices_3_5);
-
+    Ipv4GlobalRoutingHelper::PopulateRoutingTables();
     // Receiver address
     Ipv4Address receiver_addr = interfaces_3_5.GetAddress(1);
     std::cout << receiver_addr << std::endl;
