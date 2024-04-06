@@ -15,8 +15,11 @@
 #include "../libs/random_congestion_policy.h"
 #include "../libs/point_to_point_frr_helper.h"
 #include "../libs/basic_congestion.h"
+#include "../libs/random/random.hpp"
 
 using namespace ns3;
+using Random = effolkronium::random_static;
+uint32_t seed = 1;
 
 using CongestionPolicy = BasicCongestionPolicy;
 // using CongestionPolicy = RandomCongestionPolicy<100>;
@@ -143,6 +146,10 @@ int main(int argc, char* argv[])
                  cong_threshold);
     cmd.AddValue("tcp_senders", "Number of TCP Senders", number_of_tcp_senders);
     cmd.AddValue("dir", "Traces directory", dir);
+    cmd.AddValue("seed", "The random seed", seed);
+
+    RngSeedManager::SetSeed(seed);
+    Random::seed(seed);
     cmd.Parse(argc, argv);
 
     BasicCongestionPolicy::usage_percentage = cong_threshold;

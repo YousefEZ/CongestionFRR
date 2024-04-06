@@ -2,20 +2,24 @@
 
 echo "Running ns3 script"
 
+seeds=("47828392" "1938290" "1940652")
+
 run_experiment() {
 	local test_variable=$1
 	local test_value=$2
 	local policy_threshold=$3
 	local dir="traces/$test_variable/$test_value/$policy_threshold"
-	mkdir -p "$dir/frr/"
-	mkdir -p "$dir/frr-no-udp/"
-	mkdir -p "$dir/baseline-udp/"
-	mkdir -p "$dir/baseline-no-udp/"
+	for seed in "${seeds[@]}"; do
+		mkdir -p "$dir/frr/$seed"
+		mkdir -p "$dir/frr-no-udp/$seed"
+		mkdir -p "$dir/baseline-udp/$seed"
+		mkdir -p "$dir/baseline-no-udp/$seed"
 
-	NS_LOG="" ./ns3 run "scratch/combined-frr.cc --$test_variable=$test_value --tcp_senders=1 --policy_threshold=$policy_threshold --dir=$dir/frr/"
-	NS_LOG="" ./ns3 run "scratch/combined-frr-no-udp.cc --$test_variable=$test_value --tcp_senders=1 --policy_threshold=$policy_threshold --dir=$dir/frr-no-udp/"
-	NS_LOG="" ./ns3 run "scratch/combined-baseline-udp.cc --$test_variable=$test_value --tcp_senders=1 --policy_threshold=$policy_threshold --dir=$dir/baseline-udp/"
-	NS_LOG="" ./ns3 run "scratch/combined-baseline-no-udp.cc --$test_variable=$test_value --tcp_senders=1 --policy_threshold=$policy_threshold --dir=$dir/baseline-no-udp/"
+		NS_LOG="" ./ns3 run "scratch/combined-frr.cc --$test_variable=$test_value --tcp_senders=1 --policy_threshold=$policy_threshold --dir=$dir/frr/$seed/ --seed=$seed"
+		NS_LOG="" ./ns3 run "scratch/combined-frr-no-udp.cc --$test_variable=$test_value --tcp_senders=1 --policy_threshold=$policy_threshold --dir=$dir/frr-no-udp/$seed/ --seed=$seed"
+		NS_LOG="" ./ns3 run "scratch/combined-baseline-udp.cc --$test_variable=$test_value --tcp_senders=1 --policy_threshold=$policy_threshold --dir=$dir/baseline-udp/$seed/ --seed=$seed"
+		NS_LOG="" ./ns3 run "scratch/combined-baseline-no-udp.cc --$test_variable=$test_value --tcp_senders=1 --policy_threshold=$policy_threshold --dir=$dir/baseline-no-udp/$seed/ --seed=$seed"
+	done
 }
 
 # Delay primary experiments
