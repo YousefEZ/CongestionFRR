@@ -253,8 +253,8 @@ int main(int argc, char* argv[])
     address.NewNetwork();
 
     for (auto& tcp_sender : tcp_senders) {
-	address.Assign(tcp_sender);
-	address.NewNetwork();
+        address.Assign(tcp_sender);
+        address.NewNetwork();
     }
 
     Ipv4InterfaceContainer interfaces_2_3 = address.Assign(devices_2_3);
