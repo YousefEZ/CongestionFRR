@@ -68,15 +68,13 @@ uint32_t segmentSize = 1024;
 uint32_t MTU_bytes = segmentSize + 54;
 
 // Topology parameters
-
 std::string bandwidth_primary = "2Mbps";
-std::string bandwidth_access = "1Mbps";
-std::string bandwidth_udp_access = "1.6Mbps";
-
+std::string bandwidth_access = "0.5Mbps";
+std::string bandwidth_udp_access = "5Mbps";
 std::string delay_bottleneck = "20ms";
 std::string delay_access = "20ms";
 std::string delay_alternate = "20ms";
-std::string bandwidth_alternate = "1Mbps";
+std::string bandwidth_alternate = "2Mbps";
 
 void SetupTCPConfig()
 {
@@ -193,7 +191,7 @@ int main(int argc, char* argv[])
     // p2p_congested_link.SetQueue("ns3::DropTailQueue<Packet>");
 
     Config::SetDefault("ns3::DropTailQueue<Packet>::MaxSize",
-                       StringValue("10p"));
+                       StringValue("1000p"));
     Config::SetDefault(SimulationQueue::getQueueString() + "::MaxSize",
                        StringValue("10p"));
 
@@ -271,8 +269,8 @@ int main(int argc, char* argv[])
     udp_source.SetAttribute("PacketSize", UintegerValue(1024));
 
     ApplicationContainer udp_app = udp_source.Install(nodes.Get(0));
-    udp_app.Start(Seconds(2.0));
-    udp_app.Stop(Seconds(10.0));
+    udp_app.Start(Seconds(5.0));
+    udp_app.Stop(Seconds(7.0));
 
     DataRate b_access(bandwidth_access);
     DataRate b_bottleneck(bandwidth_primary);
@@ -294,7 +292,7 @@ int main(int argc, char* argv[])
 
         tcp_apps.push_back(tcp_source.Install(tcp_devices.Get(i)));
         tcp_apps.back().Start(Seconds(0.0));
-        tcp_apps.back().Stop(Seconds(20.0));
+        tcp_apps.back().Stop(Seconds(60.0));
     }
 
     // Packet sink setup (Receiver node)
@@ -302,14 +300,14 @@ int main(int argc, char* argv[])
                           InetSocketAddress(Ipv4Address::GetAny(), tcp_port));
     ApplicationContainer sink_app = sink.Install(nodes.Get(4));
     sink_app.Start(Seconds(0.0));
-    sink_app.Stop(Seconds(20.0));
+    sink_app.Stop(Seconds(60.0));
 
     PacketSinkHelper udp_sink(
         "ns3::UdpSocketFactory",
         InetSocketAddress(Ipv4Address::GetAny(), udp_port));
     ApplicationContainer udp_sink_app = udp_sink.Install(nodes.Get(4));
     udp_sink_app.Start(Seconds(0.0));
-    udp_sink_app.Stop(Seconds(20.0));
+    udp_sink_app.Stop(Seconds(60.0));
 
     // LFA Alternate Path setup
     // Set up an alternate forwarding target, assuming you have an alternate

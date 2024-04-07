@@ -223,20 +223,20 @@ if __name__ == '__main__':
     os.makedirs("../pcap_analysis/results", exist_ok=True)
     os.makedirs("../pcap_analysis/plots", exist_ok=True)
 
-    bandwidth_primary_results = record_flow_completion_time("../traces/bandwidth_primary/",
-                                                            "../pcap_analysis/results", "bandwidth_primary")
-    plot_flow_comp_time(bandwidth_primary_results, "udp", "bandwidth_primary")
-    plot_flow_comp_time(bandwidth_primary_results, "no-udp", "bandwidth_primary")
+    # bandwidth_primary_results = record_flow_completion_time("../traces/bandwidth_primary/",
+    #                                                         "../pcap_analysis/results", "bandwidth_primary")
+    # plot_flow_comp_time(bandwidth_primary_results, "udp", "bandwidth_primary")
+    # plot_flow_comp_time(bandwidth_primary_results, "no-udp", "bandwidth_primary")
 
     #plot_flow_completion_time(bandwidth_primary_results, "bandwidth_primary", ['baseline_no_udp', 'frr_no_udp'])
     # no udp
     #plot_flow_completion_time(bandwidth_primary_results, "bandwidth_primary", ['baseline_udp', 'frr'])
     # with udp
 
-    #bandwidth_alternate_results = record_flow_completion_time("../traces/bandwidth_alternate/",
-    #                                                          "../pcap_analysis/results", "bandwidth_alternate")
-    #plot_flow_comp_time(bandwidth_alternate_results, "udp", "bandwidth_alternate")
-    #plot_flow_comp_time(bandwidth_alternate_results, "no-udp", "bandwidth_alternate")
+    bandwidth_alternate_results = record_flow_completion_time("../traces/bandwidth_alternate/",
+                                                              "../pcap_analysis/results", "bandwidth_alternate")
+    plot_flow_comp_time(bandwidth_alternate_results, "udp", "bandwidth_alternate")
+    plot_flow_comp_time(bandwidth_alternate_results, "no-udp", "bandwidth_alternate")
     #plot_flow_completion_time(bandwidth_alternate_results, "bandwidth_alternate", ['baseline_no_udp', 'frr_no_udp'])
     #plot_flow_completion_time(bandwidth_alternate_results, "bandwidth_alternate", ['baseline_udp', 'frr'])
 
