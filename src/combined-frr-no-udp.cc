@@ -315,6 +315,8 @@ int main(int argc, char* argv[])
         tcp_source.SetAttribute("SendSize",
                                 UintegerValue(1024)); // Packet size in bytes
 
+        p2p_traffic.EnablePcap(dir, tcp_devices.Get(i)->GetId(), 1);
+
         tcp_apps.push_back(tcp_source.Install(tcp_devices.Get(i)));
         tcp_apps.back().Start(Seconds(0.0));
         tcp_apps.back().Stop(Seconds(60.0));
@@ -342,8 +344,8 @@ int main(int argc, char* argv[])
     setAlternateTarget<1>(
         devices_2_3, getDevice<1, ns3::PointToPointNetDevice>(devices_4_3));
 
-    p2p_traffic.EnablePcapAll(dir);
-    p2p_congestion.EnablePcapAll(dir);
+    // p2p_traffic.EnablePcapAll(dir);
+    // p2p_congestion.EnablePcapAll(dir);
 
     Simulator::Run();
     Simulator::Destroy();

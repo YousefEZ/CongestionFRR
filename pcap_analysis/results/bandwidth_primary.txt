@@ -1,110 +1,220 @@
-no-udp 1.7Mbps 20 21.238132
-no-udp 1.7Mbps 40 21.238132
-no-udp 1.7Mbps 60 21.238132
-no-udp 1.7Mbps 80 21.238132
-no-udp 1.7Mbps base 21.238132
-no-udp 1.6Mbps 20 21.242828
-no-udp 1.6Mbps 40 21.242828
-no-udp 1.6Mbps 60 21.242828
-no-udp 1.6Mbps 80 21.242828
-no-udp 1.6Mbps base 21.242828
-no-udp 1.5Mbps 20 21.248149
-no-udp 1.5Mbps 40 21.248149
-no-udp 1.5Mbps 60 21.248149
-no-udp 1.5Mbps 80 21.248149
-no-udp 1.5Mbps base 21.248149
-no-udp 2.5Mbps 20 21.214092
-no-udp 2.5Mbps 40 21.214092
-no-udp 2.5Mbps 60 21.214092
-no-udp 2.5Mbps 80 21.214092
-no-udp 2.5Mbps base 21.214092
-no-udp 2.4Mbps 20 21.216221
-no-udp 2.4Mbps 40 21.216221
-no-udp 2.4Mbps 60 21.216221
-no-udp 2.4Mbps 80 21.216221
-no-udp 2.4Mbps base 21.216221
-no-udp 2.0Mbps 20 21.226864
-no-udp 2.0Mbps 40 21.226864
-no-udp 2.0Mbps 60 21.226864
-no-udp 2.0Mbps 80 21.226864
-no-udp 2.0Mbps base 21.226864
-no-udp 2.1Mbps 20 21.223823
-no-udp 2.1Mbps 40 21.223823
-no-udp 2.1Mbps 60 21.223823
-no-udp 2.1Mbps 80 21.223823
-no-udp 2.1Mbps base 21.223823
-no-udp 2.3Mbps 20 21.218534
-no-udp 2.3Mbps 40 21.218534
-no-udp 2.3Mbps 60 21.218534
-no-udp 2.3Mbps 80 21.218534
-no-udp 2.3Mbps base 21.218534
-no-udp 2.2Mbps 20 21.221058
-no-udp 2.2Mbps 40 21.221058
-no-udp 2.2Mbps 60 21.221058
-no-udp 2.2Mbps 80 21.221058
-no-udp 2.2Mbps base 21.221058
-no-udp 1.8Mbps 20 21.233959
-no-udp 1.8Mbps 40 21.233959
-no-udp 1.8Mbps 60 21.233959
-no-udp 1.8Mbps 80 21.233959
-no-udp 1.8Mbps base 21.233959
-no-udp 1.9Mbps 20 21.230224
-no-udp 1.9Mbps 40 21.230224
-no-udp 1.9Mbps 60 21.230224
-no-udp 1.9Mbps 80 21.230224
-no-udp 1.9Mbps base 21.230224
-udp 1.7Mbps 20 16.346974
-udp 1.7Mbps 40 15.623924
-udp 1.7Mbps 60 15.640788
-udp 1.7Mbps 80 16.316704
-udp 1.7Mbps base 20.107840
-udp 1.6Mbps 20 16.688872
-udp 1.6Mbps 40 15.628620
-udp 1.6Mbps 60 16.321808
-udp 1.6Mbps 80 16.518616
-udp 1.6Mbps base 19.741356
-udp 1.5Mbps 20 20.215263
-udp 1.5Mbps 40 21.076895
-udp 1.5Mbps 60 20.931882
-udp 1.5Mbps 80 20.349674
-udp 1.5Mbps base 20.117567
-udp 2.5Mbps 20 17.370444
-udp 2.5Mbps 40 17.370444
-udp 2.5Mbps 60 17.370444
-udp 2.5Mbps 80 17.370444
-udp 2.5Mbps base 17.370444
-udp 2.4Mbps 20 20.566869
-udp 2.4Mbps 40 20.566869
-udp 2.4Mbps 60 20.566869
-udp 2.4Mbps 80 20.667895
-udp 2.4Mbps base 21.008751
-udp 2.0Mbps 20 19.705904
-udp 2.0Mbps 40 17.848688
-udp 2.0Mbps 60 19.728672
-udp 2.0Mbps 80 19.098000
-udp 2.0Mbps base 19.913792
-udp 2.1Mbps 20 16.247701
-udp 2.1Mbps 40 20.485219
-udp 2.1Mbps 60 20.092519
-udp 2.1Mbps 80 20.720600
-udp 2.1Mbps base 20.412056
-udp 2.3Mbps 20 20.137988
-udp 2.3Mbps 40 17.139782
-udp 2.3Mbps 60 20.051986
-udp 2.3Mbps 80 18.816036
-udp 2.3Mbps base 20.338508
-udp 2.2Mbps 20 19.775633
-udp 2.2Mbps 40 19.296529
-udp 2.2Mbps 60 19.473349
-udp 2.2Mbps 80 20.465672
-udp 2.2Mbps base 20.163281
-udp 1.8Mbps 20 20.812814
-udp 1.8Mbps 40 21.049031
-udp 1.8Mbps 60 16.164145
-udp 1.8Mbps 80 20.282855
-udp 1.8Mbps base 20.306947
-udp 1.9Mbps 20 17.036882
-udp 1.9Mbps 40 21.270347
-udp 1.9Mbps 60 16.615363
-udp 1.9Mbps 80 15.888473
-udp 1.9Mbps base 20.826477
+senders=1 no-udp 2.4Mbps 20 4.396906
+senders=1 no-udp 2.4Mbps 40 4.396906
+senders=1 no-udp 2.4Mbps 60 4.396906
+senders=1 no-udp 2.4Mbps 80 4.396906
+senders=1 no-udp 2.4Mbps base 4.396906
+senders=1 no-udp 1.8Mbps 20 4.400808
+senders=1 no-udp 1.8Mbps 40 4.400808
+senders=1 no-udp 1.8Mbps 60 4.400808
+senders=1 no-udp 1.8Mbps 80 4.400808
+senders=1 no-udp 1.8Mbps base 4.400808
+senders=1 no-udp 2.5Mbps 20 4.396438
+senders=1 no-udp 2.5Mbps 40 4.396438
+senders=1 no-udp 2.5Mbps 60 4.396438
+senders=1 no-udp 2.5Mbps 80 4.396438
+senders=1 no-udp 2.5Mbps base 4.396438
+senders=1 no-udp 2.0Mbps 20 4.399248
+senders=1 no-udp 2.0Mbps 40 4.399248
+senders=1 no-udp 2.0Mbps 60 4.399248
+senders=1 no-udp 2.0Mbps 80 4.399248
+senders=1 no-udp 2.0Mbps base 4.399248
+senders=1 no-udp 1.6Mbps 20 4.445880
+senders=1 no-udp 1.6Mbps 40 4.445880
+senders=1 no-udp 1.6Mbps 60 4.445880
+senders=1 no-udp 1.6Mbps 80 4.445880
+senders=1 no-udp 1.6Mbps base 4.445880
+senders=1 no-udp 1.7Mbps 20 4.444847
+senders=1 no-udp 1.7Mbps 40 4.444847
+senders=1 no-udp 1.7Mbps 60 4.444847
+senders=1 no-udp 1.7Mbps 80 4.444847
+senders=1 no-udp 1.7Mbps base 4.444847
+senders=1 no-udp 1.5Mbps 20 4.447050
+senders=1 no-udp 1.5Mbps 40 4.447050
+senders=1 no-udp 1.5Mbps 60 4.447050
+senders=1 no-udp 1.5Mbps 80 4.447050
+senders=1 no-udp 1.5Mbps base 4.447050
+senders=1 no-udp 1.9Mbps 20 4.399987
+senders=1 no-udp 1.9Mbps 40 4.399987
+senders=1 no-udp 1.9Mbps 60 4.399987
+senders=1 no-udp 1.9Mbps 80 4.399987
+senders=1 no-udp 1.9Mbps base 4.399987
+senders=1 no-udp 2.3Mbps 20 4.397415
+senders=1 no-udp 2.3Mbps 40 4.397415
+senders=1 no-udp 2.3Mbps 60 4.397415
+senders=1 no-udp 2.3Mbps 80 4.397415
+senders=1 no-udp 2.3Mbps base 4.397415
+senders=1 no-udp 2.1Mbps 20 4.398579
+senders=1 no-udp 2.1Mbps 40 4.398579
+senders=1 no-udp 2.1Mbps 60 4.398579
+senders=1 no-udp 2.1Mbps 80 4.398579
+senders=1 no-udp 2.1Mbps base 4.398579
+senders=1 no-udp 2.2Mbps 20 4.397970
+senders=1 no-udp 2.2Mbps 40 4.397970
+senders=1 no-udp 2.2Mbps 60 4.397970
+senders=1 no-udp 2.2Mbps 80 4.397970
+senders=1 no-udp 2.2Mbps base 4.397970
+senders=1 udp 2.4Mbps 20 6.579231
+senders=1 udp 2.4Mbps 40 6.234271
+senders=1 udp 2.4Mbps 60 6.234271
+senders=1 udp 2.4Mbps 80 6.234271
+senders=1 udp 2.4Mbps base 14.552900
+senders=1 udp 1.8Mbps 20 6.631644
+senders=1 udp 1.8Mbps 40 6.240689
+senders=1 udp 1.8Mbps 60 6.240689
+senders=1 udp 1.8Mbps 80 6.620145
+senders=1 udp 1.8Mbps base 14.835053
+senders=1 udp 2.5Mbps 20 6.463474
+senders=1 udp 2.5Mbps 40 6.233501
+senders=1 udp 2.5Mbps 60 6.233501
+senders=1 udp 2.5Mbps 80 6.233501
+senders=1 udp 2.5Mbps base 13.351436
+senders=1 udp 2.0Mbps 20 7.232756
+senders=1 udp 2.0Mbps 40 6.238122
+senders=1 udp 2.0Mbps 60 6.238122
+senders=1 udp 2.0Mbps 80 6.238122
+senders=1 udp 2.0Mbps base 14.470836
+senders=1 udp 1.6Mbps 20 7.232783
+senders=1 udp 1.6Mbps 40 6.243898
+senders=1 udp 1.6Mbps 60 6.243898
+senders=1 udp 1.6Mbps 80 6.738340
+senders=1 udp 1.6Mbps base 14.709406
+senders=1 udp 1.7Mbps 20 7.231084
+senders=1 udp 1.7Mbps 40 6.242199
+senders=1 udp 1.7Mbps 60 6.242199
+senders=1 udp 1.7Mbps 80 7.236834
+senders=1 udp 1.7Mbps base 14.698941
+senders=1 udp 1.5Mbps 20 7.234708
+senders=1 udp 1.5Mbps 40 6.245823
+senders=1 udp 1.5Mbps 60 6.245823
+senders=1 udp 1.5Mbps 80 7.234708
+senders=1 udp 1.5Mbps base 15.804905
+senders=1 udp 1.9Mbps 20 6.383071
+senders=1 udp 1.9Mbps 40 6.239338
+senders=1 udp 1.9Mbps 60 6.239338
+senders=1 udp 1.9Mbps 80 6.245087
+senders=1 udp 1.9Mbps base 14.655673
+senders=1 udp 2.3Mbps 20 7.218244
+senders=1 udp 2.3Mbps 40 6.235108
+senders=1 udp 2.3Mbps 60 6.235108
+senders=1 udp 2.3Mbps 80 6.235108
+senders=1 udp 2.3Mbps base 13.579654
+senders=1 udp 2.1Mbps 20 7.225907
+senders=1 udp 2.1Mbps 40 6.237022
+senders=1 udp 2.1Mbps 60 6.237022
+senders=1 udp 2.1Mbps 80 6.237022
+senders=1 udp 2.1Mbps base 14.385252
+senders=1 udp 2.2Mbps 20 7.224907
+senders=1 udp 2.2Mbps 40 6.236021
+senders=1 udp 2.2Mbps 60 6.236021
+senders=1 udp 2.2Mbps 80 6.236021
+senders=1 udp 2.2Mbps base 15.094645
+senders=3 no-udp 2.4Mbps 20 14.26199966666666666666666667
+senders=3 no-udp 2.4Mbps 40 14.26199966666666666666666667
+senders=3 no-udp 2.4Mbps 60 14.26199966666666666666666667
+senders=3 no-udp 2.4Mbps 80 14.26199966666666666666666667
+senders=3 no-udp 2.4Mbps base 14.26199966666666666666666667
+senders=3 no-udp 1.8Mbps 20 14.26590166666666666666666667
+senders=3 no-udp 1.8Mbps 40 14.26590166666666666666666667
+senders=3 no-udp 1.8Mbps 60 14.26590166666666666666666667
+senders=3 no-udp 1.8Mbps 80 14.26590166666666666666666667
+senders=3 no-udp 1.8Mbps base 14.26590166666666666666666667
+senders=3 no-udp 2.5Mbps 20 14.26153166666666666666666667
+senders=3 no-udp 2.5Mbps 40 14.26153166666666666666666667
+senders=3 no-udp 2.5Mbps 60 14.26153166666666666666666667
+senders=3 no-udp 2.5Mbps 80 14.26153166666666666666666667
+senders=3 no-udp 2.5Mbps base 14.26153166666666666666666667
+senders=3 no-udp 2.0Mbps 20 14.26434133333333333333333333
+senders=3 no-udp 2.0Mbps 40 14.26434133333333333333333333
+senders=3 no-udp 2.0Mbps 60 14.26434133333333333333333333
+senders=3 no-udp 2.0Mbps 80 14.26434133333333333333333333
+senders=3 no-udp 2.0Mbps base 14.26434133333333333333333333
+senders=3 no-udp 1.6Mbps 20 14.64563333333333333333333333
+senders=3 no-udp 1.6Mbps 40 14.64563333333333333333333333
+senders=3 no-udp 1.6Mbps 60 14.64563333333333333333333333
+senders=3 no-udp 1.6Mbps 80 14.64563333333333333333333333
+senders=3 no-udp 1.6Mbps base 14.64563333333333333333333333
+senders=3 no-udp 1.7Mbps 20 14.736160
+senders=3 no-udp 1.7Mbps 40 14.736160
+senders=3 no-udp 1.7Mbps 60 14.736160
+senders=3 no-udp 1.7Mbps 80 14.736160
+senders=3 no-udp 1.7Mbps base 14.736160
+senders=3 no-udp 1.5Mbps 20 14.68954633333333333333333333
+senders=3 no-udp 1.5Mbps 40 14.68954633333333333333333333
+senders=3 no-udp 1.5Mbps 60 14.68954633333333333333333333
+senders=3 no-udp 1.5Mbps 80 14.68954633333333333333333333
+senders=3 no-udp 1.5Mbps base 14.68954633333333333333333333
+senders=3 no-udp 1.9Mbps 20 14.26508033333333333333333333
+senders=3 no-udp 1.9Mbps 40 14.26508033333333333333333333
+senders=3 no-udp 1.9Mbps 60 14.26508033333333333333333333
+senders=3 no-udp 1.9Mbps 80 14.26508033333333333333333333
+senders=3 no-udp 1.9Mbps base 14.26508033333333333333333333
+senders=3 no-udp 2.3Mbps 20 14.26250866666666666666666667
+senders=3 no-udp 2.3Mbps 40 14.26250866666666666666666667
+senders=3 no-udp 2.3Mbps 60 14.26250866666666666666666667
+senders=3 no-udp 2.3Mbps 80 14.26250866666666666666666667
+senders=3 no-udp 2.3Mbps base 14.26250866666666666666666667
+senders=3 no-udp 2.1Mbps 20 14.26367166666666666666666667
+senders=3 no-udp 2.1Mbps 40 14.26367166666666666666666667
+senders=3 no-udp 2.1Mbps 60 14.26367166666666666666666667
+senders=3 no-udp 2.1Mbps 80 14.26367166666666666666666667
+senders=3 no-udp 2.1Mbps base 14.26367166666666666666666667
+senders=3 no-udp 2.2Mbps 20 14.26306366666666666666666667
+senders=3 no-udp 2.2Mbps 40 14.26306366666666666666666667
+senders=3 no-udp 2.2Mbps 60 14.26306366666666666666666667
+senders=3 no-udp 2.2Mbps 80 14.26306366666666666666666667
+senders=3 no-udp 2.2Mbps base 14.26306366666666666666666667
+senders=3 udp 2.4Mbps 20 18.906488
+senders=3 udp 2.4Mbps 40 18.908447
+senders=3 udp 2.4Mbps 60 18.90665866666666666666666667
+senders=3 udp 2.4Mbps 80 18.904614
+senders=3 udp 2.4Mbps base 34.18742333333333333333333333
+senders=3 udp 1.8Mbps 20 18.92827966666666666666666667
+senders=3 udp 1.8Mbps 40 18.91869733333333333333333333
+senders=3 udp 1.8Mbps 60 18.916781
+senders=3 udp 1.8Mbps 80 18.918868
+senders=3 udp 1.8Mbps base 34.469245
+senders=3 udp 2.5Mbps 20 18.90001066666666666666666667
+senders=3 udp 2.5Mbps 40 18.89809433333333333333333333
+senders=3 udp 2.5Mbps 60 18.90018166666666666666666667
+senders=3 udp 2.5Mbps 80 18.90009633333333333333333333
+senders=3 udp 2.5Mbps base 29.775348
+senders=3 udp 2.0Mbps 20 18.918175
+senders=3 udp 2.0Mbps 40 18.91996366666666666666666667
+senders=3 udp 2.0Mbps 60 18.91238266666666666666666667
+senders=3 udp 2.0Mbps 80 18.910381
+senders=3 udp 2.0Mbps base 32.17836566666666666666666667
+senders=3 udp 1.6Mbps 20 18.92182133333333333333333333
+senders=3 udp 1.6Mbps 40 18.92190633333333333333333333
+senders=3 udp 1.6Mbps 60 18.92016066666666666666666667
+senders=3 udp 1.6Mbps 80 18.92020333333333333333333333
+senders=3 udp 1.6Mbps base 34.56590266666666666666666667
+senders=3 udp 1.7Mbps 20 18.91654533333333333333333333
+senders=3 udp 1.7Mbps 40 18.91441533333333333333333333
+senders=3 udp 1.7Mbps 60 18.923955
+senders=3 udp 1.7Mbps 80 18.923955
+senders=3 udp 1.7Mbps base 31.424632
+senders=3 udp 1.5Mbps 20 18.93149766666666666666666667
+senders=3 udp 1.5Mbps 40 18.92757966666666666666666667
+senders=3 udp 1.5Mbps 60 18.92570566666666666666666667
+senders=3 udp 1.5Mbps 80 18.91416433333333333333333333
+senders=3 udp 1.5Mbps base 28.474385
+senders=3 udp 1.9Mbps 20 18.925055
+senders=3 udp 1.9Mbps 40 18.917432
+senders=3 udp 1.9Mbps 60 18.91359866666666666666666667
+senders=3 udp 1.9Mbps 80 18.91538733333333333333333333
+senders=3 udp 1.9Mbps base 32.693528
+senders=3 udp 2.3Mbps 20 18.90357733333333333333333333
+senders=3 udp 2.3Mbps 40 18.903492
+senders=3 udp 2.3Mbps 60 18.90374766666666666666666667
+senders=3 udp 2.3Mbps 80 18.909412
+senders=3 udp 2.3Mbps base 33.89677233333333333333333333
+senders=3 udp 2.1Mbps 20 18.91877766666666666666666667
+senders=3 udp 2.1Mbps 40 18.915030
+senders=3 udp 2.1Mbps 60 18.91128266666666666666666667
+senders=3 udp 2.1Mbps 80 18.914945
+senders=3 udp 2.1Mbps base 29.24981666666666666666666667
+senders=3 udp 2.2Mbps 20 18.90819566666666666666666667
+senders=3 udp 2.2Mbps 40 18.90632166666666666666666667
+senders=3 udp 2.2Mbps 60 18.90653533333333333333333333
+senders=3 udp 2.2Mbps 80 18.90823833333333333333333333
+senders=3 udp 2.2Mbps base 34.77504866666666666666666667
