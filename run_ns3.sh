@@ -23,13 +23,13 @@ run_experiment() {
 		NS_LOG="" ./ns3 run "scratch/combined-frr.cc --$test_variable=$test_value --tcp_senders=3 --policy_threshold=$policy_threshold --dir=$dir/frr/$seed/3/ --seed=$seed"
 
 		NS_LOG="" ./ns3 run "scratch/combined-frr-no-udp.cc --$test_variable=$test_value --tcp_senders=1 --policy_threshold=$policy_threshold --dir=$dir/frr-no-udp/$seed/1/ --seed=$seed"
-		NS_LOG="" ./ns3 run "scratch/combined-frr-no-udp.cc --$test_variable=$test_value --tcp_senders=1 --policy_threshold=$policy_threshold --dir=$dir/frr-no-udp/$seed/3/ --seed=$seed"
+		NS_LOG="" ./ns3 run "scratch/combined-frr-no-udp.cc --$test_variable=$test_value --tcp_senders=3 --policy_threshold=$policy_threshold --dir=$dir/frr-no-udp/$seed/3/ --seed=$seed"
 
 		NS_LOG="" ./ns3 run "scratch/combined-baseline-udp.cc --$test_variable=$test_value --tcp_senders=1 --policy_threshold=$policy_threshold --dir=$dir/baseline-udp/$seed/1/ --seed=$seed"
-		NS_LOG="" ./ns3 run "scratch/combined-baseline-udp.cc --$test_variable=$test_value --tcp_senders=1 --policy_threshold=$policy_threshold --dir=$dir/baseline-udp/$seed/3/ --seed=$seed"
+		NS_LOG="" ./ns3 run "scratch/combined-baseline-udp.cc --$test_variable=$test_value --tcp_senders=3 --policy_threshold=$policy_threshold --dir=$dir/baseline-udp/$seed/3/ --seed=$seed"
 
 		NS_LOG="" ./ns3 run "scratch/combined-baseline-no-udp.cc --$test_variable=$test_value --tcp_senders=1 --policy_threshold=$policy_threshold --dir=$dir/baseline-no-udp/$seed/1/ --seed=$seed"
-		NS_LOG="" ./ns3 run "scratch/combined-baseline-no-udp.cc --$test_variable=$test_value --tcp_senders=1 --policy_threshold=$policy_threshold --dir=$dir/baseline-no-udp/$seed/3/ --seed=$seed"
+		NS_LOG="" ./ns3 run "scratch/combined-baseline-no-udp.cc --$test_variable=$test_value --tcp_senders=3 --policy_threshold=$policy_threshold --dir=$dir/baseline-no-udp/$seed/3/ --seed=$seed"
 	done
 }
 
@@ -43,6 +43,8 @@ for delay_val in "${delay_vals[@]}"; do
 	done
 done
 
+wait
+
 # Delay alternate experiments
 echo "Delay Alternate experiments"
 delay_vals=("0ms" "10ms" "20ms" "30ms" "40ms" "60ms" "80ms" "100ms")
@@ -53,6 +55,8 @@ for delay_val in "${delay_vals[@]}"; do
 	done
 done
 
+wait
+
 # Bandwidth primary experiments
 echo "Bandwidth Primary experiments"
 bandwidth_vals=("200Kbps" "225Kbps" "250Kbps" "275Kbps" "300Kbps" "325Kbps" "350Kbps" "375Kbps" "400Kbps")
@@ -62,6 +66,8 @@ for bandwidth_val in "${bandwidth_vals[@]}"; do
 		run_experiment "bandwidth_primary" "$bandwidth_val" "$policy_number" &
 	done
 done
+
+wait
 
 # Bandwidth alternate experiments
 echo "Bandwidth alternate experiments"
