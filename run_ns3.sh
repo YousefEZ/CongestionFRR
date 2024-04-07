@@ -39,7 +39,7 @@ delay_vals=("0ms" "10ms" "20ms" "30ms" "40ms" "60ms" "80ms" "100ms")
 for delay_val in "${delay_vals[@]}"; do
 	echo "Delay Primary value: $delay_val"
 	for policy_number in 20 40 60 80; do
-		false && run_experiment "delay_primary" "$delay_val" "$policy_number" &
+		run_experiment "delay_primary" "$delay_val" "$policy_number" &
 	done
 done
 
@@ -51,7 +51,7 @@ delay_vals=("0ms" "10ms" "20ms" "30ms" "40ms" "60ms" "80ms" "100ms")
 for delay_val in "${delay_vals[@]}"; do
 	echo "Delay Alternate value: $delay_val"
 	for policy_number in 20 40 60 80; do
-		false && run_experiment "delay_alternate" "$delay_val" "$policy_number" &
+		run_experiment "delay_alternate" "$delay_val" "$policy_number" &
 	done
 done
 
@@ -60,11 +60,13 @@ wait
 # Bandwidth primary experiments
 echo "Bandwidth Primary experiments"
 #bandwidth_vals=("200Kbps" "225Kbps" "250Kbps" "275Kbps" "300Kbps" "325Kbps" "350Kbps" "375Kbps" "400Kbps")
-bandwidth_vals=("1.5Mbps" "1.6Mbps" "1.7Mbps" "1.8Mbps" "1.9Mbps" "2.0Mbps" "2.1Mbps" "2.2Mbps" "2.3Mbps" "2.4Mbps" "2.5Mbps")
+# bandwidth_vals=("1.5Mbps" "1.6Mbps" "1.7Mbps" "1.8Mbps" "1.9Mbps" "2.0Mbps" "2.1Mbps" "2.2Mbps" "2.3Mbps" "2.4Mbps" "2.5Mbps")
+bandwidth_vals=("1.0Mbps" "1.2Mbps" "1.4Mbps" "1.6Mbps" "1.8Mbps" "2.0Mbps" "2.2Mbps" "2.4Mbps" "2.6Mbps" "2.8Mbps" "3.0Mbps" "3.2Mbps" "3.4Mbps" "3.6Mbps" "3.8Mbps" "4.0Mbps" "4.2Mbps" "4.4Mbps" "4.6Mbps" "4.8Mbps" "5.0Mbps")
+# bandwidth_vals=("1.5Mbps" "1.6Mbps" "1.7Mbps" "1.8Mbps" "1.9Mbps" "2.0Mbps" "2.1Mbps" "2.2Mbps" "2.3Mbps" "2.4Mbps" "2.5Mbps" "2.6Mbps" "2.7Mbps" "2.8Mbps" "2.9Mbps" "3.0Mbps" "3.1Mbps" "3.2Mbps" "3.3Mbps" "3.4Mbps" "3.5Mbps" "3.6Mbps" "3.7Mbps" "3.8Mbps" "3.9Mbps" "4.0Mbps" "4.1Mbps" "4.2Mbps" "4.3Mbps" "4.4Mbps" "4.5Mbps" "4.6Mbps" "4.7Mbps" "4.8Mbps" "4.9Mbps" "5.0Mbps")
 for bandwidth_val in "${bandwidth_vals[@]}"; do
 	echo "Bandwidth Primary value: $bandwidth_vals"
 	for policy_number in 20 40 60 80; do
-		false && run_experiment "bandwidth_primary" "$bandwidth_val" "$policy_number" &
+		run_experiment "bandwidth_primary" "$bandwidth_val" "$policy_number" &
 	done
 done
 
@@ -72,7 +74,8 @@ wait
 
 # Bandwidth alternate experiments
 echo "Bandwidth alternate experiments"
-bandwidth_vals=("1.0Mbps" "1.1Mbps" "1.2Mbps" "1.3Mbps" "1.4Mbps" "1.5Mbps" "1.6Mbps" "1.7Mbps" "1.8Mbps" "1.9Mbps" "2.0Mbps" "2.1Mbps" "2.2Mbps" "2.3Mbps" "2.4Mbps" "2.5Mbps")
+bandwidth_vals=("1.0Mbps" "1.2Mbps" "1.4Mbps" "1.6Mbps" "1.8Mbps" "2.0Mbps" "2.2Mbps" "2.4Mbps" "2.6Mbps" "2.8Mbps" "3.0Mbps" "3.2Mbps" "3.4Mbps" "3.6Mbps" "3.8Mbps" "4.0Mbps" "4.2Mbps" "4.4Mbps" "4.6Mbps" "4.8Mbps" "5.0Mbps")
+# bandwidth_vals=("1.5Mbps" "1.6Mbps" "1.7Mbps" "1.8Mbps" "1.9Mbps" "2.0Mbps" "2.1Mbps" "2.2Mbps" "2.3Mbps" "2.4Mbps" "2.5Mbps" "2.6Mbps" "2.7Mbps" "2.8Mbps" "2.9Mbps" "3.0Mbps" "3.1Mbps" "3.2Mbps" "3.3Mbps" "3.4Mbps" "3.5Mbps" "3.6Mbps" "3.7Mbps" "3.8Mbps" "3.9Mbps" "4.0Mbps" "4.1Mbps" "4.2Mbps" "4.3Mbps" "4.4Mbps" "4.5Mbps" "4.6Mbps" "4.7Mbps" "4.8Mbps" "4.9Mbps" "5.0Mbps")
 for bandwidth_val in "${bandwidth_vals[@]}"; do
 	echo "Bandwidth Alternate value: $bandwidth_vals"
 	for policy_number in 20 40 60 80; do

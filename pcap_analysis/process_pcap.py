@@ -250,7 +250,7 @@ if __name__ == '__main__':
     plot_flow_comp_time(bandwidth_primary_results, "udp", "bandwidth_primary", 1)
     plot_flow_comp_time(bandwidth_primary_results, "udp", "bandwidth_primary", 3)
     plot_flow_comp_time(bandwidth_primary_results, "no-udp", "bandwidth_primary", 1)
-    plot_flow_comp_time(bandwidth_primary_results, "udp", "bandwidth_primary", 3)
+    plot_flow_comp_time(bandwidth_primary_results, "no-udp", "bandwidth_primary", 3)
 
     #plot_flow_completion_time(bandwidth_primary_results, "bandwidth_primary", ['baseline_no_udp', 'frr_no_udp'])
     # no udp
@@ -259,8 +259,10 @@ if __name__ == '__main__':
 
     bandwidth_alternate_results = record_flow_completion_time("../traces/bandwidth_alternate/",
                                                               "../pcap_analysis/results", "bandwidth_alternate")
-    plot_flow_comp_time(bandwidth_alternate_results, "udp", "bandwidth_alternate")
-    plot_flow_comp_time(bandwidth_alternate_results, "no-udp", "bandwidth_alternate")
+    plot_flow_comp_time(bandwidth_alternate_results, "udp", "bandwidth_alternate", 1)
+    plot_flow_comp_time(bandwidth_alternate_results, "udp", "bandwidth_alternate", 3)
+    plot_flow_comp_time(bandwidth_alternate_results, "no-udp", "bandwidth_alternate", 1)
+    plot_flow_comp_time(bandwidth_alternate_results, "no-udp", "bandwidth_alternate", 3)
     #plot_flow_completion_time(bandwidth_alternate_results, "bandwidth_alternate", ['baseline_no_udp', 'frr_no_udp'])
     #plot_flow_completion_time(bandwidth_alternate_results, "bandwidth_alternate", ['baseline_udp', 'frr'])
 
@@ -269,11 +271,19 @@ if __name__ == '__main__':
     #plot_flow_completion_time(delay_all_results, "delay_all", ['baseline_no_udp', 'frr_no_udp'])
     #plot_flow_completion_time(delay_all_results, "delay_all", ['baseline_udp', 'frr'])
 
-    #delay_primary_results = record_flow_completion_time("../traces/delay_primary/",
-#                                                        "../pcap_analysis/results", "delay_primary")
-    #plot_flow_completion_time(delay_primary_results, "delay_primary", ['baseline_no_udp', 'frr_no_udp'])
-    #plot_flow_completion_time(delay_primary_results, "delay_primary", ['baseline_udp', 'frr'])
+    delay_primary_results = record_flow_completion_time("../traces/delay_primary/",
+                                                        "../pcap_analysis/results", "delay_primary")
+    plot_flow_comp_time(delay_primary_results, "udp", "delay_primary", 1)
+    plot_flow_comp_time(delay_primary_results, "udp", "delay_primary", 3)
+    plot_flow_comp_time(delay_primary_results, "no-udp", "delay_primary", 1)
+    plot_flow_comp_time(delay_primary_results, "no-udp", "delay_primary", 3)
 
+    delay_alternate_results = record_flow_completion_time("../traces/delay_alternate/",
+                                                        "../pcap_analysis/results", "delay_alternate")
+    plot_flow_comp_time(delay_alternate_results, "udp", "delay_alternate", 1)
+    plot_flow_comp_time(delay_alternate_results, "udp", "delay_alternate", 3)
+    plot_flow_comp_time(delay_alternate_results, "no-udp", "delay_alternate", 1)
+    plot_flow_comp_time(delay_alternate_results, "no-udp", "delay_alternate", 3)
     #delay_alternate_results = record_flow_completion_time("../traces/delay_alternate/",
 #                                                          "../pcap_analysis/results", "delay_alternate")
     #plot_flow_completion_time(delay_alternate_results, "delay_alternate", ['baseline_no_udp', 'frr_no_udp'])
