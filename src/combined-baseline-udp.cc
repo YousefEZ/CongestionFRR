@@ -70,7 +70,7 @@ uint32_t MTU_bytes = segmentSize + 54;
 
 // Topology parameters
 std::string bandwidth_primary = "2Mbps";
-std::string bandwidth_access = "1Mbps";
+std::string bandwidth_access = "1.5Mbps";
 std::string bandwidth_udp_access = "1.5Mbps";
 
 std::string delay_bottleneck = "20ms";
@@ -207,7 +207,17 @@ int main(int argc, char* argv[])
     p2p_traffic.SetChannelAttribute("Delay", StringValue(delay_access));
     // Set the custom queue for the device
     p2p_traffic.SetQueue("ns3::DropTailQueue<Packet>");
-    // Install devices and channels between nodes
+    // Install devices and channels 
+
+    ns3::DataRate rate(bandwidth_access);
+    ns3::DataRate splitRate(rate.GetBitRate() / number_of_tcp_senders);
+
+    PointToPointHelper p2p_traffic_generator;
+    p2p_traffic_generator.SetDeviceAttribute("DataRate", StringValue(std::to_string(splitRate.GetBitRate()) + "bps"));
+    p2p_traffic_generator.SetChannelAttribute("Delay", StringValue(delay_access));
+    // Set the custom queue for the device
+    p2p_traffic_generator.SetQueue("ns3::DropTailQueue<Packet>");
+
 
     // PointToPointFRRHelper<FRRPolicy> p2p_congested_link;
     PointToPointHelper p2p_congested_link;
@@ -233,7 +243,7 @@ int main(int argc, char* argv[])
 
     for (int i = 0; i < number_of_tcp_senders; i++) {
         tcp_senders.push_back(
-            p2p_traffic.Install(tcp_devices.Get(i), nodes.Get(1)));
+            p2p_traffic_generator.Install(tcp_devices.Get(i), nodes.Get(1)));
     }
 
     NetDeviceContainer devices_2_3 =
@@ -313,7 +323,7 @@ int main(int argc, char* argv[])
         BulkSendHelper tcp_source("ns3::TcpSocketFactory",
                                   InetSocketAddress(receiver_addr, tcp_port));
         tcp_source.SetAttribute("MaxBytes",
-                                UintegerValue(100000)); // 0 for unlimited data
+                                UintegerValue(1000000)); // 0 for unlimited data
         tcp_source.SetAttribute("SendSize",
                                 UintegerValue(1024)); // Packet size in bytes
 
@@ -321,7 +331,7 @@ int main(int argc, char* argv[])
 
         tcp_apps.push_back(tcp_source.Install(tcp_devices.Get(i)));
         tcp_apps.back().Start(Seconds(0.0));
-        tcp_apps.back().Stop(Seconds(10.0));
+        tcp_apps.back().Stop(Seconds(60.0));
     }
 
     // Packet sink setup (Receiver node)
@@ -329,14 +339,14 @@ int main(int argc, char* argv[])
                           InetSocketAddress(Ipv4Address::GetAny(), tcp_port));
     ApplicationContainer sink_app = sink.Install(nodes.Get(4));
     sink_app.Start(Seconds(0.0));
-    sink_app.Stop(Seconds(20.0));
+    sink_app.Stop(Seconds(60.0));
 
     PacketSinkHelper udp_sink(
         "ns3::UdpSocketFactory",
         InetSocketAddress(Ipv4Address::GetAny(), udp_port));
     ApplicationContainer udp_sink_app = udp_sink.Install(nodes.Get(4));
     udp_sink_app.Start(Seconds(0.0));
-    udp_sink_app.Stop(Seconds(20.0));
+    udp_sink_app.Stop(Seconds(60.0));
 
     // p2p_traffic.EnablePcapAll(dir);
     // p2p_congestion.EnablePcapAll(dir);
