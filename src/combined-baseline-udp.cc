@@ -69,13 +69,17 @@ uint32_t segmentSize = 1024;
 uint32_t MTU_bytes = segmentSize + 54;
 
 // Topology parameters
-std::string bandwidth_primary = "300Kbps";
-std::string bandwidth_access = "200kbps";
-std::string bandwidth_udp_access = "100kbps";
+
+std::string bandwidth_primary = "2Mbps";
+std::string bandwidth_access = "1Mbps";
+std::string bandwidth_udp_access = "1.6Mbps";
+
 std::string delay_bottleneck = "20ms";
 std::string delay_access = "20ms";
 std::string delay_alternate = "20ms";
-std::string bandwidth_alternate = "300kbps";
+
+std::string bandwidth_alternate = "1Mbps";
+
 
 void SetupTCPConfig()
 {
@@ -310,13 +314,13 @@ int main(int argc, char* argv[])
         BulkSendHelper tcp_source("ns3::TcpSocketFactory",
                                   InetSocketAddress(receiver_addr, tcp_port));
         tcp_source.SetAttribute("MaxBytes",
-                                UintegerValue(100000)); // 0 for unlimited data
+                                UintegerValue(500000)); // 0 for unlimited data
         tcp_source.SetAttribute("SendSize",
                                 UintegerValue(1024)); // Packet size in bytes
 
         tcp_apps.push_back(tcp_source.Install(tcp_devices.Get(i)));
         tcp_apps.back().Start(Seconds(0.0));
-        tcp_apps.back().Stop(Seconds(10.0));
+        tcp_apps.back().Stop(Seconds(20.0));
     }
 
     // Packet sink setup (Receiver node)
