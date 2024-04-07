@@ -3,7 +3,7 @@ import os
 import sys
 from scapy.all import *
 import matplotlib.pyplot as plt
-
+import numpy as np
 
 def read_pcap(filename):
     packets = []
@@ -127,14 +127,32 @@ def get_scaling_results(results, case, queue_size):
 
 queue_sizes = ["20", "40", "60", "80", "base"]
 
+def extract_integer(string):
+    for i in range(len(string)):
+        if not string[i].isdigit() and string[i] != ".":
+            return float(string[:i])
+    return None
+
 def plot_flow_comp_time(results, case, mode):
     plt.figure(figsize=(12, 6))  # Increase the width to 12 inches and height to 6 inches
 
     for queue_size in queue_sizes:
         output = get_scaling_results(results, case, queue_size)
+        
+        best_fit = False
+
         scaling_var = sorted(list(output.keys()))
-        scaling_results = [output[var] for var in scaling_var]
-        plt.plot(scaling_var, scaling_results, label=queue_size)
+        scaling_results = [float(output[var]) for var in scaling_var]
+        
+        if best_fit:
+            floats = list(map(extract_integer, scaling_var))
+            scaling_var_float = np.array(floats)
+             
+            x, y = np.polyfit(scaling_var_float, np.array(scaling_results), 1)
+            plt.plot(scaling_var, x*scaling_var_float+y, label=queue_size) 
+        else:
+            plt.plot(scaling_var, scaling_results, label=queue_size) 
+        # plt.plot(scaling_var, scaling_results, label=queue_size)
     
     plt.ylabel("flow completion time in seconds")
     plt.xlabel(mode)

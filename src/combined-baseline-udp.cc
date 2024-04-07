@@ -69,13 +69,16 @@ uint32_t segmentSize = 1024;
 uint32_t MTU_bytes = segmentSize + 54;
 
 // Topology parameters
-std::string bandwidth_primary = "300Kbps";
-std::string bandwidth_access = "200kbps";
-std::string bandwidth_udp_access = "100kbps";
+std::string bandwidth_primary = "2Mbps";
+std::string bandwidth_access = "1Mbps";
+std::string bandwidth_udp_access = "1.5Mbps";
+
 std::string delay_bottleneck = "20ms";
 std::string delay_access = "20ms";
 std::string delay_alternate = "20ms";
-std::string bandwidth_alternate = "300kbps";
+
+std::string bandwidth_alternate = "2Mbps";
+
 
 void SetupTCPConfig()
 {
@@ -292,7 +295,7 @@ int main(int argc, char* argv[])
     udp_source.SetAttribute("PacketSize", UintegerValue(1024));
 
     ApplicationContainer udp_app = udp_source.Install(nodes.Get(0));
-    udp_app.Start(Seconds(2.0));
+    udp_app.Start(Seconds(5.0));
     udp_app.Stop(Seconds(10.0));
 
     DataRate b_access(bandwidth_access);
