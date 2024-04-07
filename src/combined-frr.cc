@@ -99,6 +99,31 @@ void SetupTCPConfig()
     Config::SetDefault("ns3::TcpSocketBase::MinRto", TimeValue(Seconds(1.0)));
 }
 
+static uint32_t udp_packets_received = 0;
+static uint32_t tcp_packets_received = 0;
+static uint32_t udp_packets_sent = 0;
+static uint32_t tcp_packets_sent = 0;
+
+void UdpPacketReceived(Ptr<const Packet> packet, const Address& from)
+{
+    udp_packets_received++;
+}
+
+void TcpPacketReceived(Ptr<const Packet> packet, const Address& from)
+{
+    tcp_packets_received++;
+}
+
+void UdpPacketSent(Ptr<const Packet> packet)
+{
+    udp_packets_sent++;
+}
+
+void TcpPacketSent(Ptr<const Packet> packet)
+{
+    tcp_packets_sent++;
+}
+
 // NS_LOG_COMPONENT_DEFINE("CongestionFastReRoute");
 int main(int argc, char* argv[])
 {
@@ -191,7 +216,7 @@ int main(int argc, char* argv[])
     // p2p_congested_link.SetQueue("ns3::DropTailQueue<Packet>");
 
     Config::SetDefault("ns3::DropTailQueue<Packet>::MaxSize",
-                       StringValue("1000p"));
+                       StringValue("100000000p"));
     Config::SetDefault(SimulationQueue::getQueueString() + "::MaxSize",
                        StringValue("10p"));
 
@@ -258,6 +283,7 @@ int main(int argc, char* argv[])
 
     // UDP Congestion traffic setup
     uint16_t udp_port = 50001;
+    uint32_t udp_packets_sent = 0;
     OnOffHelper udp_source("ns3::UdpSocketFactory",
                            InetSocketAddress(receiver_addr, udp_port));
     udp_source.SetAttribute(
@@ -271,6 +297,9 @@ int main(int argc, char* argv[])
     ApplicationContainer udp_app = udp_source.Install(nodes.Get(0));
     udp_app.Start(Seconds(5.0));
     udp_app.Stop(Seconds(7.0));
+    // Attach a callback to count packets sent by the UDP application
+    udp_app.Get(0)->TraceConnectWithoutContext("Tx",
+                                               MakeCallback(&UdpPacketSent));
 
     DataRate b_access(bandwidth_access);
     DataRate b_bottleneck(bandwidth_primary);
@@ -281,6 +310,7 @@ int main(int argc, char* argv[])
     // TCP Setup
     SetupTCPConfig();
     uint16_t tcp_port = 50002;
+    uint32_t tcp_packets_sent = 0;
     std::list<ApplicationContainer> tcp_apps;
     for (int i = 0; i < number_of_tcp_senders; i++) {
         BulkSendHelper tcp_source("ns3::TcpSocketFactory",
@@ -293,6 +323,10 @@ int main(int argc, char* argv[])
         tcp_apps.push_back(tcp_source.Install(tcp_devices.Get(i)));
         tcp_apps.back().Start(Seconds(0.0));
         tcp_apps.back().Stop(Seconds(60.0));
+
+        // Attach a callback to each TCP sender application
+        tcp_apps.back().Get(0)->TraceConnectWithoutContext(
+            "Tx", MakeCallback(&TcpPacketSent));
     }
 
     // Packet sink setup (Receiver node)
@@ -309,6 +343,14 @@ int main(int argc, char* argv[])
     udp_sink_app.Start(Seconds(0.0));
     udp_sink_app.Stop(Seconds(60.0));
 
+    // For the UDP PacketSink
+    udp_sink_app.Get(0)->TraceConnectWithoutContext(
+        "Rx", MakeCallback(&UdpPacketReceived));
+
+    // For the TCP PacketSink
+    sink_app.Get(0)->TraceConnectWithoutContext(
+        "Rx", MakeCallback(&TcpPacketReceived));
+
     // LFA Alternate Path setup
     // Set up an alternate forwarding target, assuming you have an alternate
     // path configured
@@ -321,6 +363,20 @@ int main(int argc, char* argv[])
     p2p_congestion.EnablePcapAll(dir);
 
     Simulator::Run();
+
+    std::cout << "Total UDP packets sent: " << udp_packets_sent << std::endl;
+    std::cout << "Total TCP packets sent: " << tcp_packets_sent << std::endl;
+    std::cout << "Total UDP packets received: " << udp_packets_received
+              << std::endl;
+    std::cout << "Total TCP packets received: " << tcp_packets_received
+              << std::endl;
+    // std::cout << "UDP Packet Loss: " << udp_packets_sent -
+    // udp_packets_received
+    //           << std::endl;
+    // std::cout << "TCP Packet Loss: " << tcp_packets_sent -
+    // tcp_packets_received
+    //           << std::endl;
+
     Simulator::Destroy();
     return 0;
 }
