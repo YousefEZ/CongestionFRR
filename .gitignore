@@ -32,7 +32,7 @@
 *.app
 
 # Traces
-# traces/*
+traces/*
 
 *.DS_Store
 *.idea/

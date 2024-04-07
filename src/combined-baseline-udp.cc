@@ -337,8 +337,9 @@ int main(int argc, char* argv[])
     udp_sink_app.Start(Seconds(0.0));
     udp_sink_app.Stop(Seconds(60.0));
 
+    p2p_traffic.EnablePcap(dir, devices_3_5.Get(1), true);
     // p2p_traffic.EnablePcapAll(dir);
-    // p2p_congestion.EnablePcapAll(dir);
+    p2p_congestion.EnablePcapAll(dir);
 
     // CalculateExpectedPackets(10000, DataRate("1.6Mbps"));
 

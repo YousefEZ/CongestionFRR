@@ -319,8 +319,9 @@ int main(int argc, char* argv[])
     setAlternateTarget<1>(
         devices_2_3, getDevice<1, ns3::PointToPointNetDevice>(devices_4_3));
 
-    // p2p_traffic.EnablePcapAll(dir);
-    // p2p_congestion.EnablePcapAll(dir);
+    // p2p_traffic.EnablePcap(dir, nodes.Get(4)->GetId(), 1);
+    p2p_traffic.EnablePcap(dir, devices_3_5.Get(1), true);
+    p2p_congestion.EnablePcapAll(dir);
 
     Simulator::Run();
     Simulator::Destroy();
