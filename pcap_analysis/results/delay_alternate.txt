@@ -1,128 +1,160 @@
-('baseline_no_udp', '20', Decimal('4.521973'), '40ms')
-('baseline_udp', '20', Decimal('8.540880'), '40ms')
-('frr_no_udp', '20', Decimal('4.521973'), '40ms')
-('frr', '20', Decimal('8.540880'), '40ms')
-('baseline_no_udp', '40', Decimal('4.521973'), '40ms')
-('baseline_udp', '40', Decimal('8.540880'), '40ms')
-('frr_no_udp', '40', Decimal('4.521973'), '40ms')
-('frr', '40', Decimal('8.540880'), '40ms')
-('baseline_no_udp', '60', Decimal('4.521973'), '40ms')
-('baseline_udp', '60', Decimal('8.540880'), '40ms')
-('frr_no_udp', '60', Decimal('4.521973'), '40ms')
-('frr', '60', Decimal('8.540880'), '40ms')
-('baseline_no_udp', '80', Decimal('4.521973'), '40ms')
-('baseline_udp', '80', Decimal('8.540880'), '40ms')
-('frr_no_udp', '80', Decimal('4.521973'), '40ms')
-('frr', '80', Decimal('8.540880'), '40ms')
-('baseline_no_udp', '20', Decimal('4.521973'), '20ms')
-('baseline_udp', '20', Decimal('8.540880'), '20ms')
-('frr_no_udp', '20', Decimal('4.521973'), '20ms')
-('frr', '20', Decimal('8.540880'), '20ms')
-('baseline_no_udp', '40', Decimal('4.521973'), '20ms')
-('baseline_udp', '40', Decimal('8.540880'), '20ms')
-('frr_no_udp', '40', Decimal('4.521973'), '20ms')
-('frr', '40', Decimal('8.540880'), '20ms')
-('baseline_no_udp', '60', Decimal('4.521973'), '20ms')
-('baseline_udp', '60', Decimal('8.540880'), '20ms')
-('frr_no_udp', '60', Decimal('4.521973'), '20ms')
-('frr', '60', Decimal('8.540880'), '20ms')
-('baseline_no_udp', '80', Decimal('4.521973'), '20ms')
-('baseline_udp', '80', Decimal('8.540880'), '20ms')
-('frr_no_udp', '80', Decimal('4.521973'), '20ms')
-('frr', '80', Decimal('8.540880'), '20ms')
-('baseline_no_udp', '20', Decimal('4.521973'), '30ms')
-('baseline_udp', '20', Decimal('8.540880'), '30ms')
-('frr_no_udp', '20', Decimal('4.521973'), '30ms')
-('frr', '20', Decimal('8.540880'), '30ms')
-('baseline_no_udp', '40', Decimal('4.521973'), '30ms')
-('baseline_udp', '40', Decimal('8.540880'), '30ms')
-('frr_no_udp', '40', Decimal('4.521973'), '30ms')
-('frr', '40', Decimal('8.540880'), '30ms')
-('baseline_no_udp', '60', Decimal('4.521973'), '30ms')
-('baseline_udp', '60', Decimal('8.540880'), '30ms')
-('frr_no_udp', '60', Decimal('4.521973'), '30ms')
-('frr', '60', Decimal('8.540880'), '30ms')
-('baseline_no_udp', '80', Decimal('4.521973'), '30ms')
-('baseline_udp', '80', Decimal('8.540880'), '30ms')
-('frr_no_udp', '80', Decimal('4.521973'), '30ms')
-('frr', '80', Decimal('8.540880'), '30ms')
-('baseline_no_udp', '20', Decimal('4.521973'), '0ms')
-('baseline_udp', '20', Decimal('8.540880'), '0ms')
-('frr_no_udp', '20', Decimal('4.521973'), '0ms')
-('frr', '20', Decimal('8.540880'), '0ms')
-('baseline_no_udp', '40', Decimal('4.521973'), '0ms')
-('baseline_udp', '40', Decimal('8.540880'), '0ms')
-('frr_no_udp', '40', Decimal('4.521973'), '0ms')
-('frr', '40', Decimal('8.540880'), '0ms')
-('baseline_no_udp', '60', Decimal('4.521973'), '0ms')
-('baseline_udp', '60', Decimal('8.540880'), '0ms')
-('frr_no_udp', '60', Decimal('4.521973'), '0ms')
-('frr', '60', Decimal('8.540880'), '0ms')
-('baseline_no_udp', '80', Decimal('4.521973'), '0ms')
-('baseline_udp', '80', Decimal('8.540880'), '0ms')
-('frr_no_udp', '80', Decimal('4.521973'), '0ms')
-('frr', '80', Decimal('8.540880'), '0ms')
-('baseline_no_udp', '20', Decimal('4.521973'), '100ms')
-('baseline_udp', '20', Decimal('8.540880'), '100ms')
-('frr_no_udp', '20', Decimal('4.521973'), '100ms')
-('frr', '20', Decimal('8.540880'), '100ms')
-('baseline_no_udp', '40', Decimal('4.521973'), '100ms')
-('baseline_udp', '40', Decimal('8.540880'), '100ms')
-('frr_no_udp', '40', Decimal('4.521973'), '100ms')
-('frr', '40', Decimal('8.540880'), '100ms')
-('baseline_no_udp', '60', Decimal('4.521973'), '100ms')
-('baseline_udp', '60', Decimal('8.540880'), '100ms')
-('frr_no_udp', '60', Decimal('4.521973'), '100ms')
-('frr', '60', Decimal('8.540880'), '100ms')
-('baseline_no_udp', '80', Decimal('4.521973'), '100ms')
-('baseline_udp', '80', Decimal('8.540880'), '100ms')
-('frr_no_udp', '80', Decimal('4.521973'), '100ms')
-('frr', '80', Decimal('8.540880'), '100ms')
-('baseline_no_udp', '20', Decimal('4.521973'), '60ms')
-('baseline_udp', '20', Decimal('8.540880'), '60ms')
-('frr_no_udp', '20', Decimal('4.521973'), '60ms')
-('frr', '20', Decimal('8.540880'), '60ms')
-('baseline_no_udp', '40', Decimal('4.521973'), '60ms')
-('baseline_udp', '40', Decimal('8.540880'), '60ms')
-('frr_no_udp', '40', Decimal('4.521973'), '60ms')
-('frr', '40', Decimal('8.540880'), '60ms')
-('baseline_no_udp', '60', Decimal('4.521973'), '60ms')
-('baseline_udp', '60', Decimal('8.540880'), '60ms')
-('frr_no_udp', '60', Decimal('4.521973'), '60ms')
-('frr', '60', Decimal('8.540880'), '60ms')
-('baseline_no_udp', '80', Decimal('4.521973'), '60ms')
-('baseline_udp', '80', Decimal('8.540880'), '60ms')
-('frr_no_udp', '80', Decimal('4.521973'), '60ms')
-('frr', '80', Decimal('8.540880'), '60ms')
-('baseline_no_udp', '20', Decimal('4.521973'), '10ms')
-('baseline_udp', '20', Decimal('8.540880'), '10ms')
-('frr_no_udp', '20', Decimal('4.521973'), '10ms')
-('frr', '20', Decimal('8.540880'), '10ms')
-('baseline_no_udp', '40', Decimal('4.521973'), '10ms')
-('baseline_udp', '40', Decimal('8.540880'), '10ms')
-('frr_no_udp', '40', Decimal('4.521973'), '10ms')
-('frr', '40', Decimal('8.540880'), '10ms')
-('baseline_no_udp', '60', Decimal('4.521973'), '10ms')
-('baseline_udp', '60', Decimal('8.540880'), '10ms')
-('frr_no_udp', '60', Decimal('4.521973'), '10ms')
-('frr', '60', Decimal('8.540880'), '10ms')
-('baseline_no_udp', '80', Decimal('4.521973'), '10ms')
-('baseline_udp', '80', Decimal('8.540880'), '10ms')
-('frr_no_udp', '80', Decimal('4.521973'), '10ms')
-('frr', '80', Decimal('8.540880'), '10ms')
-('baseline_no_udp', '20', Decimal('4.521973'), '80ms')
-('baseline_udp', '20', Decimal('8.540880'), '80ms')
-('frr_no_udp', '20', Decimal('4.521973'), '80ms')
-('frr', '20', Decimal('8.540880'), '80ms')
-('baseline_no_udp', '40', Decimal('4.521973'), '80ms')
-('baseline_udp', '40', Decimal('8.540880'), '80ms')
-('frr_no_udp', '40', Decimal('4.521973'), '80ms')
-('frr', '40', Decimal('8.540880'), '80ms')
-('baseline_no_udp', '60', Decimal('4.521973'), '80ms')
-('baseline_udp', '60', Decimal('8.540880'), '80ms')
-('frr_no_udp', '60', Decimal('4.521973'), '80ms')
-('frr', '60', Decimal('8.540880'), '80ms')
-('baseline_no_udp', '80', Decimal('4.521973'), '80ms')
-('baseline_udp', '80', Decimal('8.540880'), '80ms')
-('frr_no_udp', '80', Decimal('4.521973'), '80ms')
-('frr', '80', Decimal('8.540880'), '80ms')
+senders=1 no-udp 40ms 20 17.343376
+senders=1 no-udp 40ms 40 17.343376
+senders=1 no-udp 40ms 60 17.343376
+senders=1 no-udp 40ms 80 17.343376
+senders=1 no-udp 40ms base 17.343376
+senders=1 no-udp 20ms 20 17.343376
+senders=1 no-udp 20ms 40 17.343376
+senders=1 no-udp 20ms 60 17.343376
+senders=1 no-udp 20ms 80 17.343376
+senders=1 no-udp 20ms base 17.343376
+senders=1 no-udp 30ms 20 17.343376
+senders=1 no-udp 30ms 40 17.343376
+senders=1 no-udp 30ms 60 17.343376
+senders=1 no-udp 30ms 80 17.343376
+senders=1 no-udp 30ms base 17.343376
+senders=1 no-udp 0ms 20 17.343376
+senders=1 no-udp 0ms 40 17.343376
+senders=1 no-udp 0ms 60 17.343376
+senders=1 no-udp 0ms 80 17.343376
+senders=1 no-udp 0ms base 17.343376
+senders=1 no-udp 100ms 20 17.343376
+senders=1 no-udp 100ms 40 17.343376
+senders=1 no-udp 100ms 60 17.343376
+senders=1 no-udp 100ms 80 17.343376
+senders=1 no-udp 100ms base 17.343376
+senders=1 no-udp 60ms 20 17.343376
+senders=1 no-udp 60ms 40 17.343376
+senders=1 no-udp 60ms 60 17.343376
+senders=1 no-udp 60ms 80 17.343376
+senders=1 no-udp 60ms base 17.343376
+senders=1 no-udp 10ms 20 17.343376
+senders=1 no-udp 10ms 40 17.343376
+senders=1 no-udp 10ms 60 17.343376
+senders=1 no-udp 10ms 80 17.343376
+senders=1 no-udp 10ms base 17.343376
+senders=1 no-udp 80ms 20 17.343376
+senders=1 no-udp 80ms 40 17.343376
+senders=1 no-udp 80ms 60 17.343376
+senders=1 no-udp 80ms 80 17.343376
+senders=1 no-udp 80ms base 17.343376
+senders=1 udp 40ms 20 30.048352
+senders=1 udp 40ms 40 30.082080
+senders=1 udp 40ms 60 30.064832
+senders=1 udp 40ms 80 30.064832
+senders=1 udp 40ms base 27.436192
+senders=1 udp 20ms 20 27.980128
+senders=1 udp 20ms 40 27.945632
+senders=1 udp 20ms 60 28.049504
+senders=1 udp 20ms 80 28.083232
+senders=1 udp 20ms base 27.436192
+senders=1 udp 30ms 20 30.014240
+senders=1 udp 30ms 40 30.064832
+senders=1 udp 30ms 60 27.979360
+senders=1 udp 30ms 80 27.945632
+senders=1 udp 30ms base 27.436192
+senders=1 udp 0ms 20 28.066368
+senders=1 udp 0ms 40 28.050272
+senders=1 udp 0ms 60 28.033024
+senders=1 udp 0ms 80 28.015776
+senders=1 udp 0ms base 27.436192
+senders=1 udp 100ms 20 30.131520
+senders=1 udp 100ms 40 30.149152
+senders=1 udp 100ms 60 30.149152
+senders=1 udp 100ms 80 30.149152
+senders=1 udp 100ms base 27.436192
+senders=1 udp 60ms 20 30.064064
+senders=1 udp 60ms 40 30.081696
+senders=1 udp 60ms 60 30.064832
+senders=1 udp 60ms 80 30.064832
+senders=1 udp 60ms base 27.436192
+senders=1 udp 10ms 20 28.049504
+senders=1 udp 10ms 40 28.049504
+senders=1 udp 10ms 60 28.049504
+senders=1 udp 10ms 80 28.067136
+senders=1 udp 10ms base 27.436192
+senders=1 udp 80ms 20 30.097792
+senders=1 udp 80ms 40 30.115424
+senders=1 udp 80ms 60 30.115424
+senders=1 udp 80ms 80 30.115424
+senders=1 udp 80ms base 27.436192
+senders=3 no-udp 40ms 20 33.86718933333333333333333333
+senders=3 no-udp 40ms 40 33.86718933333333333333333333
+senders=3 no-udp 40ms 60 33.86718933333333333333333333
+senders=3 no-udp 40ms 80 33.86718933333333333333333333
+senders=3 no-udp 40ms base 33.86718933333333333333333333
+senders=3 no-udp 20ms 20 33.86718933333333333333333333
+senders=3 no-udp 20ms 40 33.86718933333333333333333333
+senders=3 no-udp 20ms 60 33.86718933333333333333333333
+senders=3 no-udp 20ms 80 33.86718933333333333333333333
+senders=3 no-udp 20ms base 33.86718933333333333333333333
+senders=3 no-udp 30ms 20 33.86718933333333333333333333
+senders=3 no-udp 30ms 40 33.86718933333333333333333333
+senders=3 no-udp 30ms 60 33.86718933333333333333333333
+senders=3 no-udp 30ms 80 33.86718933333333333333333333
+senders=3 no-udp 30ms base 33.86718933333333333333333333
+senders=3 no-udp 0ms 20 33.86718933333333333333333333
+senders=3 no-udp 0ms 40 33.86718933333333333333333333
+senders=3 no-udp 0ms 60 33.86718933333333333333333333
+senders=3 no-udp 0ms 80 33.86718933333333333333333333
+senders=3 no-udp 0ms base 33.86718933333333333333333333
+senders=3 no-udp 100ms 20 33.86718933333333333333333333
+senders=3 no-udp 100ms 40 33.86718933333333333333333333
+senders=3 no-udp 100ms 60 33.86718933333333333333333333
+senders=3 no-udp 100ms 80 33.86718933333333333333333333
+senders=3 no-udp 100ms base 33.86718933333333333333333333
+senders=3 no-udp 60ms 20 33.86718933333333333333333333
+senders=3 no-udp 60ms 40 33.86718933333333333333333333
+senders=3 no-udp 60ms 60 33.86718933333333333333333333
+senders=3 no-udp 60ms 80 33.86718933333333333333333333
+senders=3 no-udp 60ms base 33.86718933333333333333333333
+senders=3 no-udp 10ms 20 33.86718933333333333333333333
+senders=3 no-udp 10ms 40 33.86718933333333333333333333
+senders=3 no-udp 10ms 60 33.86718933333333333333333333
+senders=3 no-udp 10ms 80 33.86718933333333333333333333
+senders=3 no-udp 10ms base 33.86718933333333333333333333
+senders=3 no-udp 80ms 20 33.86718933333333333333333333
+senders=3 no-udp 80ms 40 33.86718933333333333333333333
+senders=3 no-udp 80ms 60 33.86718933333333333333333333
+senders=3 no-udp 80ms 80 33.86718933333333333333333333
+senders=3 no-udp 80ms base 33.86718933333333333333333333
+senders=3 udp 40ms 20 54.192488
+senders=3 udp 40ms 40 52.79878133333333333333333333
+senders=3 udp 40ms 60 55.970568
+senders=3 udp 40ms 80 54.50870133333333333333333333
+senders=3 udp 40ms base 43.93370133333333333333333333
+senders=3 udp 20ms 20 52.21497333333333333333333333
+senders=3 udp 20ms 40 53.79080266666666666666666667
+senders=3 udp 20ms 60 53.69043733333333333333333333
+senders=3 udp 20ms 80 53.624328
+senders=3 udp 20ms base 43.93370133333333333333333333
+senders=3 udp 30ms 20 56.867720
+senders=3 udp 30ms 40 52.709416
+senders=3 udp 30ms 60 52.70366666666666666666666667
+senders=3 udp 30ms 80 52.12873333333333333333333333
+senders=3 udp 30ms base 43.93370133333333333333333333
+senders=3 udp 0ms 20 53.13665866666666666666666667
+senders=3 udp 0ms 40 54.082544
+senders=3 udp 0ms 60 53.65709333333333333333333333
+senders=3 udp 0ms 80 53.44737866666666666666666667
+senders=3 udp 0ms base 43.93370133333333333333333333
+senders=3 udp 100ms 20 54.62767733333333333333333333
+senders=3 udp 100ms 40 60.062808
+senders=3 udp 100ms 60 59.89923733333333333333333333
+senders=3 udp 100ms 80 55.53237066666666666666666667
+senders=3 udp 100ms base 43.93370133333333333333333333
+senders=3 udp 60ms 20 57.28562933333333333333333333
+senders=3 udp 60ms 40 51.681056
+senders=3 udp 60ms 60 51.634824
+senders=3 udp 60ms 80 54.21497333333333333333333333
+senders=3 udp 60ms base 43.93370133333333333333333333
+senders=3 udp 10ms 20 53.90630133333333333333333333
+senders=3 udp 10ms 40 53.67919466666666666666666667
+senders=3 udp 10ms 60 53.297640
+senders=3 udp 10ms 80 54.082416
+senders=3 udp 10ms base 43.93370133333333333333333333
+senders=3 udp 80ms 20 60.062808
+senders=3 udp 80ms 40 59.065680
+senders=3 udp 80ms 60 56.23873866666666666666666667
+senders=3 udp 80ms 80 54.261480
+senders=3 udp 80ms base 43.93370133333333333333333333
