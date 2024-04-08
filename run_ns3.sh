@@ -35,7 +35,7 @@ run_experiment() {
 
 # Delay primary experiments
 echo "Delay Primary experiments"
-delay_vals=("0ms" "10ms" "20ms" "30ms" "40ms" "60ms" "80ms" "100ms")
+delay_vals=("0ms" "10ms" "20ms" "30ms" "40ms" "50ms" "60ms" "70ms")
 for delay_val in "${delay_vals[@]}"; do
 	echo "Delay Primary value: $delay_val"
 	for policy_number in 20 40 60 80; do
@@ -47,7 +47,7 @@ wait
 
 # Delay alternate experiments
 echo "Delay Alternate experiments"
-delay_vals=("0ms" "10ms" "20ms" "30ms" "40ms" "60ms" "80ms" "100ms")
+delay_vals=("0ms" "10ms" "20ms" "30ms" "40ms" "60ms" "70ms" "80ms")
 for delay_val in "${delay_vals[@]}"; do
 	echo "Delay Alternate value: $delay_val"
 	for policy_number in 20 40 60 80; do
@@ -66,7 +66,7 @@ bandwidth_vals=("1.0Mbps" "1.2Mbps" "1.4Mbps" "1.6Mbps" "1.8Mbps" "2.0Mbps" "2.2
 for bandwidth_val in "${bandwidth_vals[@]}"; do
 	echo "Bandwidth Primary value: $bandwidth_vals"
 	for policy_number in 20 40 60 80; do
-		run_experiment "bandwidth_primary" "$bandwidth_val" "$policy_number" &
+		false && run_experiment "bandwidth_primary" "$bandwidth_val" "$policy_number" &
 	done
 done
 
@@ -79,7 +79,7 @@ bandwidth_vals=("1.0Mbps" "1.2Mbps" "1.4Mbps" "1.6Mbps" "1.8Mbps" "2.0Mbps" "2.2
 for bandwidth_val in "${bandwidth_vals[@]}"; do
 	echo "Bandwidth Alternate value: $bandwidth_vals"
 	for policy_number in 20 40 60 80; do
-		run_experiment "bandwidth_alternate" "$bandwidth_val" "$policy_number" &
+		false && run_experiment "bandwidth_alternate" "$bandwidth_val" "$policy_number" &
 	done
 done
 
