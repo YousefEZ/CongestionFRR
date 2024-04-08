@@ -138,14 +138,14 @@ def extract_integer(string):
     return None
 
 def plot_flow_comp_time(results, case, mode, senders):
-    plt.figure(figsize=(12, 6))  # Increase the width to 12 inches and height to 6 inches
+    plt.figure(figsize=(18, 6))  # Increase the width to 12 inches and height to 6 inches
 
     for queue_size in queue_sizes:
         output = get_scaling_results(results, case, queue_size, senders)
         
         best_fit = False
 
-        scaling_var = sorted(list(output.keys()))
+        scaling_var = sorted(list(output.keys()), key=extract_integer)
         scaling_results = [float(output[var]) for var in scaling_var]
         
         if best_fit:
@@ -245,24 +245,24 @@ if __name__ == '__main__':
     os.makedirs("../pcap_analysis/results", exist_ok=True)
     os.makedirs("../pcap_analysis/plots", exist_ok=True)
 
-    bandwidth_primary_results = record_flow_completion_time("../traces/bandwidth_primary/",
-                                                            "../pcap_analysis/results", "bandwidth_primary")
-    plot_flow_comp_time(bandwidth_primary_results, "udp", "bandwidth_primary", 1)
-    plot_flow_comp_time(bandwidth_primary_results, "udp", "bandwidth_primary", 3)
-    plot_flow_comp_time(bandwidth_primary_results, "no-udp", "bandwidth_primary", 1)
-    plot_flow_comp_time(bandwidth_primary_results, "no-udp", "bandwidth_primary", 3)
+    #bandwidth_primary_results = record_flow_completion_time("../traces/bandwidth_primary/",
+    #                                                        "../pcap_analysis/results", "bandwidth_primary")
+    #plot_flow_comp_time(bandwidth_primary_results, "udp", "bandwidth_primary", 1)
+    #plot_flow_comp_time(bandwidth_primary_results, "udp", "bandwidth_primary", 3)
+    #plot_flow_comp_time(bandwidth_primary_results, "no-udp", "bandwidth_primary", 1)
+    #plot_flow_comp_time(bandwidth_primary_results, "no-udp", "bandwidth_primary", 3)
 
     #plot_flow_completion_time(bandwidth_primary_results, "bandwidth_primary", ['baseline_no_udp', 'frr_no_udp'])
     # no udp
     #plot_flow_completion_time(bandwidth_primary_results, "bandwidth_primary", ['baseline_udp', 'frr'])
     # with udp
 
-    bandwidth_alternate_results = record_flow_completion_time("../traces/bandwidth_alternate/",
-                                                              "../pcap_analysis/results", "bandwidth_alternate")
-    plot_flow_comp_time(bandwidth_alternate_results, "udp", "bandwidth_alternate", 1)
-    plot_flow_comp_time(bandwidth_alternate_results, "udp", "bandwidth_alternate", 3)
-    plot_flow_comp_time(bandwidth_alternate_results, "no-udp", "bandwidth_alternate", 1)
-    plot_flow_comp_time(bandwidth_alternate_results, "no-udp", "bandwidth_alternate", 3)
+    #bandwidth_alternate_results = record_flow_completion_time("../traces/bandwidth_alternate/",
+    #                                                          "../pcap_analysis/results", "bandwidth_alternate")
+    #plot_flow_comp_time(bandwidth_alternate_results, "udp", "bandwidth_alternate", 1)
+    #plot_flow_comp_time(bandwidth_alternate_results, "udp", "bandwidth_alternate", 3)
+    #plot_flow_comp_time(bandwidth_alternate_results, "no-udp", "bandwidth_alternate", 1)
+    #plot_flow_comp_time(bandwidth_alternate_results, "no-udp", "bandwidth_alternate", 3)
     #plot_flow_completion_time(bandwidth_alternate_results, "bandwidth_alternate", ['baseline_no_udp', 'frr_no_udp'])
     #plot_flow_completion_time(bandwidth_alternate_results, "bandwidth_alternate", ['baseline_udp', 'frr'])
 
