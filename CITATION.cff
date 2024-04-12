@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Zaher"
+  given-names: "Yousef Essam Yousri"
+- family-names: "Barber"
+  given-names: "Charlie"
+- family-names: "Park"
+  given-names: "Mike"
+title: "Congestion Fast Rerouting"
+version: 2.0.4
+date-released: 2024-04-08
+url: "https://github.com/YousefEZ/CongestionFRR"
