@@ -78,7 +78,8 @@ std::string delay_bottleneck = "20ms";
 std::string delay_access = "20ms";
 std::string delay_alternate = "20ms";
 
-std::string bandwidth_alternate = "1Mbps";
+
+std::string bandwidth_alternate = "2Mbps";
 
 
 void SetupTCPConfig()
@@ -296,7 +297,7 @@ int main(int argc, char* argv[])
     udp_source.SetAttribute("PacketSize", UintegerValue(1024));
 
     ApplicationContainer udp_app = udp_source.Install(nodes.Get(0));
-    udp_app.Start(Seconds(2.0));
+    udp_app.Start(Seconds(5.0));
     udp_app.Stop(Seconds(10.0));
 
     DataRate b_access(bandwidth_access);
@@ -318,6 +319,8 @@ int main(int argc, char* argv[])
         tcp_source.SetAttribute("SendSize",
                                 UintegerValue(1024)); // Packet size in bytes
 
+        p2p_traffic.EnablePcap(dir, tcp_devices.Get(i)->GetId(), 1);
+
         tcp_apps.push_back(tcp_source.Install(tcp_devices.Get(i)));
         tcp_apps.back().Start(Seconds(0.0));
         tcp_apps.back().Stop(Seconds(20.0));
@@ -337,8 +340,8 @@ int main(int argc, char* argv[])
     udp_sink_app.Start(Seconds(0.0));
     udp_sink_app.Stop(Seconds(20.0));
 
-    p2p_traffic.EnablePcapAll(dir);
-    p2p_congestion.EnablePcapAll(dir);
+    // p2p_traffic.EnablePcapAll(dir);
+    // p2p_congestion.EnablePcapAll(dir);
 
     Simulator::Run();
     Simulator::Destroy();
