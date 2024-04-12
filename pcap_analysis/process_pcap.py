@@ -67,17 +67,17 @@ def flow_completion_time(packets):
 #
 #     plt.savefig("../pcap_analysis/plots/completion_time-timestamp.png")
 
-def get_avg_fc_time(source_directory):
-    
+def get_avg_fc_time(source_directory, senders=1):
     seeds = os.listdir(source_directory)
     fc_time = 0.0
     for seed in seeds:
-        sd = f"{source_directory}/{seed}/-TrafficSender0-1.pcap"
-        result = flow_completion_time(read_pcap(sd))
-        assert result is not None, "Unable to read from directory"
-        fc_time += result
-    print(source_directory, fc_time / len(seeds))
-    return fc_time / len(seeds)
+        for i in range(senders):
+            sd = f"{source_directory}/{seed}/{senders}/-TrafficSender{i}-1.pcap"
+            result = flow_completion_time(read_pcap(sd))
+            assert result is not None, "Unable to read from directory"
+            fc_time += result
+    print(senders, source_directory, fc_time / (len(seeds) * senders))
+    return fc_time / (len(seeds) * senders)
 
 def record_result(source_directory, variable, queue_size, scenario, results):
     fc_time = get_avg_fc_time(f"{source_directory}{variable}/{queue_size}/{scenario}")
@@ -96,32 +96,36 @@ cases = ["no-udp", "udp"]
 
 def record_flow_completion_time(source_directory, result_directory, mode):
     variables = os.listdir(source_directory)
-    results = {case: generate_variable_dict(variables) for case in cases}
+    results = {i: {case: generate_variable_dict(variables) for case in cases} for i in (1, 3)}
+    
 
-    for variable in variables:
-        if os.path.isdir(os.path.join(source_directory, variable)):
-            queue_sizes = os.listdir(source_directory + variable)
-            for case in cases:
-                for queue_size in queue_sizes:
-                    if os.path.isdir(os.path.join(source_directory + variable + "/" + queue_size)) and queue_size != '99':
-                        if case == "udp":
-                            results[case][variable][queue_size] = get_avg_fc_time(f"{source_directory}{variable}/{queue_size}/frr") 
-                        else:
-                            results[case][variable][queue_size] = get_avg_fc_time(f"{source_directory}{variable}/{queue_size}/frr-{case}")
-                results[case][variable]['base'] = get_avg_fc_time(f"{source_directory}{variable}/20/baseline-{case}")
-        
+    for senders in (1, 3):
+        for variable in variables:
+            if os.path.isdir(os.path.join(source_directory, variable)):
+                queue_sizes = os.listdir(source_directory + variable)
+                for case in cases:
+                    for queue_size in queue_sizes:
+                        if os.path.isdir(os.path.join(source_directory + variable + "/" + queue_size)) and queue_size != '99':
+                            if case == "udp":
+                                results[senders][case][variable][queue_size] = get_avg_fc_time(f"{source_directory}{variable}/{queue_size}/frr", senders) 
+                            else:
+                                results[senders][case][variable][queue_size] = get_avg_fc_time(f"{source_directory}{variable}/{queue_size}/frr-{case}", senders)
+                    results[senders][case][variable]['base'] = get_avg_fc_time(f"{source_directory}{variable}/20/baseline-{case}", senders)
+
+            
         filepath = os.path.join(result_directory, f"{mode}.txt")
         with open(filepath, 'w') as f:
-            for case, variables in results.items():
-                for variable, queue_sizes in variables.items():
-                    for queue_size, result in queue_sizes.items():
-                        f.write(f"{case} {variable} {queue_size} {result}\n")
+            for senders, case_results in results.items():
+                for case, variables in case_results.items():
+                    for variable, queue_sizes in variables.items():
+                        for queue_size, result in queue_sizes.items():
+                            f.write(f"senders={senders} {case} {variable} {queue_size} {result}\n")
 
     return results
 
-def get_scaling_results(results, case, queue_size): 
+def get_scaling_results(results, case, queue_size, senders): 
     output = {}
-    for variable, queue_sizes in results[case].items():
+    for variable, queue_sizes in results[senders][case].items():
         output[variable] = queue_sizes[queue_size] 
     return output
 
@@ -133,15 +137,15 @@ def extract_integer(string):
             return float(string[:i])
     return None
 
-def plot_flow_comp_time(results, case, mode):
-    plt.figure(figsize=(12, 6))  # Increase the width to 12 inches and height to 6 inches
+def plot_flow_comp_time(results, case, mode, senders):
+    plt.figure(figsize=(18, 6))  # Increase the width to 12 inches and height to 6 inches
 
     for queue_size in queue_sizes:
-        output = get_scaling_results(results, case, queue_size)
+        output = get_scaling_results(results, case, queue_size, senders)
         
         best_fit = False
 
-        scaling_var = sorted(list(output.keys()))
+        scaling_var = sorted(list(output.keys()), key=extract_integer)
         scaling_results = [float(output[var]) for var in scaling_var]
         
         if best_fit:
@@ -158,7 +162,7 @@ def plot_flow_comp_time(results, case, mode):
     plt.xlabel(mode)
     plt.legend()
 
-    plt.savefig(f"../pcap_analysis/plots/{mode}-{case}.png", dpi=300)
+    plt.savefig(f"../pcap_analysis/plots/{mode}-{case}-senders{senders}.png", dpi=300)
     plt.clf()
 
 
@@ -241,10 +245,12 @@ if __name__ == '__main__':
     os.makedirs("../pcap_analysis/results", exist_ok=True)
     os.makedirs("../pcap_analysis/plots", exist_ok=True)
 
-    bandwidth_primary_results = record_flow_completion_time("../traces/bandwidth_primary/",
-                                                            "../pcap_analysis/results", "bandwidth_primary")
-    plot_flow_comp_time(bandwidth_primary_results, "udp", "bandwidth_primary")
-    plot_flow_comp_time(bandwidth_primary_results, "no-udp", "bandwidth_primary")
+    #bandwidth_primary_results = record_flow_completion_time("../traces/bandwidth_primary/",
+    #                                                        "../pcap_analysis/results", "bandwidth_primary")
+    #plot_flow_comp_time(bandwidth_primary_results, "udp", "bandwidth_primary", 1)
+    #plot_flow_comp_time(bandwidth_primary_results, "udp", "bandwidth_primary", 3)
+    #plot_flow_comp_time(bandwidth_primary_results, "no-udp", "bandwidth_primary", 1)
+    #plot_flow_comp_time(bandwidth_primary_results, "no-udp", "bandwidth_primary", 3)
 
     #plot_flow_completion_time(bandwidth_primary_results, "bandwidth_primary", ['baseline_no_udp', 'frr_no_udp'])
     # no udp
@@ -253,8 +259,10 @@ if __name__ == '__main__':
 
     #bandwidth_alternate_results = record_flow_completion_time("../traces/bandwidth_alternate/",
     #                                                          "../pcap_analysis/results", "bandwidth_alternate")
-    #plot_flow_comp_time(bandwidth_alternate_results, "udp", "bandwidth_alternate")
-    #plot_flow_comp_time(bandwidth_alternate_results, "no-udp", "bandwidth_alternate")
+    #plot_flow_comp_time(bandwidth_alternate_results, "udp", "bandwidth_alternate", 1)
+    #plot_flow_comp_time(bandwidth_alternate_results, "udp", "bandwidth_alternate", 3)
+    #plot_flow_comp_time(bandwidth_alternate_results, "no-udp", "bandwidth_alternate", 1)
+    #plot_flow_comp_time(bandwidth_alternate_results, "no-udp", "bandwidth_alternate", 3)
     #plot_flow_completion_time(bandwidth_alternate_results, "bandwidth_alternate", ['baseline_no_udp', 'frr_no_udp'])
     #plot_flow_completion_time(bandwidth_alternate_results, "bandwidth_alternate", ['baseline_udp', 'frr'])
 
@@ -263,11 +271,19 @@ if __name__ == '__main__':
     #plot_flow_completion_time(delay_all_results, "delay_all", ['baseline_no_udp', 'frr_no_udp'])
     #plot_flow_completion_time(delay_all_results, "delay_all", ['baseline_udp', 'frr'])
 
-    #delay_primary_results = record_flow_completion_time("../traces/delay_primary/",
-#                                                        "../pcap_analysis/results", "delay_primary")
-    #plot_flow_completion_time(delay_primary_results, "delay_primary", ['baseline_no_udp', 'frr_no_udp'])
-    #plot_flow_completion_time(delay_primary_results, "delay_primary", ['baseline_udp', 'frr'])
+    delay_primary_results = record_flow_completion_time("../traces/delay_primary/",
+                                                        "../pcap_analysis/results", "delay_primary")
+    plot_flow_comp_time(delay_primary_results, "udp", "delay_primary", 1)
+    plot_flow_comp_time(delay_primary_results, "udp", "delay_primary", 3)
+    plot_flow_comp_time(delay_primary_results, "no-udp", "delay_primary", 1)
+    plot_flow_comp_time(delay_primary_results, "no-udp", "delay_primary", 3)
 
+    delay_alternate_results = record_flow_completion_time("../traces/delay_alternate/",
+                                                        "../pcap_analysis/results", "delay_alternate")
+    plot_flow_comp_time(delay_alternate_results, "udp", "delay_alternate", 1)
+    plot_flow_comp_time(delay_alternate_results, "udp", "delay_alternate", 3)
+    plot_flow_comp_time(delay_alternate_results, "no-udp", "delay_alternate", 1)
+    plot_flow_comp_time(delay_alternate_results, "no-udp", "delay_alternate", 3)
     #delay_alternate_results = record_flow_completion_time("../traces/delay_alternate/",
 #                                                          "../pcap_analysis/results", "delay_alternate")
     #plot_flow_completion_time(delay_alternate_results, "delay_alternate", ['baseline_no_udp', 'frr_no_udp'])
